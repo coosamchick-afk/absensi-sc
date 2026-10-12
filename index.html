@@ -142,14 +142,13 @@
   </div>
 
   <script>
-    // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxuyt-Hwc2e9r_usRwH8uRowfHn_KhzfUHzvOyUwVVSqGqfXd4Yt7XklnVbEARpKH8/exec";
+    // TEMPELKAN URL WEB APP (/exec) BARU ANDA DI SINI:
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz0_VD3CjQh0wJ418r2WloIvUzBOKXa-IGP9iXzxpwTh49bcGW03h-h26b6gn1IqThH/exec";
 
     let currentUser = null;
     let currentPos = { lat: null, lng: null, distance: null };
     let videoStream = null;
 
-    // Update Jam Real-time
     setInterval(() => {
       const now = new Date();
       document.getElementById("liveClock").textContent = now.toLocaleTimeString("id-ID", { hour12: false });
@@ -158,7 +157,6 @@
       });
     }, 1000);
 
-    // Cek Sesi Tersimpan
     window.addEventListener("DOMContentLoaded", () => {
       const saved = localStorage.getItem("absensi_user");
       if (saved) {
@@ -167,7 +165,28 @@
       }
     });
 
-    // Proses Login
+    // Fungsi terpusat untuk memanggil Google Apps Script bebas blokir CORS
+    async function callGAS(payload) {
+      if (!GAS_URL.startsWith("https://script.google.com/macros/s/")) {
+        throw new Error("URL GAS belum diisi dengan benar di index.html");
+      }
+
+      const response = await fetch(GAS_URL, {
+        method: "POST",
+        redirect: "follow",
+        // Mengirim string secara langsung tanpa header custom agar aman dari preflight CORS
+        body: JSON.stringify(payload)
+      });
+
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error("Respon mentah dari GAS:", text);
+        throw new Error("GAS mengembalikan halaman HTML, pastikan 'Who has access' diatur ke 'Anyone' pada New Deployment.");
+      }
+    }
+
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnLogin");
@@ -178,13 +197,7 @@
       btn.innerHTML = `<span class="animate-pulse">Memverifikasi...</span>`;
 
       try {
-        const res = await fetch(GAS_URL, {
-          method: "POST",
-          redirect: "follow",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "login", username, password })
-         });
-        const result = await res.json();
+        const result = await callGAS({ action: "login", username, password });
 
         if (result.status === "success") {
           currentUser = result.user;
@@ -195,7 +208,7 @@
           showToast(result.message || "Gagal masuk.", "error");
         }
       } catch (err) {
-        showToast("Gagal terhubung ke server GAS.", "error");
+        showToast(err.message || "Gagal terhubung ke server GAS.", "error");
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<span>Masuk ke Portal</span>`;
@@ -214,7 +227,6 @@
       refreshLocation();
     }
 
-    // Aktifkan Kamera Depan
     async function initCamera() {
       try {
         videoStream = await navigator.mediaDevices.getUserMedia({
@@ -223,11 +235,10 @@
         });
         document.getElementById("cameraStream").srcObject = videoStream;
       } catch (err) {
-        showToast("Izin kamera ditolak. Wajib mengaktifkan kamera untuk selfie.", "error");
+        showToast("Izin kamera ditolak. Aktifkan izin kamera di browser.", "error");
       }
     }
 
-    // Ambil Lokasi GPS & Hitung Radius 50m
     function refreshLocation() {
       const badge = document.getElementById("statusBadge");
       badge.className = "inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-400 mt-0.5";
@@ -270,7 +281,6 @@
       );
     }
 
-    // Tangkap Foto Selfie + Watermark dan Kirim ke GAS
     async function submitAttendance(tipe) {
       const video = document.getElementById("cameraStream");
       const canvas = document.getElementById("captureCanvas");
@@ -286,13 +296,11 @@
       canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext("2d");
 
-      // Mirror gambar sesuai tampilan kamera depan
       ctx.save();
       ctx.scale(-1, 1);
       ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
       ctx.restore();
 
-      // Tambahkan Watermark Timestamp & Lokasi di bawah foto
       ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
       ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
       ctx.fillStyle = "#ffffff";
@@ -312,22 +320,16 @@
       showToast(`Mengirim data Absen ${tipe}...`, "info");
 
       try {
-        const res = await fetch(GAS_URL, {
-          method: "POST",
-          redirect: "follow",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            action: "submitAbsen",
-            idKaryawan: currentUser.idKaryawan,
-            nama: currentUser.nama,
-            idOutlet: currentUser.outlet.idOutlet,
-            tipe: tipe,
-            lat: currentPos.lat,
-            lng: currentPos.lng,
-            image: base64Image
-          })
+        const result = await callGAS({
+          action: "submitAbsen",
+          idKaryawan: currentUser.idKaryawan,
+          nama: currentUser.nama,
+          idOutlet: currentUser.outlet.idOutlet,
+          tipe: tipe,
+          lat: currentPos.lat,
+          lng: currentPos.lng,
+          image: base64Image
         });
-        const result = await res.json();
 
         if (result.status === "success") {
           showToast(result.message, "success");
@@ -335,7 +337,7 @@
           showToast(result.message, "error");
         }
       } catch (err) {
-        showToast("Terjadi kesalahan jaringan saat mengirim absensi.", "error");
+        showToast(err.message || "Terjadi kesalahan jaringan saat mengirim absensi.", "error");
       } finally {
         refreshLocation();
       }
@@ -368,7 +370,7 @@
           ? "bg-rose-600 text-white"
           : "bg-indigo-600 text-white"
       }`;
-      setTimeout(() => toast.classList.add("hidden"), 4000);
+      setTimeout(() => toast.classList.add("hidden"), 5000);
     }
   </script>
 </body>
