@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise Attendance Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top left, #0f172a, #1e293b, #090d16);
+      min-height: 100vh;
+      color: #f8fafc;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .fade-enter {
+      animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .pulse-ring {
+      animation: pulseRing 2s infinite;
+    }
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+      70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+  <!-- CONTAINER UTAMA -->
+  <div class="w-full max-w-md">
+
+    <!-- VIEW 1: LOGIN SCREEN -->
+    <div id="loginView" class="glass-card rounded-3xl p-8 shadow-2xl fade-enter">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white">WorkForce Presensi</h1>
+          <p class="text-xs text-slate-400">Sistem Kehadiran Geotagging Outlet</p>
+        </div>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">Username Karyawan</label>
+          <input type="text" id="username" required placeholder="Masukkan username"
+            class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">Password</label>
+          <input type="password" id="password" required placeholder="••••••••"
+            class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+        </div>
+        <button type="submit" id="btnLogin"
+          class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2">
+          <span>Masuk ke Portal</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- VIEW 2: DASHBOARD ABSENSI -->
+    <div id="appView" class="hidden glass-card rounded-3xl p-6 shadow-2xl space-y-5 fade-enter">
+      <!-- Top Header -->
+      <div class="flex items-center justify-between border-b border-slate-700/60 pb-4">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-indigo-400 font-semibold" id="userJabatan">STAFF</span>
+          <h2 class="text-lg font-bold text-white" id="userNama">Nama Karyawan</h2>
+          <p class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span id="userOutlet">Nama Outlet</span>
+          </p>
+        </div>
+        <button onclick="logout()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 transition" title="Keluar">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Jam Real-time & Status Radius -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3.5">
+          <p class="text-[11px] text-slate-400">Waktu Server</p>
+          <p id="liveClock" class="text-xl font-bold text-white tracking-tight mt-0.5">00:00:00</p>
+          <p id="liveDate" class="text-[11px] text-slate-400 mt-0.5">-</p>
+        </div>
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-3.5 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <p class="text-[11px] text-slate-400">Jarak ke Outlet</p>
+            <button onclick="refreshLocation()" class="text-[11px] text-indigo-400 hover:underline">Refresh</button>
+          </div>
+          <p id="jarakText" class="text-xl font-bold text-white mt-0.5">Menghitung...</p>
+          <div id="statusBadge" class="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-400 mt-0.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span> Mencari GPS...
+          </div>
+        </div>
+      </div>
+
+      <!-- Kamera Selfie Viewfinder -->
+      <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 aspect-[4/3] shadow-inner">
+        <video id="cameraStream" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
+        <canvas id="captureCanvas" class="hidden"></canvas>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3 flex items-center justify-between text-[11px] text-slate-300">
+          <span id="coordOverlay">Lat: -, Lng: -</span>
+          <span class="px-2 py-0.5 rounded-full bg-white/10 backdrop-blur text-white">Maks. Radius 50m</span>
+        </div>
+      </div>
+
+      <!-- Tombol Aksi Absen -->
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <button id="btnMasuk" onclick="submitAttendance('Masuk')" disabled
+          class="py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed font-semibold text-sm text-white shadow-lg shadow-emerald-600/20 transition-all">
+          Absen Masuk
+        </button>
+        <button id="btnPulang" onclick="submitAttendance('Pulang')" disabled
+          class="py-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed font-semibold text-sm text-white shadow-lg shadow-amber-600/20 transition-all">
+          Absen Pulang
+        </button>
+      </div>
+    </div>
+
+    <!-- NOTIFIKASI TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 left-5 max-w-md mx-auto hidden rounded-2xl p-4 text-sm font-medium shadow-2xl transition-all z-50"></div>
+  </div>
+
+  <script>
+    // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxuyt-Hwc2e9r_usRwH8uRowfHn_KhzfUHzvOyUwVVSqGqfXd4Yt7XklnVbEARpKH8/exec";
+
+    let currentUser = null;
+    let currentPos = { lat: null, lng: null, distance: null };
+    let videoStream = null;
+
+    // Update Jam Real-time
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById("liveClock").textContent = now.toLocaleTimeString("id-ID", { hour12: false });
+      document.getElementById("liveDate").textContent = now.toLocaleDateString("id-ID", {
+        weekday: "long", day: "numeric", month: "short", year: "numeric"
+      });
+    }, 1000);
+
+    // Cek Sesi Tersimpan
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("absensi_user");
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        showDashboard();
+      }
+    });
+
+    // Proses Login
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnLogin");
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-pulse">Memverifikasi...</span>`;
+
+      try {
+        const res = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "login", username, password })
+        });
+        const result = await res.json();
+
+        if (result.status === "success") {
+          currentUser = result.user;
+          localStorage.setItem("absensi_user", JSON.stringify(currentUser));
+          showToast("Login berhasil. Selamat bekerja!", "success");
+          showDashboard();
+        } else {
+          showToast(result.message || "Gagal masuk.", "error");
+        }
+      } catch (err) {
+        showToast("Gagal terhubung ke server GAS.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Masuk ke Portal</span>`;
+      }
+    });
+
+    function showDashboard() {
+      document.getElementById("loginView").classList.add("hidden");
+      document.getElementById("appView").classList.remove("hidden");
+
+      document.getElementById("userNama").textContent = currentUser.nama;
+      document.getElementById("userJabatan").textContent = currentUser.jabatan;
+      document.getElementById("userOutlet").textContent = currentUser.outlet.namaOutlet;
+
+      initCamera();
+      refreshLocation();
+    }
+
+    // Aktifkan Kamera Depan
+    async function initCamera() {
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
+        document.getElementById("cameraStream").srcObject = videoStream;
+      } catch (err) {
+        showToast("Izin kamera ditolak. Wajib mengaktifkan kamera untuk selfie.", "error");
+      }
+    }
+
+    // Ambil Lokasi GPS & Hitung Radius 50m
+    function refreshLocation() {
+      const badge = document.getElementById("statusBadge");
+      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-400 mt-0.5";
+      badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Akurasi GPS...`;
+
+      if (!navigator.geolocation) {
+        showToast("Browser tidak mendukung Geolocation.", "error");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          currentPos.lat = pos.coords.latitude;
+          currentPos.lng = pos.coords.longitude;
+
+          const outlet = currentUser.outlet;
+          const dist = hitungHaversine(currentPos.lat, currentPos.lng, outlet.lat, outlet.lng);
+          currentPos.distance = Math.round(dist);
+
+          document.getElementById("jarakText").textContent = `${currentPos.distance} meter`;
+          document.getElementById("coordOverlay").textContent =
+            `Lat: ${currentPos.lat.toFixed(5)}, Lng: ${currentPos.lng.toFixed(5)}`;
+
+          const dalamRadius = dist <= (outlet.radius || 50);
+          document.getElementById("btnMasuk").disabled = !dalamRadius;
+          document.getElementById("btnPulang").disabled = !dalamRadius;
+
+          if (dalamRadius) {
+            badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 mt-0.5";
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-ring"></span> Dalam Radius Outlet`;
+          } else {
+            badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-400 mt-0.5";
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Di Luar Radius (>50m)`;
+          }
+        },
+        (err) => {
+          showToast("Gagal mendapatkan lokasi GPS. Pastikan GPS aktif.", "error");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    // Tangkap Foto Selfie + Watermark dan Kirim ke GAS
+    async function submitAttendance(tipe) {
+      const video = document.getElementById("cameraStream");
+      const canvas = document.getElementById("captureCanvas");
+      const btnMasuk = document.getElementById("btnMasuk");
+      const btnPulang = document.getElementById("btnPulang");
+
+      if (!video.srcObject) {
+        showToast("Kamera belum aktif!", "error");
+        return;
+      }
+
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext("2d");
+
+      // Mirror gambar sesuai tampilan kamera depan
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      // Tambahkan Watermark Timestamp & Lokasi di bawah foto
+      ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+      ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 14px sans-serif";
+      ctx.fillText(`${currentUser.nama} - ${currentUser.outlet.namaOutlet} (${tipe})`, 14, canvas.height - 34);
+      ctx.font = "12px sans-serif";
+      ctx.fillText(
+        `${new Date().toLocaleString("id-ID")} | Jarak: ${currentPos.distance}m | ${currentPos.lat.toFixed(5)}, ${currentPos.lng.toFixed(5)}`,
+        14,
+        canvas.height - 14
+      );
+
+      const base64Image = canvas.toDataURL("image/jpeg", 0.8);
+
+      btnMasuk.disabled = true;
+      btnPulang.disabled = true;
+      showToast(`Mengirim data Absen ${tipe}...`, "info");
+
+      try {
+        const res = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "submitAbsen",
+            idKaryawan: currentUser.idKaryawan,
+            nama: currentUser.nama,
+            idOutlet: currentUser.outlet.idOutlet,
+            tipe: tipe,
+            lat: currentPos.lat,
+            lng: currentPos.lng,
+            image: base64Image
+          })
+        });
+        const result = await res.json();
+
+        if (result.status === "success") {
+          showToast(result.message, "success");
+        } else {
+          showToast(result.message, "error");
+        }
+      } catch (err) {
+        showToast("Terjadi kesalahan jaringan saat mengirim absensi.", "error");
+      } finally {
+        refreshLocation();
+      }
+    }
+
+    function hitungHaversine(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const toRad = (d) => (d * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function logout() {
+      localStorage.removeItem("absensi_user");
+      if (videoStream) videoStream.getTracks().forEach((t) => t.stop());
+      location.reload();
+    }
+
+    function showToast(msg, type) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = `fixed bottom-5 right-5 left-5 max-w-md mx-auto rounded-2xl p-4 text-sm font-medium shadow-2xl transition-all z-50 fade-enter ${
+        type === "success"
+          ? "bg-emerald-600 text-white"
+          : type === "error"
+          ? "bg-rose-600 text-white"
+          : "bg-indigo-600 text-white"
+      }`;
+      setTimeout(() => toast.classList.add("hidden"), 4000);
+    }
+  </script>
+</body>
+</html>
