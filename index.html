@@ -13,27 +13,13 @@
       color: #262b36;
       -webkit-tap-highlight-color: transparent;
     }
-    .bg-brand-pink {
-      background-color: #fc2b62;
-    }
-    .text-brand-pink {
-      color: #fc2b62;
-    }
-    .bg-brand-green {
-      background-color: #16b965;
-    }
-    .bg-brand-purple {
-      background-color: #5b37f3;
-    }
-    .text-brand-purple {
-      color: #5b37f3;
-    }
-    .card-shadow {
-      box-shadow: 0 8px 24px -4px rgba(149, 157, 165, 0.12);
-    }
-    .slide-up {
-      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
+    .bg-brand-pink { background-color: #fc2b62; }
+    .text-brand-pink { color: #fc2b62; }
+    .bg-brand-green { background-color: #16b965; }
+    .bg-brand-purple { background-color: #5b37f3; }
+    .text-brand-purple { color: #5b37f3; }
+    .card-shadow { box-shadow: 0 8px 24px -4px rgba(149, 157, 165, 0.12); }
+    .slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes slideUp {
       from { opacity: 0; transform: translateY(24px); }
       to { opacity: 1; transform: translateY(0); }
@@ -42,7 +28,6 @@
 </head>
 <body class="min-h-screen flex justify-center bg-slate-200">
 
-  <!-- CONTAINER MOBILE APP -->
   <div class="w-full max-w-md min-h-screen bg-[#f4f6fb] relative pb-24 overflow-x-hidden shadow-2xl">
 
     <!-- ==================== VIEW 1: LOGIN SCREEN ==================== -->
@@ -84,14 +69,12 @@
       <!-- HEADER PINK -->
       <div class="bg-brand-pink pt-5 pb-28 px-5 relative">
         <div class="flex items-center justify-between text-white">
-          <!-- Hamburger Icon -->
-          <button onclick="refreshDashboardData()" class="p-1.5 hover:bg-white/10 rounded-lg transition" title="Muat Ulang Data">
+          <button onclick="refreshDashboardData()" class="p-1.5 hover:bg-white/10 rounded-lg transition" title="Sinkronisasi Data">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
-          <!-- Logo Tengah -->
           <div class="flex items-center gap-1.5 font-bold text-lg tracking-wide">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2L2 7l10 5 10-5-10-5zm0 7.5l-6-3 6-3 6 3-6 3zm0 2.5l-10-5v2l10 5 10-5v-2l-10 5zm0 5l-10-5v2l10 5 10-5v-2l-10 5z"/>
@@ -99,7 +82,6 @@
             <span>PRESENSI</span>
           </div>
 
-          <!-- Avatar / Logout Kanan -->
           <button onclick="logout()" class="w-9 h-9 rounded-full bg-white/20 border border-white/40 flex items-center justify-center overflow-hidden" title="Keluar">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -108,26 +90,30 @@
         </div>
       </div>
 
-      <!-- KARTU PUTIH UTAMA (OVERLAP HEADER PINK) -->
+      <!-- KARTU PUTIH UTAMA -->
       <div class="px-4 -mt-20 relative z-10">
         <div class="bg-white rounded-2xl p-5 card-shadow">
-          
-          <!-- Baris Nama & Jam Kerja -->
-          <div class="flex justify-between items-start pb-5 border-b border-slate-100">
-            <div class="pr-2">
+
+          <!-- Baris Nama & Pemilihan Jam Kerja (Shift) -->
+          <div class="flex justify-between items-start gap-2 pb-5 border-b border-slate-100">
+            <div class="pr-1">
               <p id="greetingText" class="text-sm font-medium text-slate-600">Selamat Malam</p>
-              <h2 id="userNama" class="text-2xl font-bold text-slate-800 leading-snug mt-1">M. Arif Darmawan</h2>
+              <h2 id="userNama" class="text-xl font-bold text-slate-800 leading-snug mt-1">M. Arif Darmawan</h2>
               <p id="userOutlet" class="text-xs text-rose-500 font-medium mt-1">Outlet Pusat</p>
             </div>
+
             <div class="text-right shrink-0">
-              <p class="text-sm font-semibold text-slate-700">Jam Kerja</p>
-              <p class="text-sm text-slate-400 mt-1 leading-relaxed">08:00:00 -<br/>17:00:00</p>
+              <label for="shiftSelect" class="text-sm font-semibold text-slate-700 block">Jam Kerja</label>
+              <select id="shiftSelect" onchange="onShiftChange()"
+                class="mt-1 bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#fc2b62]">
+                <option value="">Memuat shift...</option>
+              </select>
+              <p id="jamKerjaDisplay" class="text-xs text-slate-400 mt-1.5 leading-relaxed">08:00:00 -<br/>17:00:00</p>
             </div>
           </div>
 
-          <!-- 5 Ikon Pintasan Berwarna -->
+          <!-- 5 Ikon Pintasan -->
           <div class="grid grid-cols-5 gap-2 pt-5 text-center">
-            <!-- 1. Absen -->
             <button onclick="openCameraModal()" class="flex flex-col items-center group">
               <div class="w-12 h-12 rounded-2xl bg-brand-pink text-white flex items-center justify-center shadow-md shadow-rose-500/20 group-active:scale-95 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -138,7 +124,6 @@
               <span class="text-xs text-slate-700 font-medium mt-2">Absen</span>
             </button>
 
-            <!-- 2. Izin -->
             <button onclick="showToast('Fitur pengajuan Izin segera hadir', 'info')" class="flex flex-col items-center group">
               <div class="w-12 h-12 rounded-2xl bg-amber-400 text-white flex items-center justify-center shadow-md shadow-amber-400/20 group-active:scale-95 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -148,7 +133,6 @@
               <span class="text-xs text-slate-700 font-medium mt-2">Izin</span>
             </button>
 
-            <!-- 3. Cuti -->
             <button onclick="showToast('Fitur pengajuan Cuti segera hadir', 'info')" class="flex flex-col items-center group">
               <div class="w-12 h-12 rounded-2xl bg-brand-purple text-white flex items-center justify-center shadow-md shadow-indigo-500/20 group-active:scale-95 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -158,7 +142,6 @@
               <span class="text-xs text-slate-700 font-medium mt-2">Cuti</span>
             </button>
 
-            <!-- 4. History -->
             <button onclick="document.getElementById('sectionRiwayat').scrollIntoView({behavior: 'smooth'})" class="flex flex-col items-center group">
               <div class="w-12 h-12 rounded-2xl bg-brand-green text-white flex items-center justify-center shadow-md shadow-emerald-500/20 group-active:scale-95 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -168,7 +151,6 @@
               <span class="text-xs text-slate-700 font-medium mt-2">History</span>
             </button>
 
-            <!-- 5. Profil -->
             <button onclick="showProfileInfo()" class="flex flex-col items-center group">
               <div class="w-12 h-12 rounded-2xl bg-amber-400 text-white flex items-center justify-center shadow-md shadow-amber-400/20 group-active:scale-95 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -184,17 +166,31 @@
 
       <!-- DUA KARTU ABSEN MASUK & ABSEN PULANG -->
       <div class="px-4 mt-4 grid grid-cols-2 gap-3.5">
-        <!-- Kartu Absen Masuk -->
-        <button onclick="openCameraModal('Masuk')" class="bg-brand-pink text-left rounded-2xl p-4 text-white shadow-md shadow-rose-500/20 active:scale-[0.98] transition">
-          <p class="text-xs font-medium opacity-90">Absen Masuk</p>
+        <button id="cardMasuk" onclick="openCameraModal('Masuk')"
+          class="bg-brand-pink text-left rounded-2xl p-4 text-white shadow-md shadow-rose-500/20 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium opacity-90">Absen Masuk</p>
+            <span id="badgeCardMasuk" class="hidden text-[10px] bg-white/20 px-2 py-0.5 rounded-full">✓ Selesai</span>
+          </div>
           <p id="valAbsenMasuk" class="text-base font-bold mt-1">Belum absen</p>
         </button>
 
-        <!-- Kartu Absen Pulang -->
-        <button onclick="openCameraModal('Pulang')" class="bg-brand-green text-left rounded-2xl p-4 text-white shadow-md shadow-emerald-500/20 active:scale-[0.98] transition">
-          <p class="text-xs font-medium opacity-90">Absen Pulang</p>
+        <button id="cardPulang" onclick="openCameraModal('Pulang')"
+          class="bg-brand-green text-left rounded-2xl p-4 text-white shadow-md shadow-emerald-500/20 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium opacity-90">Absen Pulang</p>
+            <span id="badgeCardPulang" class="hidden text-[10px] bg-white/20 px-2 py-0.5 rounded-full">✓ Selesai</span>
+          </div>
           <p id="valAbsenPulang" class="text-base font-bold mt-1">Belum absen</p>
         </button>
+      </div>
+
+      <!-- INFO KETERANGAN HARI INI (TERLAMBAT / LEMBUR) -->
+      <div id="boxKeteranganHariIni" class="px-4 mt-3 hidden">
+        <div class="bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-600 flex items-center justify-between card-shadow">
+          <span>Status Hari Ini:</span>
+          <span id="textKeteranganHariIni" class="font-semibold text-slate-800">-</span>
+        </div>
       </div>
 
       <!-- REKAP ABSENSI BULAN INI -->
@@ -202,22 +198,14 @@
         <div class="flex items-center gap-2 mb-3">
           <h3 class="text-sm font-semibold text-slate-800">Absensi Bulan</h3>
           <span id="labelBulan" class="text-sm font-semibold text-brand-purple">Oktober</span>
-          <span id="labelTahun" class="text-sm font-semibold text-brand-purple flex items-center gap-0.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-            </svg>
-            2026
-          </span>
+          <span id="labelTahun" class="text-sm font-semibold text-brand-purple flex items-center gap-0.5">2026</span>
         </div>
 
-        <!-- Grid 2x2 Statistik -->
         <div class="grid grid-cols-2 gap-3">
-          <!-- Hadir -->
           <div class="bg-white rounded-2xl p-4 card-shadow flex items-center gap-3.5">
             <div class="text-brand-purple">
               <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M10 17l5-5-5-5v10z"/>
-                <path d="M4 4h10v2H4v12h10v2H4a2 2 0 01-2-2V6a2 2 0 012-2zm16 8l-4-4v3H9v2h7v3l4-4z"/>
+                <path d="M10 17l5-5-5-5v10z"/><path d="M4 4h10v2H4v12h10v2H4a2 2 0 01-2-2V6a2 2 0 012-2zm16 8l-4-4v3H9v2h7v3l4-4z"/>
               </svg>
             </div>
             <div>
@@ -226,7 +214,6 @@
             </div>
           </div>
 
-          <!-- Izin -->
           <div class="bg-white rounded-2xl p-4 card-shadow flex items-center gap-3.5">
             <div class="text-brand-green">
               <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
@@ -239,7 +226,6 @@
             </div>
           </div>
 
-          <!-- Sakit -->
           <div class="bg-white rounded-2xl p-4 card-shadow flex items-center gap-3.5">
             <div class="text-slate-400">
               <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
@@ -252,7 +238,6 @@
             </div>
           </div>
 
-          <!-- Terlambat -->
           <div class="bg-white rounded-2xl p-4 card-shadow flex items-center gap-3.5">
             <div class="text-brand-pink">
               <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
@@ -320,7 +305,7 @@
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
             <h3 class="text-base font-bold text-slate-800">Verifikasi Selfie & Lokasi</h3>
-            <p id="modalOutletName" class="text-xs text-slate-400">Radius Maksimal 50 Meter</p>
+            <p id="modalShiftInfo" class="text-xs text-rose-500 font-semibold">Shift: -</p>
           </div>
           <button onclick="closeCameraModal()" class="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -329,7 +314,6 @@
           </button>
         </div>
 
-        <!-- Status Jarak GPS -->
         <div class="mt-3 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5">
           <div>
             <span class="text-[11px] text-slate-400 block">Jarak ke Outlet</span>
@@ -341,7 +325,6 @@
           </div>
         </div>
 
-        <!-- Live Camera Viewfinder -->
         <div class="relative rounded-2xl overflow-hidden bg-slate-900 aspect-[4/3] mt-3 shadow-inner">
           <video id="cameraStream" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
           <canvas id="captureCanvas" class="hidden"></canvas>
@@ -351,23 +334,21 @@
           </div>
         </div>
 
-        <!-- Tombol Kirim Absen -->
+        <!-- Tombol Kirim Absen (Otomatis Terkunci Jika Sudah Absen Hari Ini) -->
         <div class="grid grid-cols-2 gap-3 mt-4">
           <button id="btnMasuk" onclick="submitAttendance('Masuk')" disabled
             class="py-3.5 rounded-xl bg-brand-pink text-white font-semibold text-xs shadow-md shadow-rose-500/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none transition">
-            Kirim Absen Masuk
+            Absen Masuk
           </button>
           <button id="btnPulang" onclick="submitAttendance('Pulang')" disabled
             class="py-3.5 rounded-xl bg-brand-green text-white font-semibold text-xs shadow-md shadow-emerald-500/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none transition">
-            Kirim Absen Pulang
+            Absen Pulang
           </button>
         </div>
       </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed top-4 right-4 left-4 max-w-md mx-auto hidden rounded-xl p-3.5 text-xs font-semibold text-center shadow-xl z-50"></div>
-
   </div>
 
   <script>
@@ -375,10 +356,11 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz0_VD3CjQh0wJ418r2WloIvUzBOKXa-IGP9iXzxpwTh49bcGW03h-h26b6gn1IqThH/exec";
 
     let currentUser = null;
-    let currentPos = { lat: null, lng: null, distance: null };
+    let availableShifts = [];
+    let dashState = { sudahMasuk: false, sudahPulang: false };
+    let currentPos = { lat: null, lng: null, distance: null, inRadius: false };
     let videoStream = null;
 
-    // Update Ucapan Selamat & Jam
     function updateGreetingAndDate() {
       const now = new Date();
       const hour = now.getHours();
@@ -392,21 +374,20 @@
 
       const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       document.getElementById("labelBulan").textContent = namaBulan[now.getMonth()];
-      document.getElementById("labelTahun").innerHTML = `
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-        </svg>
-        ${now.getFullYear()}
-      `;
+      document.getElementById("labelTahun").textContent = now.getFullYear();
     }
     setInterval(updateGreetingAndDate, 1000);
 
     window.addEventListener("DOMContentLoaded", () => {
       updateGreetingAndDate();
       const savedUser = localStorage.getItem("absensi_user");
+      const savedShifts = localStorage.getItem("absensi_shifts");
       const savedDash = localStorage.getItem("absensi_dashboard");
+
+      if (savedShifts) availableShifts = JSON.parse(savedShifts);
       if (savedUser) {
         currentUser = JSON.parse(savedUser);
+        renderShiftOptions();
         showDashboard(savedDash ? JSON.parse(savedDash) : null);
         refreshDashboardData();
       }
@@ -442,10 +423,13 @@
         const result = await callGAS({ action: "login", username, password });
         if (result.status === "success") {
           currentUser = result.user;
+          availableShifts = result.shifts || [];
           localStorage.setItem("absensi_user", JSON.stringify(currentUser));
+          localStorage.setItem("absensi_shifts", JSON.stringify(availableShifts));
           if (result.dashboard) {
             localStorage.setItem("absensi_dashboard", JSON.stringify(result.dashboard));
           }
+          renderShiftOptions();
           showToast("Selamat datang, " + currentUser.nama, "success");
           showDashboard(result.dashboard);
         } else {
@@ -459,13 +443,33 @@
       }
     });
 
+    function renderShiftOptions() {
+      const sel = document.getElementById("shiftSelect");
+      if (!availableShifts || availableShifts.length === 0) {
+        availableShifts = [{ kode: "PAGI", nama: "PAGI CREW", jamMasuk: "05:30:00", jamPulang: "13:30:00" }];
+      }
+      const savedKode = localStorage.getItem("absensi_selected_shift") || availableShifts[0].kode;
+      sel.innerHTML = availableShifts.map(s =>
+        `<option value="${s.kode}" ${s.kode === savedKode ? "selected" : ""}>${s.nama}</option>`
+      ).join("");
+      onShiftChange();
+    }
+
+    function onShiftChange() {
+      const sel = document.getElementById("shiftSelect");
+      const selected = availableShifts.find(s => s.kode === sel.value) || availableShifts[0];
+      if (selected) {
+        localStorage.setItem("absensi_selected_shift", selected.kode);
+        document.getElementById("jamKerjaDisplay").innerHTML = `${selected.jamMasuk} -<br/>${selected.jamPulang}`;
+      }
+    }
+
     function showDashboard(dashData) {
       document.getElementById("loginView").classList.add("hidden");
       document.getElementById("appView").classList.remove("hidden");
 
       document.getElementById("userNama").textContent = currentUser.nama;
       document.getElementById("userOutlet").textContent = `${currentUser.jabatan} • ${currentUser.outlet.namaOutlet}`;
-      document.getElementById("modalOutletName").textContent = `${currentUser.outlet.namaOutlet} (Radius ${currentUser.outlet.radius || 50}m)`;
 
       if (dashData) renderDashboardStats(dashData);
     }
@@ -474,18 +478,47 @@
       if (!currentUser) return;
       try {
         const res = await callGAS({ action: "getDashboard", idKaryawan: currentUser.idKaryawan });
-        if (res.status === "success" && res.dashboard) {
-          localStorage.setItem("absensi_dashboard", JSON.stringify(res.dashboard));
-          renderDashboardStats(res.dashboard);
+        if (res.status === "success") {
+          if (res.shifts) {
+            availableShifts = res.shifts;
+            localStorage.setItem("absensi_shifts", JSON.stringify(availableShifts));
+            renderShiftOptions();
+          }
+          if (res.dashboard) {
+            localStorage.setItem("absensi_dashboard", JSON.stringify(res.dashboard));
+            renderDashboardStats(res.dashboard);
+          }
         }
       } catch (e) {
-        console.warn("Gagal sinkronisasi latar belakang:", e);
+        console.warn("Gagal sinkronisasi:", e);
       }
     }
 
     function renderDashboardStats(d) {
+      dashState.sudahMasuk = Boolean(d.sudahMasuk);
+      dashState.sudahPulang = Boolean(d.sudahPulang);
+
       document.getElementById("valAbsenMasuk").textContent = d.jamMasuk || "Belum absen";
       document.getElementById("valAbsenPulang").textContent = d.jamPulang || "Belum absen";
+
+      // Kunci kartu & dropdown shift jika sudah absen hari ini
+      document.getElementById("cardMasuk").disabled = dashState.sudahMasuk;
+      document.getElementById("cardPulang").disabled = dashState.sudahPulang;
+      document.getElementById("badgeCardMasuk").classList.toggle("hidden", !dashState.sudahMasuk);
+      document.getElementById("badgeCardPulang").classList.toggle("hidden", !dashState.sudahPulang);
+      document.getElementById("shiftSelect").disabled = dashState.sudahMasuk;
+
+      if (d.shiftHariIni) {
+        document.getElementById("jamKerjaDisplay").innerHTML = `${d.shiftHariIni.jamMasuk} -<br/>${d.shiftHariIni.jamPulang}`;
+      }
+
+      const boxKet = document.getElementById("boxKeteranganHariIni");
+      if (d.keteranganHariIni) {
+        boxKet.classList.remove("hidden");
+        document.getElementById("textKeteranganHariIni").textContent = d.keteranganHariIni;
+      } else {
+        boxKet.classList.add("hidden");
+      }
 
       document.getElementById("statHadir").textContent = `${d.hadir || 0} Hari`;
       document.getElementById("statIzin").textContent = `${d.izin || 0} Hari`;
@@ -504,13 +537,62 @@
       } else {
         container.innerHTML = `<div class="px-4 py-3.5 text-center text-white/80">Belum ada riwayat minggu ini</div>`;
       }
+
+      updateModalButtonsState();
     }
 
-    // Buka Modal Kamera & Cek GPS
-    async function openCameraModal() {
+    function updateModalButtonsState() {
+      const btnMasuk = document.getElementById("btnMasuk");
+      const btnPulang = document.getElementById("btnPulang");
+
+      if (dashState.sudahMasuk) {
+        btnMasuk.disabled = true;
+        btnMasuk.textContent = "Sudah Absen Masuk";
+      } else {
+        btnMasuk.disabled = !currentPos.inRadius;
+        btnMasuk.textContent = "Kirim Absen Masuk";
+      }
+
+      if (dashState.sudahPulang) {
+        btnPulang.disabled = true;
+        btnPulang.textContent = "Sudah Absen Pulang";
+      } else if (!dashState.sudahMasuk) {
+        btnPulang.disabled = true;
+        btnPulang.textContent = "Belum Absen Masuk";
+      } else {
+        btnPulang.disabled = !currentPos.inRadius;
+        btnPulang.textContent = "Kirim Absen Pulang";
+      }
+    }
+
+    async function openCameraModal(tipeTarget) {
+      if (tipeTarget === "Masuk" && dashState.sudahMasuk) {
+        showToast("Anda sudah melakukan Absen Masuk hari ini.", "info");
+        return;
+      }
+      if (tipeTarget === "Pulang" && dashState.sudahPulang) {
+        showToast("Anda sudah melakukan Absen Pulang hari ini.", "info");
+        return;
+      }
+      if (tipeTarget === "Pulang" && !dashState.sudahMasuk) {
+        showToast("Silakan lakukan Absen Masuk terlebih dahulu.", "error");
+        return;
+      }
+      if (dashState.sudahMasuk && dashState.sudahPulang) {
+        showToast("Absensi Masuk & Pulang hari ini sudah lengkap. Reset kembali besok.", "info");
+        return;
+      }
+
+      const sel = document.getElementById("shiftSelect");
+      const shift = availableShifts.find(s => s.kode === sel.value) || availableShifts[0];
+      document.getElementById("modalShiftInfo").textContent =
+        `Shift: ${shift.nama} (${shift.jamMasuk} - ${shift.jamPulang})`;
+
       const modal = document.getElementById("cameraModal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
+
+      updateModalButtonsState();
 
       try {
         videoStream = await navigator.mediaDevices.getUserMedia({
@@ -553,25 +635,26 @@
           const outlet = currentUser.outlet;
           const dist = hitungHaversine(currentPos.lat, currentPos.lng, outlet.lat, outlet.lng);
           currentPos.distance = Math.round(dist);
+          currentPos.inRadius = dist <= (outlet.radius || 50);
 
           document.getElementById("jarakText").textContent = `${currentPos.distance} Meter`;
           document.getElementById("coordOverlay").textContent = `${currentPos.lat.toFixed(5)}, ${currentPos.lng.toFixed(5)}`;
 
-          const dalamRadius = dist <= (outlet.radius || 50);
-          document.getElementById("btnMasuk").disabled = !dalamRadius;
-          document.getElementById("btnPulang").disabled = !dalamRadius;
-
-          if (dalamRadius) {
+          if (currentPos.inRadius) {
             badge.className = "text-[11px] font-semibold text-emerald-600";
             badge.textContent = "✓ Dalam Radius Outlet";
           } else {
             badge.className = "text-[11px] font-semibold text-rose-600";
             badge.textContent = "✕ Di Luar Radius (>50m)";
           }
+
+          updateModalButtonsState();
         },
         () => {
+          currentPos.inRadius = false;
           badge.className = "text-[11px] font-semibold text-rose-600";
           badge.textContent = "GPS tidak aktif";
+          updateModalButtonsState();
           showToast("Pastikan lokasi/GPS HP Anda aktif", "error");
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -589,6 +672,9 @@
         return;
       }
 
+      const sel = document.getElementById("shiftSelect");
+      const shift = availableShifts.find(s => s.kode === sel.value) || availableShifts[0];
+
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext("2d");
@@ -602,7 +688,7 @@
       ctx.fillRect(0, canvas.height - 56, canvas.width, 56);
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 13px sans-serif";
-      ctx.fillText(`${currentUser.nama} - ${currentUser.outlet.namaOutlet} (${tipe})`, 12, canvas.height - 32);
+      ctx.fillText(`${currentUser.nama} - ${shift.nama} (${tipe})`, 12, canvas.height - 32);
       ctx.font = "11px sans-serif";
       ctx.fillText(`${new Date().toLocaleString("id-ID")} | ${currentPos.distance}m | ${currentPos.lat.toFixed(5)}, ${currentPos.lng.toFixed(5)}`, 12, canvas.height - 14);
 
@@ -619,6 +705,8 @@
           nama: currentUser.nama,
           idOutlet: currentUser.outlet.idOutlet,
           tipe: tipe,
+          kodeShift: shift.kode,
+          namaShift: shift.nama,
           lat: currentPos.lat,
           lng: currentPos.lng,
           image: base64Image
@@ -629,20 +717,15 @@
           if (result.dashboard) {
             localStorage.setItem("absensi_dashboard", JSON.stringify(result.dashboard));
             renderDashboardStats(result.dashboard);
-          } else {
-            // Update lokal instan jika GAS belum di-deploy ulang
-            const nowTime = new Date().toLocaleTimeString("id-ID", { hour12: false });
-            if (tipe === "Masuk") document.getElementById("valAbsenMasuk").textContent = nowTime;
-            if (tipe === "Pulang") document.getElementById("valAbsenPulang").textContent = nowTime;
           }
           closeCameraModal();
         } else {
           showToast(result.message, "error");
-          refreshLocation();
+          updateModalButtonsState();
         }
       } catch (err) {
         showToast(err.message || "Gagal mengirim absensi", "error");
-        refreshLocation();
+        updateModalButtonsState();
       }
     }
 
@@ -674,7 +757,7 @@
         type === "success" ? "bg-emerald-600 text-white" :
         type === "error" ? "bg-rose-600 text-white" : "bg-slate-800 text-white"
       }`;
-      setTimeout(() => toast.classList.add("hidden"), 4000);
+      setTimeout(() => toast.classList.add("hidden"), 4500);
     }
   </script>
 </body>
