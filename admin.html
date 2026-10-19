@@ -169,7 +169,7 @@
                 <div>Search: <input type="text" class="border rounded p-1 ml-1 focus:outline-admin-green"></div>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
+                <table class="w-full text-sm text-left whitespace-nowrap">
                   <thead class="text-slate-700 border-y border-slate-200 bg-slate-50">
                     <tr>
                       <th class="py-3 px-3 font-bold">No</th>
@@ -190,13 +190,13 @@
           </div>
         </div>
 
-        <!-- SECTION 3: TAMBAH DATA PEGAWAI -->
         <!-- SECTION 3: TAMBAH / EDIT DATA PEGAWAI -->
         <div id="section-tambah-pegawai" class="content-section hidden fade-in">
           <div class="flex justify-between items-center mb-4">
             <h2 id="titleFormPegawai" class="text-2xl text-slate-700">Tambah Data Pegawai</h2>
           </div>
 
+          <!-- LAYOUT FORM DIRAPIKAN AGAR TIDAK MENUMPUK -->
           <div class="bg-white rounded shadow border-t-[3px] border-admin-green p-6 max-w-3xl">
             <form id="formTambahPegawai" class="space-y-5">
               <!-- Input tersembunyi untuk menyimpan ID lama saat proses EDIT -->
@@ -204,33 +204,33 @@
               
               <div class="flex flex-col gap-1.5">
                 <label class="font-bold text-sm text-slate-700">ID Karyawan</label>
-                <input type="text" id="pegId" required placeholder="Contoh: EMP02" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+                <input type="text" id="pegId" required placeholder="Contoh: EMP02" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
               </div>
               
               <div class="flex flex-col gap-1.5">
                 <label class="font-bold text-sm text-slate-700">Nama Lengkap</label>
-                <input type="text" id="pegNama" required placeholder="Nama Lengkap Karyawan" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+                <input type="text" id="pegNama" required placeholder="Nama Lengkap Karyawan" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="flex flex-col gap-1.5">
                   <label class="font-bold text-sm text-slate-700">Username (Login)</label>
-                  <input type="text" id="pegUser" required placeholder="Username" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+                  <input type="text" id="pegUser" required placeholder="Username" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
                 </div>
                 <div class="flex flex-col gap-1.5">
                   <label class="font-bold text-sm text-slate-700">Password (Login)</label>
-                  <input type="text" id="pegPass" required placeholder="Password" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+                  <input type="text" id="pegPass" required placeholder="Password" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
                 </div>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="flex flex-col gap-1.5">
                   <label class="font-bold text-sm text-slate-700">Jabatan</label>
-                  <select id="pegJabatan" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50"></select>
+                  <select id="pegJabatan" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full"></select>
                 </div>
                 <div class="flex flex-col gap-1.5">
                   <label class="font-bold text-sm text-slate-700">Penempatan Outlet</label>
-                  <select id="pegOutlet" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50"></select>
+                  <select id="pegOutlet" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full"></select>
                 </div>
               </div>
               
@@ -242,8 +242,12 @@
           </div>
         </div>
 
+      </main>
+    </div>
+  </div>
+
   <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
- <div id="modalImport" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
+  <div id="modalImport" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden relative">
       <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
         <h3 class="text-lg font-medium text-slate-700">Import Data Pegawai</h3>
@@ -265,9 +269,9 @@
     </div>
   </div>
 
-  <!-- SCRIPT LOGIC -->
+  <!-- ==================== SCRIPT LOGIC ==================== -->
   <script>
-    // TEMPELKAN URL WEB APP GAS ANDA DI SINI
+    // TEMPELKAN URL WEB APP GAS ANDA DI SINI (CONTOH)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz0_VD3CjQh0wJ418r2WloIvUzBOKXa-IGP9iXzxpwTh49bcGW03h-h26b6gn1IqThH/exec";
     
     window.addEventListener("DOMContentLoaded", () => {
@@ -278,11 +282,11 @@
         document.getElementById("adminNameDisplay").innerHTML = `${adminData.nama} ▼`;
         document.getElementById("loginView").classList.add("hidden");
         document.getElementById("dashboardWrapper").classList.remove("hidden");
-        loadAdminData(); // Fungsi load data dari GAS
+        loadAdminData();
       }
     });
 
-    // Toggle Sidebar (Menyembunyikan/Menampilkan Sidebar)
+    // Toggle Sidebar
     function toggleSidebar() {
       const sidebar = document.getElementById('adminSidebar');
       const mainContent = document.getElementById('mainContent');
@@ -291,13 +295,11 @@
       sidebar.classList.toggle('-translate-x-full');
       
       if (sidebar.classList.contains('-translate-x-full')) {
-        // Sidebar disembunyikan
         mainContent.classList.remove('ml-56');
         mainContent.classList.add('ml-0');
         logo.classList.remove('w-48');
         logo.classList.add('w-0', 'overflow-hidden', 'opacity-0');
       } else {
-        // Sidebar ditampilkan
         mainContent.classList.remove('ml-0');
         mainContent.classList.add('ml-56');
         logo.classList.remove('w-0', 'overflow-hidden', 'opacity-0');
@@ -305,7 +307,7 @@
       }
     }
 
-    // Toggle Submenu (Dropdown Master Data)
+    // Toggle Submenu Master Data
     function toggleSubmenu(id) {
       const el = document.getElementById(id);
       const icon = document.getElementById('icon-' + id);
@@ -318,17 +320,14 @@
       }
     }
 
-    // Navigasi Antar Halaman di Back Office
+    // Navigasi Section di Back Office
     function showSection(sectionId) {
-      // Sembunyikan semua section
       const sections = document.querySelectorAll('.content-section');
       sections.forEach(sec => sec.classList.add('hidden'));
-      
-      // Tampilkan section yang dituju
       document.getElementById(sectionId).classList.remove('hidden');
     }
 
-    // Modal Handle
+    // Toggle Modal Import
     function toggleModal(id) {
       const modal = document.getElementById(id);
       if (modal.classList.contains('hidden')) {
@@ -340,12 +339,13 @@
       }
     }
 
-    // Fungsi Login API ke GAS
+    // Panggilan API ke Google Apps Script
     async function callGAS(payload) {
       const res = await fetch(GAS_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
       return JSON.parse(await res.text());
     }
 
+    // Fungsi Login
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnLogin"); btn.textContent = "Loading..."; btn.disabled = true;
@@ -357,39 +357,33 @@
           document.getElementById("loginView").classList.add("hidden");
           document.getElementById("dashboardWrapper").classList.remove("hidden");
           loadAdminData();
-        } else { alert(res.message); }
-      } catch (err) { alert("Gagal terhubung ke server"); } 
+        } else { Swal.fire("Gagal", res.message, "error"); }
+      } catch (err) { Swal.fire("Error", "Gagal terhubung ke server", "error"); } 
       finally { btn.textContent = "Login to Admin"; btn.disabled = false; }
     });
 
-    // =========================================================================
-    // COPY MULAI DARI SINI (TIMPA FUNGSI loadAdminData YANG LAMA)
-    // =========================================================================
-
+    // Render Data Dashboard & Pegawai
     async function loadAdminData() {
       try {
         const res = await callGAS({ action: "getAdminDashboard" });
         if (res.status === "success") {
-          // Render Stats
           document.getElementById("statKaryawan").textContent = res.stats.karyawan;
           document.getElementById("statJabatan").textContent = res.stats.jabatan;
           document.getElementById("statOutlet").textContent = res.stats.outlet;
           document.getElementById("statJam").textContent = res.stats.jamKerja;
 
-          // Render Dropdown Form
           const selJab = document.getElementById("pegJabatan");
           if(res.jabatan) selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
           
           const selOut = document.getElementById("pegOutlet");
           if(res.outlet) selOut.innerHTML = `<option value="">- Pilih Penempatan Outlet -</option>` + res.outlet.map(o => `<option value="${o.id}">${o.id} - ${o.nama}</option>`).join("");
 
-          // Render Absensi
           const tbAbs = document.getElementById("tableAbsensiBody");
           if(res.absensi && res.absensi.length > 0) {
-            tbAbs.innerHTML = res.absensi.map(a => `<tr class="hover:bg-slate-50"><td class="py-3 px-2">${a.no}</td><td class="py-3 px-2">${a.nama}</td><td class="py-3 px-2">${a.jamMasuk}</td><td class="py-3 px-2">${a.jamPulang}</td><td class="py-3 px-2 text-right"><button class="bg-amber-500 text-white p-1 rounded hover:bg-amber-600">📝</button></td></tr>`).join("");
+            tbAbs.innerHTML = res.absensi.map(a => `<tr class="hover:bg-slate-50"><td class="py-3 px-2">${a.no}</td><td class="py-3 px-2">${a.nama}</td><td class="py-3 px-2">${a.jamMasuk}</td><td class="py-3 px-2">${a.jamPulang}</td><td class="py-3 px-2 text-right"><button class="bg-amber-500 text-white px-2 py-1 rounded hover:bg-amber-600">📝</button></td></tr>`).join("");
           } else { tbAbs.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Tidak ada absensi hari ini.</td></tr>`; }
 
-          // Render Pegawai
+          // Render Data Pegawai
           const tbPegawai = document.getElementById("tablePegawaiBody");
           if(res.pegawai && res.pegawai.length > 0) {
             tbPegawai.innerHTML = res.pegawai.map(p => `
@@ -401,8 +395,9 @@
                 <td class="py-3 px-3">${p.jabatan}</td>
                 <td class="py-3 px-3">${p.idOutlet}</td>
                 <td class="py-3 px-3 text-center whitespace-nowrap">
-                  <button type="button" onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')" class="bg-yellow-500 text-white px-2 py-1 rounded mr-1 hover:bg-yellow-600 transition shadow" title="Edit Data">📝</button>
-                  <button type="button" onclick="deletePegawai('${p.idKaryawan}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition shadow" title="Hapus Data">🗑️</button>
+                  <!-- Tombol Edit & Hapus -->
+                  <button type="button" onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')" class="bg-yellow-500 text-white px-2 py-1 rounded mr-1 hover:bg-yellow-600 shadow" title="Edit Data">📝</button>
+                  <button type="button" onclick="deletePegawai('${p.idKaryawan}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 shadow" title="Hapus Data">🗑️</button>
                 </td>
               </tr>
             `).join("");
@@ -413,10 +408,7 @@
       } catch (err) { console.log("Gagal memuat data admin:", err); }
     }
 
-    // =========================================================================
-    // FUNGSI AKSI PEGAWAI (EDIT, HAPUS, SIMPAN, RESET)
-    // =========================================================================
-
+    // Fungsi Saat Tombol Edit Ditekan
     function editPegawai(id, nama, user, pass, jab, out) {
       document.getElementById('titleFormPegawai').textContent = "Edit Data Pegawai";
       document.getElementById('oldPegId').value = id; 
@@ -430,6 +422,7 @@
       window.scrollTo(0, 0);
     }
 
+    // Fungsi Saat Tombol Reset / Batal Ditekan
     function resetFormPegawai() {
       document.getElementById('formTambahPegawai').reset();
       document.getElementById('oldPegId').value = "";
@@ -437,10 +430,11 @@
       showSection('section-data-pegawai');
     }
 
+    // Fungsi Saat Tombol Hapus Ditekan (SweetAlert)
     function deletePegawai(idKaryawan) {
       Swal.fire({
         title: 'Hapus Pegawai?',
-        text: `Pegawai dengan ID ${idKaryawan} akan dihapus permanen dari sistem!`,
+        text: `Pegawai dengan ID ${idKaryawan} akan dihapus permanen!`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -454,13 +448,14 @@
             const res = await callGAS({ action: 'deleteKaryawan', idKaryawan: idKaryawan });
             if (res.status === 'success') {
               Swal.fire('Terhapus!', res.message, 'success');
-              loadAdminData(); // Merefresh tabel otomatis
+              loadAdminData(); // Refresh Data Tabel
             } else { Swal.fire('Gagal', res.message, 'error'); }
           } catch(e) { Swal.fire('Error', 'Gagal menghubungi server.', 'error'); }
         }
       });
     }
 
+    // Fungsi Submit (Tambah & Edit) Pegawai
     async function submitPegawai() {
       const oldId = document.getElementById("oldPegId").value;
       const id = document.getElementById("pegId").value;
@@ -476,6 +471,7 @@
 
       const btn = document.getElementById("btnSimpanPegawai");
       btn.textContent = "Menyimpan..."; btn.disabled = true;
+      
       const actionType = oldId ? "updateKaryawan" : "addKaryawan";
 
       try {
@@ -487,60 +483,24 @@
         if (res.status === "success") {
           Swal.fire("Berhasil!", res.message, "success");
           resetFormPegawai();
-          loadAdminData(); // Refresh Tabel
-        } else { 
-          Swal.fire("Gagal!", res.message, "error"); 
-        }
+          loadAdminData();
+        } else { Swal.fire("Gagal!", res.message, "error"); }
       } catch(e) { Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); } 
       finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
     }
 
-    function logoutAdmin() { 
-      localStorage.removeItem("admin_session"); 
-      location.reload(); 
-    }
-
-    // =========================================================================
-    // PASTIKAN TAG </script> BERADA TEPAT DI BAWAH BARIS INI
-    // =========================================================================
-
-    async function submitPegawai() {
-      const id = document.getElementById("pegId").value;
-      const nama = document.getElementById("pegNama").value;
-      const user = document.getElementById("pegUser").value;
-      const pass = document.getElementById("pegPass").value;
-      const jab = document.getElementById("pegJabatan").value;
-      const out = document.getElementById("pegOutlet").value;
-
-      if(!id || !nama || !user || !pass || !jab || !out) { alert("Semua kolom wajib diisi!"); return; }
-
-      const btn = document.getElementById("btnSimpanPegawai");
-      btn.textContent = "Menyimpan..."; btn.disabled = true;
-
-      try {
-        const res = await callGAS({ action: "addKaryawan", idKaryawan: id, nama: nama, username: user, password: pass, jabatan: jab, idOutlet: out });
-        if (res.status === "success") {
-          alert(res.message);
-          document.getElementById("formTambahPegawai").reset();
-          showSection('section-data-pegawai');
-          loadAdminData(); // Merefresh tabel seketika
-        } else { alert(res.message); }
-      } catch(e) { alert("Gagal menyimpan data pegawai."); }
-      finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
-    }
-
-    // A. Fungsi Download Template Excel
+    // Fungsi Download Template Excel (SheetJS)
     function downloadTemplate() {
       const ws = XLSX.utils.aoa_to_sheet([
         ["ID_Karyawan", "Username", "Password", "Nama", "Jabatan", "ID_Outlet"],
-        ["EMP02", "budi", "123456", "Budi Santoso", "Staff Operasional", "OUT01"] // Contoh baris
+        ["EMP02", "budi", "123456", "Budi Santoso", "Staff Operasional", "OUT01"]
       ]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Template Karyawan");
       XLSX.writeFile(wb, "Template_Import_Karyawan.xlsx");
     }
 
-    // B. Fungsi Parse & Submit Excel (Import)
+    // Fungsi Import Excel
     async function submitImport() {
       const fileInput = document.getElementById('fileImportExcel');
       if(!fileInput.files.length) return Swal.fire("Peringatan", "Pilih file Excel terlebih dahulu!", "warning");
@@ -556,7 +516,6 @@
         
         if(json.length < 2) return Swal.fire("Gagal", "File Excel kosong atau tidak ada data.", "error");
         
-        // Validasi Header (Pengecekan Kolom Excel)
         const headers = json[0];
         if(headers[0]!=="ID_Karyawan" || headers[1]!=="Username" || headers[2]!=="Password" || headers[3]!=="Nama" || headers[4]!=="Jabatan" || headers[5]!=="ID_Outlet") {
           return Swal.fire("Format Salah!", "Format kolom Excel tidak sesuai. Gunakan file Download Sample File!", "error");
@@ -582,17 +541,17 @@
             toggleModal('modalImport');
             document.getElementById('fileImportExcel').value = "";
             document.getElementById('fileNameDisplay').value = "";
-            loadAdminData(); // Refresh tabel
+            loadAdminData();
           } else { Swal.fire("Gagal", res.message, "error"); }
         } catch(err) { Swal.fire("Error", "Gagal menghubungi server", "error"); }
       };
       reader.readAsArrayBuffer(file);
     }
 
-    // C. Ganti Alert Biasa di submitPegawai() menjadi SweetAlert2
-    // (Jika Anda punya fungsi submitPegawai dari diskusi sebelumnya, ganti semua 'alert()' menjadi 'Swal.fire()')
-    // Contoh untuk tombol "Simpan" satuan:
-    
+    function logoutAdmin() { 
+      localStorage.removeItem("admin_session"); 
+      location.reload(); 
+    }
   </script>
 </body>
 </html>
