@@ -191,55 +191,56 @@
         </div>
 
         <!-- SECTION 3: TAMBAH DATA PEGAWAI -->
+        <!-- SECTION 3: TAMBAH / EDIT DATA PEGAWAI -->
         <div id="section-tambah-pegawai" class="content-section hidden fade-in">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl text-slate-700">Tambah Data Pegawai</h2>
+            <h2 id="titleFormPegawai" class="text-2xl text-slate-700">Tambah Data Pegawai</h2>
           </div>
 
-          <div class="bg-white rounded shadow border-t-[3px] border-admin-green p-6">
-            <form id="formTambahPegawai" class="space-y-4 max-w-4xl">
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-    <label class="font-bold text-sm text-slate-700 md:text-right">ID Karyawan</label>
-    <div class="md:col-span-3"><select id="pegJabatan" required class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green">
-  <option value="">- Pilih Jabatan -</option>
-</select>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-    <label class="font-bold text-sm text-slate-700 md:text-right">Nama Lengkap</label>
-    <div class="md:col-span-3"><select id="pegOutlet" required class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green">
-  <option value="">- Pilih Penempatan Outlet -</option>
-</select>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-    <label class="font-bold text-sm text-slate-700 md:text-right">Username (Login)</label>
-    <div class="md:col-span-3"><input type="text" id="pegUser" required class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green"></div>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-    <label class="font-bold text-sm text-slate-700 md:text-right">Password (Login)</label>
-    <div class="md:col-span-3"><input type="text" id="pegPass" required class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green"></div>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-    <label class="font-bold text-sm text-slate-700 md:text-right">Jabatan</label>
-    <div class="md:col-span-3"><input type="text" id="pegJabatan" required placeholder="Contoh: Staff Operasional" class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green"></div>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-    <label class="font-bold text-sm text-slate-700 md:text-right">ID Outlet</label>
-    <div class="md:col-span-3"><input type="text" id="pegOutlet" required placeholder="Contoh: OUT01" class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green"></div>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-    <div class="hidden md:block"></div>
-    <div class="md:col-span-3 flex gap-2">
-      <button type="button" onclick="submitPegawai()" id="btnSimpanPegawai" class="bg-admin-green hover:bg-green-700 text-white px-5 py-2 rounded text-sm font-medium">✓ Simpan</button>
-      <button type="button" onclick="showSection('section-data-pegawai')" class="bg-slate-400 hover:bg-slate-500 text-white px-5 py-2 rounded text-sm font-medium">✖ Batal</button>
-    </div>
-  </div>
-</form>
+          <div class="bg-white rounded shadow border-t-[3px] border-admin-green p-6 max-w-3xl">
+            <form id="formTambahPegawai" class="space-y-5">
+              <!-- Input tersembunyi untuk menyimpan ID lama saat proses EDIT -->
+              <input type="hidden" id="oldPegId" value="">
+              
+              <div class="flex flex-col gap-1.5">
+                <label class="font-bold text-sm text-slate-700">ID Karyawan</label>
+                <input type="text" id="pegId" required placeholder="Contoh: EMP02" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+              </div>
+              
+              <div class="flex flex-col gap-1.5">
+                <label class="font-bold text-sm text-slate-700">Nama Lengkap</label>
+                <input type="text" id="pegNama" required placeholder="Nama Lengkap Karyawan" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-bold text-sm text-slate-700">Username (Login)</label>
+                  <input type="text" id="pegUser" required placeholder="Username" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-bold text-sm text-slate-700">Password (Login)</label>
+                  <input type="text" id="pegPass" required placeholder="Password" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50">
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-bold text-sm text-slate-700">Jabatan</label>
+                  <select id="pegJabatan" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50"></select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="font-bold text-sm text-slate-700">Penempatan Outlet</label>
+                  <select id="pegOutlet" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50"></select>
+                </div>
+              </div>
+              
+              <div class="flex gap-3 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" onclick="submitPegawai()" id="btnSimpanPegawai" class="bg-admin-green hover:bg-green-700 text-white px-6 py-2.5 rounded text-sm font-medium shadow">✓ Simpan</button>
+                <button type="button" onclick="resetFormPegawai()" class="bg-slate-400 hover:bg-slate-500 text-white px-6 py-2.5 rounded text-sm font-medium shadow">✖ Batal</button>
+              </div>
+            </form>
           </div>
         </div>
-
-      </main>
-    </div>
-  </div>
 
   <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
  <div id="modalImport" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
@@ -403,7 +404,10 @@
               </tr>
             `).join("");
           } else {
-            tbPegawai.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-400">Tidak ada data pegawai.</td></tr>`;
+            tbPegawai.innerHTML = `<tr><td class="py-3 px-3 text-center">
+                                          <button onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')" class="bg-yellow-500 text-white px-2 py-1 rounded mr-1 hover:bg-yellow-600 transition shadow" title="Edit Data">📝</button>
+                                          <button onclick="deletePegawai('${p.idKaryawan}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition shadow" title="Hapus Data">🗑️</button>
+                                   </td></tr>`;
           }
       } catch (err) { console.log(err); }
     }
@@ -521,6 +525,94 @@
         } else { Swal.fire("Gagal!", res.message, "error"); }
       } catch(e) { Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); }
       finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
+    }
+
+    // FUNGSI SAAT TOMBOL EDIT DIKLIK
+    function editPegawai(id, nama, user, pass, jab, out) {
+      document.getElementById('titleFormPegawai').textContent = "Edit Data Pegawai";
+      document.getElementById('oldPegId').value = id; // Menyimpan ID lama untuk rujukan backend
+      document.getElementById('pegId').value = id;
+      document.getElementById('pegNama').value = nama;
+      document.getElementById('pegUser').value = user;
+      document.getElementById('pegPass').value = pass;
+      document.getElementById('pegJabatan').value = jab;
+      document.getElementById('pegOutlet').value = out;
+      showSection('section-tambah-pegawai');
+    }
+
+    // FUNGSI KEMBALI / BATAL / RESET FORM
+    function resetFormPegawai() {
+      document.getElementById('formTambahPegawai').reset();
+      document.getElementById('oldPegId').value = "";
+      document.getElementById('titleFormPegawai').textContent = "Tambah Data Pegawai";
+      showSection('section-data-pegawai');
+    }
+
+    // FUNGSI SAAT TOMBOL HAPUS DIKLIK (Dengan konfirmasi SweetAlert)
+    function deletePegawai(idKaryawan) {
+      Swal.fire({
+        title: 'Hapus Pegawai?',
+        text: `Data Pegawai dengan ID ${idKaryawan} akan dihapus permanen!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          try {
+            const res = await callGAS({ action: 'deleteKaryawan', idKaryawan: idKaryawan });
+            if (res.status === 'success') {
+              Swal.fire('Terhapus!', res.message, 'success');
+              loadAdminData(); // Refresh tabel setelah dihapus
+            } else {
+              Swal.fire('Gagal', res.message, 'error');
+            }
+          } catch(e) {
+            Swal.fire('Error', 'Gagal menghubungi server.', 'error');
+          }
+        }
+      });
+    }
+
+    // UPDATE FUNGSI SUBMIT PEGAWAI (Menangani Tambah & Edit secara otomatis)
+    async function submitPegawai() {
+      const oldId = document.getElementById("oldPegId").value;
+      const id = document.getElementById("pegId").value;
+      const nama = document.getElementById("pegNama").value;
+      const user = document.getElementById("pegUser").value;
+      const pass = document.getElementById("pegPass").value;
+      const jab = document.getElementById("pegJabatan").value;
+      const out = document.getElementById("pegOutlet").value;
+
+      if(!id || !nama || !user || !pass || !jab || !out) return Swal.fire("Perhatian", "Semua kolom wajib diisi!", "warning");
+
+      const btn = document.getElementById("btnSimpanPegawai");
+      btn.textContent = "Menyimpan..."; btn.disabled = true;
+
+      // Logika penentu: Jika oldId ada isinya berarti mode EDIT, jika kosong berarti TAMBAH BARU
+      const actionType = oldId ? "updateKaryawan" : "addKaryawan";
+
+      try {
+        const res = await callGAS({ 
+          action: actionType, oldIdKaryawan: oldId,
+          idKaryawan: id, nama: nama, username: user, password: pass, jabatan: jab, idOutlet: out 
+        });
+        
+        if (res.status === "success") {
+          Swal.fire("Berhasil!", res.message, "success");
+          resetFormPegawai();
+          loadAdminData(); // Refresh Tabel
+        } else { 
+          Swal.fire("Gagal!", res.message, "error"); 
+        }
+      } catch(e) { 
+        Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); 
+      } finally { 
+        btn.textContent = "✓ Simpan"; btn.disabled = false; 
+      }
     }
   </script>
 </body>
