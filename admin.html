@@ -362,60 +362,147 @@
       finally { btn.textContent = "Login to Admin"; btn.disabled = false; }
     });
 
+    // =========================================================================
+    // COPY MULAI DARI SINI (TIMPA FUNGSI loadAdminData YANG LAMA)
+    // =========================================================================
+
     async function loadAdminData() {
       try {
         const res = await callGAS({ action: "getAdminDashboard" });
         if (res.status === "success") {
+          // Render Stats
           document.getElementById("statKaryawan").textContent = res.stats.karyawan;
           document.getElementById("statJabatan").textContent = res.stats.jabatan;
           document.getElementById("statOutlet").textContent = res.stats.outlet;
           document.getElementById("statJam").textContent = res.stats.jamKerja;
 
+          // Render Dropdown Form
+          const selJab = document.getElementById("pegJabatan");
+          if(res.jabatan) selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
+          
+          const selOut = document.getElementById("pegOutlet");
+          if(res.outlet) selOut.innerHTML = `<option value="">- Pilih Penempatan Outlet -</option>` + res.outlet.map(o => `<option value="${o.id}">${o.id} - ${o.nama}</option>`).join("");
+
+          // Render Absensi
           const tbAbs = document.getElementById("tableAbsensiBody");
-          if(res.absensi.length > 0) {
+          if(res.absensi && res.absensi.length > 0) {
             tbAbs.innerHTML = res.absensi.map(a => `<tr class="hover:bg-slate-50"><td class="py-3 px-2">${a.no}</td><td class="py-3 px-2">${a.nama}</td><td class="py-3 px-2">${a.jamMasuk}</td><td class="py-3 px-2">${a.jamPulang}</td><td class="py-3 px-2 text-right"><button class="bg-amber-500 text-white p-1 rounded hover:bg-amber-600">📝</button></td></tr>`).join("");
           } else { tbAbs.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Tidak ada absensi hari ini.</td></tr>`; }
-        }
-        // Render Dropdown Jabatan
-          const selJab = document.getElementById("pegJabatan");
-          if(res.jabatan) {
-            selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
-          }
-          // Render Dropdown Outlet
-          const selOut = document.getElementById("pegOutlet");
-          if(res.outlet) {
-            selOut.innerHTML = `<option value="">- Pilih Penempatan Outlet -</option>` + res.outlet.map(o => `<option value="${o.id}">${o.id} - ${o.nama}</option>`).join("");
-          }
-         // Render Pegawai
+
+          // Render Pegawai
           const tbPegawai = document.getElementById("tablePegawaiBody");
           if(res.pegawai && res.pegawai.length > 0) {
             tbPegawai.innerHTML = res.pegawai.map(p => `
-              <tr class="hover:bg-slate-50">
+              <tr class="hover:bg-slate-50 border-b border-slate-100">
                 <td class="py-3 px-3">${p.no}</td>
                 <td class="py-3 px-3">${p.idKaryawan}</td>
                 <td class="py-3 px-3">${p.nama}</td>
                 <td class="py-3 px-3">${p.username}</td>
                 <td class="py-3 px-3">${p.jabatan}</td>
                 <td class="py-3 px-3">${p.idOutlet}</td>
-                <td class="py-3 px-3 text-center">
-                  <button class="bg-yellow-500 text-white p-1.5 rounded mr-1">📝</button>
-                  <button class="bg-red-500 text-white p-1.5 rounded">🗑️</button>
+                <td class="py-3 px-3 text-center whitespace-nowrap">
+                  <button type="button" onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')" class="bg-yellow-500 text-white px-2 py-1 rounded mr-1 hover:bg-yellow-600 transition shadow" title="Edit Data">📝</button>
+                  <button type="button" onclick="deletePegawai('${p.idKaryawan}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition shadow" title="Hapus Data">🗑️</button>
                 </td>
               </tr>
             `).join("");
           } else {
-            tbPegawai.innerHTML = `<tr><td class="py-3 px-3 text-center">
-                                          <button onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')" class="bg-yellow-500 text-white px-2 py-1 rounded mr-1 hover:bg-yellow-600 transition shadow" title="Edit Data">📝</button>
-                                          <button onclick="deletePegawai('${p.idKaryawan}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition shadow" title="Hapus Data">🗑️</button>
-                                   </td></tr>`;
+            tbPegawai.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-400">Tidak ada data pegawai.</td></tr>`;
           }
-      } catch (err) { console.log(err); }
+        }
+      } catch (err) { console.log("Gagal memuat data admin:", err); }
+    }
+
+    // =========================================================================
+    // FUNGSI AKSI PEGAWAI (EDIT, HAPUS, SIMPAN, RESET)
+    // =========================================================================
+
+    function editPegawai(id, nama, user, pass, jab, out) {
+      document.getElementById('titleFormPegawai').textContent = "Edit Data Pegawai";
+      document.getElementById('oldPegId').value = id; 
+      document.getElementById('pegId').value = id;
+      document.getElementById('pegNama').value = nama;
+      document.getElementById('pegUser').value = user;
+      document.getElementById('pegPass').value = pass;
+      document.getElementById('pegJabatan').value = jab;
+      document.getElementById('pegOutlet').value = out;
+      showSection('section-tambah-pegawai');
+      window.scrollTo(0, 0);
+    }
+
+    function resetFormPegawai() {
+      document.getElementById('formTambahPegawai').reset();
+      document.getElementById('oldPegId').value = "";
+      document.getElementById('titleFormPegawai').textContent = "Tambah Data Pegawai";
+      showSection('section-data-pegawai');
+    }
+
+    function deletePegawai(idKaryawan) {
+      Swal.fire({
+        title: 'Hapus Pegawai?',
+        text: `Pegawai dengan ID ${idKaryawan} akan dihapus permanen dari sistem!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          try {
+            const res = await callGAS({ action: 'deleteKaryawan', idKaryawan: idKaryawan });
+            if (res.status === 'success') {
+              Swal.fire('Terhapus!', res.message, 'success');
+              loadAdminData(); // Merefresh tabel otomatis
+            } else { Swal.fire('Gagal', res.message, 'error'); }
+          } catch(e) { Swal.fire('Error', 'Gagal menghubungi server.', 'error'); }
+        }
+      });
+    }
+
+    async function submitPegawai() {
+      const oldId = document.getElementById("oldPegId").value;
+      const id = document.getElementById("pegId").value;
+      const nama = document.getElementById("pegNama").value;
+      const user = document.getElementById("pegUser").value;
+      const pass = document.getElementById("pegPass").value;
+      const jab = document.getElementById("pegJabatan").value;
+      const out = document.getElementById("pegOutlet").value;
+
+      if(!id || !nama || !user || !pass || !jab || !out) {
+        return Swal.fire("Perhatian", "Semua kolom wajib diisi!", "warning");
+      }
+
+      const btn = document.getElementById("btnSimpanPegawai");
+      btn.textContent = "Menyimpan..."; btn.disabled = true;
+      const actionType = oldId ? "updateKaryawan" : "addKaryawan";
+
+      try {
+        const res = await callGAS({ 
+          action: actionType, oldIdKaryawan: oldId,
+          idKaryawan: id, nama: nama, username: user, password: pass, jabatan: jab, idOutlet: out 
+        });
+        
+        if (res.status === "success") {
+          Swal.fire("Berhasil!", res.message, "success");
+          resetFormPegawai();
+          loadAdminData(); // Refresh Tabel
+        } else { 
+          Swal.fire("Gagal!", res.message, "error"); 
+        }
+      } catch(e) { Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); } 
+      finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
     }
 
     function logoutAdmin() { 
       localStorage.removeItem("admin_session"); 
       location.reload(); 
     }
+
+    // =========================================================================
+    // PASTIKAN TAG </script> BERADA TEPAT DI BAWAH BARIS INI
+    // =========================================================================
 
     async function submitPegawai() {
       const id = document.getElementById("pegId").value;
@@ -505,115 +592,7 @@
     // C. Ganti Alert Biasa di submitPegawai() menjadi SweetAlert2
     // (Jika Anda punya fungsi submitPegawai dari diskusi sebelumnya, ganti semua 'alert()' menjadi 'Swal.fire()')
     // Contoh untuk tombol "Simpan" satuan:
-    async function submitPegawai() {
-      const id = document.getElementById("pegId").value, nama = document.getElementById("pegNama").value;
-      const user = document.getElementById("pegUser").value, pass = document.getElementById("pegPass").value;
-      const jab = document.getElementById("pegJabatan").value, out = document.getElementById("pegOutlet").value;
-
-      if(!id || !nama || !user || !pass || !jab || !out) return Swal.fire("Perhatian", "Semua kolom wajib diisi!", "warning");
-
-      const btn = document.getElementById("btnSimpanPegawai");
-      btn.textContent = "Menyimpan..."; btn.disabled = true;
-
-      try {
-        const res = await callGAS({ action: "addKaryawan", idKaryawan: id, nama: nama, username: user, password: pass, jabatan: jab, idOutlet: out });
-        if (res.status === "success") {
-          Swal.fire("Berhasil!", res.message, "success");
-          document.getElementById("formTambahPegawai").reset();
-          showSection('section-data-pegawai');
-          loadAdminData();
-        } else { Swal.fire("Gagal!", res.message, "error"); }
-      } catch(e) { Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); }
-      finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
-    }
-
-    // FUNGSI SAAT TOMBOL EDIT DIKLIK
-    function editPegawai(id, nama, user, pass, jab, out) {
-      document.getElementById('titleFormPegawai').textContent = "Edit Data Pegawai";
-      document.getElementById('oldPegId').value = id; // Menyimpan ID lama untuk rujukan backend
-      document.getElementById('pegId').value = id;
-      document.getElementById('pegNama').value = nama;
-      document.getElementById('pegUser').value = user;
-      document.getElementById('pegPass').value = pass;
-      document.getElementById('pegJabatan').value = jab;
-      document.getElementById('pegOutlet').value = out;
-      showSection('section-tambah-pegawai');
-    }
-
-    // FUNGSI KEMBALI / BATAL / RESET FORM
-    function resetFormPegawai() {
-      document.getElementById('formTambahPegawai').reset();
-      document.getElementById('oldPegId').value = "";
-      document.getElementById('titleFormPegawai').textContent = "Tambah Data Pegawai";
-      showSection('section-data-pegawai');
-    }
-
-    // FUNGSI SAAT TOMBOL HAPUS DIKLIK (Dengan konfirmasi SweetAlert)
-    function deletePegawai(idKaryawan) {
-      Swal.fire({
-        title: 'Hapus Pegawai?',
-        text: `Data Pegawai dengan ID ${idKaryawan} akan dihapus permanen!`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-          try {
-            const res = await callGAS({ action: 'deleteKaryawan', idKaryawan: idKaryawan });
-            if (res.status === 'success') {
-              Swal.fire('Terhapus!', res.message, 'success');
-              loadAdminData(); // Refresh tabel setelah dihapus
-            } else {
-              Swal.fire('Gagal', res.message, 'error');
-            }
-          } catch(e) {
-            Swal.fire('Error', 'Gagal menghubungi server.', 'error');
-          }
-        }
-      });
-    }
-
-    // UPDATE FUNGSI SUBMIT PEGAWAI (Menangani Tambah & Edit secara otomatis)
-    async function submitPegawai() {
-      const oldId = document.getElementById("oldPegId").value;
-      const id = document.getElementById("pegId").value;
-      const nama = document.getElementById("pegNama").value;
-      const user = document.getElementById("pegUser").value;
-      const pass = document.getElementById("pegPass").value;
-      const jab = document.getElementById("pegJabatan").value;
-      const out = document.getElementById("pegOutlet").value;
-
-      if(!id || !nama || !user || !pass || !jab || !out) return Swal.fire("Perhatian", "Semua kolom wajib diisi!", "warning");
-
-      const btn = document.getElementById("btnSimpanPegawai");
-      btn.textContent = "Menyimpan..."; btn.disabled = true;
-
-      // Logika penentu: Jika oldId ada isinya berarti mode EDIT, jika kosong berarti TAMBAH BARU
-      const actionType = oldId ? "updateKaryawan" : "addKaryawan";
-
-      try {
-        const res = await callGAS({ 
-          action: actionType, oldIdKaryawan: oldId,
-          idKaryawan: id, nama: nama, username: user, password: pass, jabatan: jab, idOutlet: out 
-        });
-        
-        if (res.status === "success") {
-          Swal.fire("Berhasil!", res.message, "success");
-          resetFormPegawai();
-          loadAdminData(); // Refresh Tabel
-        } else { 
-          Swal.fire("Gagal!", res.message, "error"); 
-        }
-      } catch(e) { 
-        Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); 
-      } finally { 
-        btn.textContent = "✓ Simpan"; btn.disabled = false; 
-      }
-    }
+    
   </script>
 </body>
 </html>
