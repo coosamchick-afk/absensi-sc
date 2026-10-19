@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Back Office - Kehadiran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Roboto', sans-serif; background-color: #f4f6f9; }
@@ -198,11 +200,15 @@
             <form id="formTambahPegawai" class="space-y-4 max-w-4xl">
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
     <label class="font-bold text-sm text-slate-700 md:text-right">ID Karyawan</label>
-    <div class="md:col-span-3"><input type="text" id="pegId" required placeholder="Contoh: EMP02" class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green"></div>
+    <div class="md:col-span-3"><select id="pegJabatan" required class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green">
+  <option value="">- Pilih Jabatan -</option>
+</select>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
     <label class="font-bold text-sm text-slate-700 md:text-right">Nama Lengkap</label>
-    <div class="md:col-span-3"><input type="text" id="pegNama" required class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green"></div>
+    <div class="md:col-span-3"><select id="pegOutlet" required class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-admin-green">
+  <option value="">- Pilih Penempatan Outlet -</option>
+</select>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
     <label class="font-bold text-sm text-slate-700 md:text-right">Username (Login)</label>
@@ -236,22 +242,24 @@
   </div>
 
   <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
-  <div id="modalImport" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
+ <div id="modalImport" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden relative">
       <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
         <h3 class="text-lg font-medium text-slate-700">Import Data Pegawai</h3>
         <button onclick="toggleModal('modalImport')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
       <div class="p-6">
-        <label class="block text-sm font-bold text-slate-700 mb-2">Upload File</label>
+        <label class="block text-sm font-bold text-slate-700 mb-2">Upload File Excel (.xlsx)</label>
         <div class="flex items-center">
-          <button class="bg-[#3c8dbc] text-white px-4 py-2 text-sm rounded-l border border-[#3c8dbc]">Upload</button>
-          <input type="text" readonly placeholder="Upload file Excel" class="w-full border border-l-0 border-slate-300 rounded-r px-3 py-2 text-sm bg-slate-50 text-slate-500">
+          <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="document.getElementById('fileNameDisplay').value = this.files[0].name">
+          <button onclick="document.getElementById('fileImportExcel').click()" class="bg-[#3c8dbc] text-white px-4 py-2 text-sm rounded-l border border-[#3c8dbc] shadow hover:bg-[#367fa9] transition">Upload</button>
+          <input type="text" id="fileNameDisplay" readonly placeholder="Pilih file Excel..." class="w-full border border-l-0 border-slate-300 rounded-r px-3 py-2 text-sm bg-slate-50 text-slate-500 cursor-not-allowed">
         </div>
-        <a href="#" class="inline-block mt-3 text-sm text-[#3c8dbc] hover:underline font-medium">Download Sample File</a>
+        <button onclick="downloadTemplate()" class="inline-block mt-3 text-sm text-[#3c8dbc] hover:underline font-medium">Download Sample File</button>
       </div>
-      <div class="px-6 py-3 border-t border-slate-200 flex justify-end">
-        <button onclick="toggleModal('modalImport')" class="bg-[#00c0ef] hover:bg-[#00b3df] text-white px-5 py-2 rounded text-sm font-medium shadow">✓ Simpan</button>
+      <div class="px-6 py-3 border-t border-slate-200 flex justify-end gap-2">
+        <button onclick="toggleModal('modalImport')" class="bg-slate-400 hover:bg-slate-500 text-white px-5 py-2 rounded text-sm font-medium shadow">Batal</button>
+        <button onclick="submitImport()" class="bg-admin-green hover:bg-green-700 text-white px-5 py-2 rounded text-sm font-medium shadow">✓ Simpan</button>
       </div>
     </div>
   </div>
@@ -367,8 +375,17 @@
             tbAbs.innerHTML = res.absensi.map(a => `<tr class="hover:bg-slate-50"><td class="py-3 px-2">${a.no}</td><td class="py-3 px-2">${a.nama}</td><td class="py-3 px-2">${a.jamMasuk}</td><td class="py-3 px-2">${a.jamPulang}</td><td class="py-3 px-2 text-right"><button class="bg-amber-500 text-white p-1 rounded hover:bg-amber-600">📝</button></td></tr>`).join("");
           } else { tbAbs.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Tidak ada absensi hari ini.</td></tr>`; }
         }
-      } catch (err) { console.log(err); }
-      // Render Pegawai
+        // Render Dropdown Jabatan
+          const selJab = document.getElementById("pegJabatan");
+          if(res.jabatan) {
+            selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
+          }
+          // Render Dropdown Outlet
+          const selOut = document.getElementById("pegOutlet");
+          if(res.outlet) {
+            selOut.innerHTML = `<option value="">- Pilih Penempatan Outlet -</option>` + res.outlet.map(o => `<option value="${o.id}">${o.id} - ${o.nama}</option>`).join("");
+          }
+         // Render Pegawai
           const tbPegawai = document.getElementById("tablePegawaiBody");
           if(res.pegawai && res.pegawai.length > 0) {
             tbPegawai.innerHTML = res.pegawai.map(p => `
@@ -388,6 +405,7 @@
           } else {
             tbPegawai.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-400">Tidak ada data pegawai.</td></tr>`;
           }
+      } catch (err) { console.log(err); }
     }
 
     function logoutAdmin() { 
@@ -417,6 +435,91 @@
           loadAdminData(); // Merefresh tabel seketika
         } else { alert(res.message); }
       } catch(e) { alert("Gagal menyimpan data pegawai."); }
+      finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
+    }
+
+    // A. Fungsi Download Template Excel
+    function downloadTemplate() {
+      const ws = XLSX.utils.aoa_to_sheet([
+        ["ID_Karyawan", "Username", "Password", "Nama", "Jabatan", "ID_Outlet"],
+        ["EMP02", "budi", "123456", "Budi Santoso", "Staff Operasional", "OUT01"] // Contoh baris
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Template Karyawan");
+      XLSX.writeFile(wb, "Template_Import_Karyawan.xlsx");
+    }
+
+    // B. Fungsi Parse & Submit Excel (Import)
+    async function submitImport() {
+      const fileInput = document.getElementById('fileImportExcel');
+      if(!fileInput.files.length) return Swal.fire("Peringatan", "Pilih file Excel terlebih dahulu!", "warning");
+      
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+        
+        if(json.length < 2) return Swal.fire("Gagal", "File Excel kosong atau tidak ada data.", "error");
+        
+        // Validasi Header (Pengecekan Kolom Excel)
+        const headers = json[0];
+        if(headers[0]!=="ID_Karyawan" || headers[1]!=="Username" || headers[2]!=="Password" || headers[3]!=="Nama" || headers[4]!=="Jabatan" || headers[5]!=="ID_Outlet") {
+          return Swal.fire("Format Salah!", "Format kolom Excel tidak sesuai. Gunakan file Download Sample File!", "error");
+        }
+        
+        const payloadData = [];
+        for(let i=1; i<json.length; i++) {
+          if(json[i].length > 0 && json[i][0]) {
+            payloadData.push({
+              idKaryawan: String(json[i][0]||""), username: String(json[i][1]||""),
+              password: String(json[i][2]||""), nama: String(json[i][3]||""),
+              jabatan: String(json[i][4]||""), idOutlet: String(json[i][5]||"")
+            });
+          }
+        }
+        
+        Swal.fire({ title: 'Mengimpor Data...', text: 'Tunggu sebentar', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        try {
+          const res = await callGAS({ action: "importKaryawan", payload: payloadData });
+          if(res.status === "success") {
+            Swal.fire("Berhasil!", res.message, "success");
+            toggleModal('modalImport');
+            document.getElementById('fileImportExcel').value = "";
+            document.getElementById('fileNameDisplay').value = "";
+            loadAdminData(); // Refresh tabel
+          } else { Swal.fire("Gagal", res.message, "error"); }
+        } catch(err) { Swal.fire("Error", "Gagal menghubungi server", "error"); }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // C. Ganti Alert Biasa di submitPegawai() menjadi SweetAlert2
+    // (Jika Anda punya fungsi submitPegawai dari diskusi sebelumnya, ganti semua 'alert()' menjadi 'Swal.fire()')
+    // Contoh untuk tombol "Simpan" satuan:
+    async function submitPegawai() {
+      const id = document.getElementById("pegId").value, nama = document.getElementById("pegNama").value;
+      const user = document.getElementById("pegUser").value, pass = document.getElementById("pegPass").value;
+      const jab = document.getElementById("pegJabatan").value, out = document.getElementById("pegOutlet").value;
+
+      if(!id || !nama || !user || !pass || !jab || !out) return Swal.fire("Perhatian", "Semua kolom wajib diisi!", "warning");
+
+      const btn = document.getElementById("btnSimpanPegawai");
+      btn.textContent = "Menyimpan..."; btn.disabled = true;
+
+      try {
+        const res = await callGAS({ action: "addKaryawan", idKaryawan: id, nama: nama, username: user, password: pass, jabatan: jab, idOutlet: out });
+        if (res.status === "success") {
+          Swal.fire("Berhasil!", res.message, "success");
+          document.getElementById("formTambahPegawai").reset();
+          showSection('section-data-pegawai');
+          loadAdminData();
+        } else { Swal.fire("Gagal!", res.message, "error"); }
+      } catch(e) { Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); }
       finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
     }
   </script>
