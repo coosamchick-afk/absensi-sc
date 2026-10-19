@@ -9,16 +9,22 @@
   <style>
     body { font-family: 'Roboto', sans-serif; background-color: #f4f6f9; }
     .bg-admin-green { background-color: #00a65a; }
+    .text-admin-green { color: #00a65a; }
     .card-blue { background-color: #00c0ef; color: white; }
     .card-yellow { background-color: #f39c12; color: white; }
     .card-red { background-color: #dd4b39; color: white; }
     .card-green { background-color: #00a65a; color: white; }
     .sidebar-link:hover { background-color: #e9ecef; border-left: 3px solid #00a65a; color: #333; }
+    .submenu-link:hover { color: #00a65a; }
     .fade-in { animation: fadeIn 0.3s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    /* Custom Scrollbar for Sidebar */
+    aside::-webkit-scrollbar { width: 5px; }
+    aside::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
   </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-800 overflow-x-hidden">
 
   <!-- ==================== VIEW LOGIN ADMIN ==================== -->
   <div id="loginView" class="min-h-screen flex items-center justify-center bg-[#f4f6f9]">
@@ -37,20 +43,17 @@
         </div>
         <button type="submit" id="btnLogin" class="w-full bg-[#3c8dbc] hover:bg-[#367fa9] text-white py-3 rounded text-sm transition font-medium mt-2">Login to Admin</button>
       </form>
-      <div class="mt-4">
-        <a href="#" class="text-[#3c8dbc] text-sm hover:underline">Lupa Password</a>
-      </div>
     </div>
   </div>
 
-  <!-- ==================== VIEW DASHBOARD ADMIN ==================== -->
-  <div id="dashboardView" class="hidden min-h-screen flex flex-col fade-in">
+  <!-- ==================== WRAPPER DASHBOARD ADMIN ==================== -->
+  <div id="dashboardWrapper" class="hidden min-h-screen flex flex-col fade-in">
     
     <!-- Navbar Top -->
-    <header class="bg-admin-green text-white h-14 flex items-center justify-between px-4 fixed w-full z-20">
+    <header class="bg-admin-green text-white h-14 flex items-center justify-between px-4 fixed w-full z-30 transition-all duration-300">
       <div class="flex items-center gap-4">
-        <div class="font-bold text-lg tracking-wide w-48">KEHADIRAN</div>
-        <button class="hover:bg-black/10 p-2 rounded">☰</button>
+        <div id="logoHeader" class="font-bold text-lg tracking-wide w-48 text-center transition-all duration-300">KEHADIRAN</div>
+        <button onclick="toggleSidebar()" class="hover:bg-black/10 p-2 rounded cursor-pointer">☰</button>
         <div class="hidden md:block text-sm" id="headerDate">19-10-2026</div>
       </div>
       <div class="flex items-center gap-4 text-sm">
@@ -64,15 +67,28 @@
     <div class="flex flex-1 pt-14">
       
       <!-- Sidebar Left -->
-      <aside class="w-56 bg-white border-r border-slate-200 fixed h-full z-10 overflow-y-auto pb-20">
+      <aside id="adminSidebar" class="w-56 bg-white border-r border-slate-200 fixed h-full z-20 overflow-y-auto pb-20 transition-transform duration-300 transform translate-x-0">
         <div class="px-4 py-3 text-xs font-bold text-slate-400 bg-slate-50 uppercase border-b border-slate-200">Main Navigation</div>
         <nav class="mt-2 text-sm text-slate-600 font-medium">
-          <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 bg-slate-100 border-l-4 border-admin-green text-slate-800">
+          <a href="#" onclick="showSection('section-dashboard')" class="sidebar-link flex items-center gap-3 px-4 py-3 bg-slate-100 border-l-4 border-admin-green text-slate-800">
             <span>🏠</span> Dashboard
           </a>
-          <a href="#" onclick="alert('Menu Master Data dalam pengembangan')" class="sidebar-link flex justify-between items-center px-4 py-3">
-            <div class="flex gap-3"><span>🗄️</span> Master Data</div><span><</span>
-          </a>
+          
+          <!-- Master Data Dropdown -->
+          <div>
+            <a href="#" onclick="toggleSubmenu('submenu-master')" class="sidebar-link flex justify-between items-center px-4 py-3">
+              <div class="flex gap-3"><span>🗄️</span> Master Data</div>
+              <span id="icon-submenu-master" class="text-xs transition-transform transform">▼</span>
+            </a>
+            <div id="submenu-master" class="bg-slate-50 py-1 hidden">
+              <a href="#" onclick="showSection('section-data-pegawai')" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Pegawai</a>
+              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Jabatan</a>
+              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Jam Kerja</a>
+              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Lokasi</a>
+              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Libur Nasional</a>
+            </div>
+          </div>
+
           <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>📄</span> Data Izin</a>
           <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>📅</span> Data Permohonan Cuti</a>
           <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>📊</span> Laporan Absensi</a>
@@ -85,75 +101,156 @@
         </nav>
       </aside>
 
-      <!-- Main Content -->
-      <main class="ml-56 flex-1 p-6 bg-[#f4f6f9]">
+      <!-- Main Content Area -->
+      <main id="mainContent" class="ml-56 flex-1 p-6 bg-[#f4f6f9] transition-all duration-300">
         
-        <!-- 4 Stat Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div class="card-blue rounded flex flex-col relative overflow-hidden shadow">
-            <div class="p-4 z-10">
-              <h3 id="statKaryawan" class="text-3xl font-bold mb-1">0</h3>
-              <p class="text-sm">Karyawan</p>
+        <!-- SECTION 1: DASHBOARD STATISTIK -->
+        <div id="section-dashboard" class="content-section fade-in">
+          <!-- 4 Stat Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="card-blue rounded flex flex-col relative overflow-hidden shadow">
+              <div class="p-4 z-10"><h3 id="statKaryawan" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Karyawan</p></div>
+              <div class="absolute right-[-10px] top-2 opacity-20 text-6xl">👤</div>
+              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
             </div>
-            <div class="absolute right-[-10px] top-2 opacity-20 text-6xl">👤</div>
-            <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+            <div class="card-yellow rounded flex flex-col relative overflow-hidden shadow">
+              <div class="p-4 z-10"><h3 id="statJabatan" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Jabatan</p></div>
+              <div class="absolute right-2 top-4 opacity-20 text-5xl">💼</div>
+              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+            </div>
+            <div class="card-red rounded flex flex-col relative overflow-hidden shadow">
+              <div class="p-4 z-10"><h3 id="statOutlet" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Lokasi Kantor</p></div>
+              <div class="absolute right-2 top-4 opacity-20 text-5xl">🏢</div>
+              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+            </div>
+            <div class="card-green rounded flex flex-col relative overflow-hidden shadow">
+              <div class="p-4 z-10"><h3 id="statJam" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Jam Kerja</p></div>
+              <div class="absolute right-2 top-4 opacity-20 text-5xl">🔄</div>
+              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+            </div>
           </div>
-          <div class="card-yellow rounded flex flex-col relative overflow-hidden shadow">
-            <div class="p-4 z-10">
-              <h3 id="statJabatan" class="text-3xl font-bold mb-1">0</h3>
-              <p class="text-sm">Jabatan</p>
+
+          <!-- Tabel Absensi Hari Ini -->
+          <div class="bg-white rounded shadow mb-6 border-t-[3px] border-admin-green">
+            <div class="px-4 py-3 border-b border-slate-100"><h3 class="text-sm font-semibold text-slate-700">Absensi Hari ini</h3></div>
+            <div class="p-4 overflow-x-auto">
+              <table class="w-full text-sm text-left whitespace-nowrap">
+                <thead class="text-slate-700 border-b border-slate-200">
+                  <tr><th class="pb-3 px-2">No.</th><th class="pb-3 px-2">Nama</th><th class="pb-3 px-2">Jam Masuk</th><th class="pb-3 px-2">Jam Pulang</th><th class="pb-3 px-2 text-right">Aksi</th></tr>
+                </thead>
+                <tbody id="tableAbsensiBody" class="divide-y divide-slate-100 font-medium text-slate-600">
+                  <tr><td colspan="5" class="py-4 text-center text-slate-400">Memuat data...</td></tr>
+                </tbody>
+              </table>
             </div>
-            <div class="absolute right-2 top-4 opacity-20 text-5xl">💼</div>
-            <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
-          </div>
-          <div class="card-red rounded flex flex-col relative overflow-hidden shadow">
-            <div class="p-4 z-10">
-              <h3 id="statOutlet" class="text-3xl font-bold mb-1">0</h3>
-              <p class="text-sm">Lokasi Kantor</p>
-            </div>
-            <div class="absolute right-2 top-4 opacity-20 text-5xl">🏢</div>
-            <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
-          </div>
-          <div class="card-green rounded flex flex-col relative overflow-hidden shadow">
-            <div class="p-4 z-10">
-              <h3 id="statJam" class="text-3xl font-bold mb-1">0</h3>
-              <p class="text-sm">Jam Kerja</p>
-            </div>
-            <div class="absolute right-2 top-4 opacity-20 text-5xl">🔄</div>
-            <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
           </div>
         </div>
 
-        <!-- Tabel Absensi Hari Ini -->
-        <div class="bg-white rounded shadow mb-6 border-t-[3px] border-admin-green">
-          <div class="px-4 py-3 border-b border-slate-100"><h3 class="text-sm font-semibold text-slate-700">Absensi Hari ini</h3></div>
-          <div class="p-4 overflow-x-auto">
-            <table class="w-full text-sm text-left whitespace-nowrap">
-              <thead class="text-slate-700 border-b border-slate-200">
-                <tr><th class="pb-3 px-2">No.</th><th class="pb-3 px-2">Nama</th><th class="pb-3 px-2">Jam Masuk</th><th class="pb-3 px-2">Jam Pulang</th><th class="pb-3 px-2 text-right">Aksi</th></tr>
-              </thead>
-              <tbody id="tableAbsensiBody" class="divide-y divide-slate-100 font-medium">
-                <tr><td colspan="5" class="py-4 text-center text-slate-400">Memuat data...</td></tr>
-              </tbody>
-            </table>
+        <!-- SECTION 2: DATA PEGAWAI -->
+        <div id="section-data-pegawai" class="content-section hidden fade-in">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl text-slate-700">Data Pegawai</h2>
+            <div class="text-xs text-slate-500">🏠 Beranda > Data Pegawai</div>
+          </div>
+
+          <div class="bg-white rounded shadow border-t-[3px] border-admin-green">
+            <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center">
+              <h3 class="text-sm font-semibold text-slate-700">Data Pegawai</h3>
+              <div class="flex gap-2">
+                <button onclick="toggleModal('modalImport')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1.5 rounded text-sm shadow">Import</button>
+                <button onclick="showSection('section-tambah-pegawai')" class="bg-admin-green hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm shadow">+ Tambah Baru</button>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex justify-between items-center mb-4 text-sm text-slate-600">
+                <div>Show <select class="border rounded p-1 mx-1"><option>25</option></select> entries</div>
+                <div>Search: <input type="text" class="border rounded p-1 ml-1 focus:outline-admin-green"></div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-slate-700 border-y border-slate-200 bg-slate-50">
+                    <tr>
+                      <th class="py-3 px-3 font-bold">No</th>
+                      <th class="py-3 px-3 font-bold">NIP</th>
+                      <th class="py-3 px-3 font-bold">Nama</th>
+                      <th class="py-3 px-3 font-bold">Email</th>
+                      <th class="py-3 px-3 font-bold">Jabatan</th>
+                      <th class="py-3 px-3 font-bold">Shift</th>
+                      <th class="py-3 px-3 font-bold">Lokasi</th>
+                      <th class="py-3 px-3 font-bold text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 text-slate-600 font-medium">
+                    <!-- Dummy Data matching image -->
+                    <tr class="hover:bg-slate-50">
+                      <td class="py-3 px-3">1</td><td class="py-3 px-3">SAM 887</td><td class="py-3 px-3">Alwy Taufiq</td><td class="py-3 px-3">alwytaufiq100@gmail.com</td><td class="py-3 px-3">Crew Training Kitchen</td><td class="py-3 px-3">M8 CREW</td><td class="py-3 px-3">SAMCHICK TUGURANTE</td>
+                      <td class="py-3 px-3 text-center"><button class="bg-yellow-500 text-white p-1.5 rounded mr-1">📝</button><button class="bg-red-500 text-white p-1.5 rounded">🗑️</button></td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                      <td class="py-3 px-3">3</td><td class="py-3 px-3">SAM 886</td><td class="py-3 px-3">Okky Rahmadani</td><td class="py-3 px-3">okkyrahmadani06@gmail.com</td><td class="py-3 px-3">Crew Training Kitchen</td><td class="py-3 px-3">SIANG CREW</td><td class="py-3 px-3">SAMCHICK TAMANAN</td>
+                      <td class="py-3 px-3 text-center"><button class="bg-yellow-500 text-white p-1.5 rounded mr-1">📝</button><button class="bg-red-500 text-white p-1.5 rounded">🗑️</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Tabel Permohonan Cuti -->
-        <div class="bg-white rounded shadow border-t-[3px] border-admin-green">
-          <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center">
-            <h3 class="text-sm font-semibold text-slate-700">Permohonan Cuti (Menunggu)</h3>
-            <button class="bg-admin-green text-white text-xs px-3 py-1.5 rounded">Data Cuti</button>
+        <!-- SECTION 3: TAMBAH DATA PEGAWAI -->
+        <div id="section-tambah-pegawai" class="content-section hidden fade-in">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl text-slate-700">Tambah Data Pegawai</h2>
           </div>
-          <div class="p-4 overflow-x-auto">
-            <table class="w-full text-sm text-left whitespace-nowrap">
-              <thead class="text-slate-700 border-b border-slate-200">
-                <tr><th class="pb-3 px-2">No.</th><th class="pb-3 px-2">Nama</th><th class="pb-3 px-2">Tanggal Cuti</th><th class="pb-3 px-2 text-center">Jumlah</th><th class="pb-3 px-2">Masuk Kerja</th></tr>
-              </thead>
-              <tbody id="tableCutiBody" class="divide-y divide-slate-100 font-medium">
-                <tr><td colspan="5" class="py-4 text-center text-slate-400">Memuat data...</td></tr>
-              </tbody>
-            </table>
+
+          <div class="bg-white rounded shadow border-t-[3px] border-admin-green p-6">
+            <form class="space-y-4 max-w-4xl">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label class="font-bold text-sm text-slate-700 md:text-right">NIP</label>
+                <div class="md:col-span-3"><input type="text" class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-blue-500"></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label class="font-bold text-sm text-slate-700 md:text-right">Nama</label>
+                <div class="md:col-span-3"><input type="text" class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-blue-500"></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label class="font-bold text-sm text-slate-700 md:text-right">Email</label>
+                <div class="md:col-span-3"><input type="email" value="samchick-office" class="w-full bg-[#e8f0fe] border border-slate-300 rounded p-2 focus:outline-none focus:border-blue-500 text-slate-700"></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label class="font-bold text-sm text-slate-700 md:text-right">Password</label>
+                <div class="md:col-span-3"><input type="password" value="........" class="w-full bg-[#e8f0fe] border border-slate-300 rounded p-2 focus:outline-none focus:border-blue-500 text-slate-700"></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label class="font-bold text-sm text-slate-700 md:text-right">Jabatan</label>
+                <div class="md:col-span-3"><select class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-blue-500"><option>- Pilih -</option></select></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label class="font-bold text-sm text-slate-700 md:text-right">Shift</label>
+                <div class="md:col-span-3"><select class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-blue-500"><option>- Pilih -</option></select></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label class="font-bold text-sm text-slate-700 md:text-right">Penempatan</label>
+                <div class="md:col-span-3"><select class="w-full border border-slate-300 rounded p-2 focus:outline-none focus:border-blue-500"><option>- Pilih -</option></select></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                <label class="font-bold text-sm text-slate-700 md:text-right pt-2">Foto</label>
+                <div class="md:col-span-3">
+                  <div class="w-24 h-24 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:bg-slate-50">
+                    <span class="text-2xl">📷</span>
+                    <span class="text-xs font-bold mt-1">Unggah</span>
+                  </div>
+                  <p class="text-xs font-bold text-slate-800 mt-2">Kosongan jika tidak ingin mengupload foto</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+                <div class="hidden md:block"></div>
+                <div class="md:col-span-3 flex gap-2">
+                  <button type="button" class="bg-[#3c8dbc] hover:bg-[#367fa9] text-white px-5 py-2 rounded text-sm font-medium">✓ Simpan</button>
+                  <button type="button" onclick="showSection('section-data-pegawai')" class="bg-[#dd4b39] hover:bg-[#d73925] text-white px-5 py-2 rounded text-sm font-medium">✖ Batal</button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -161,8 +258,30 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
+  <div id="modalImport" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden relative">
+      <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-slate-700">Import Data Pegawai</h3>
+        <button onclick="toggleModal('modalImport')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <div class="p-6">
+        <label class="block text-sm font-bold text-slate-700 mb-2">Upload File</label>
+        <div class="flex items-center">
+          <button class="bg-[#3c8dbc] text-white px-4 py-2 text-sm rounded-l border border-[#3c8dbc]">Upload</button>
+          <input type="text" readonly placeholder="Upload file Excel" class="w-full border border-l-0 border-slate-300 rounded-r px-3 py-2 text-sm bg-slate-50 text-slate-500">
+        </div>
+        <a href="#" class="inline-block mt-3 text-sm text-[#3c8dbc] hover:underline font-medium">Download Sample File</a>
+      </div>
+      <div class="px-6 py-3 border-t border-slate-200 flex justify-end">
+        <button onclick="toggleModal('modalImport')" class="bg-[#00c0ef] hover:bg-[#00b3df] text-white px-5 py-2 rounded text-sm font-medium shadow">✓ Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
   <script>
-    // TEMPELKAN URL WEB APP ANDA DI SINI
+    // TEMPELKAN URL WEB APP GAS ANDA DI SINI
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz0_VD3CjQh0wJ418r2WloIvUzBOKXa-IGP9iXzxpwTh49bcGW03h-h26b6gn1IqThH/exec";
     
     window.addEventListener("DOMContentLoaded", () => {
@@ -171,10 +290,71 @@
       if (adminSession) {
         const adminData = JSON.parse(adminSession);
         document.getElementById("adminNameDisplay").innerHTML = `${adminData.nama} ▼`;
-        showDashboard();
+        document.getElementById("loginView").classList.add("hidden");
+        document.getElementById("dashboardWrapper").classList.remove("hidden");
+        loadAdminData(); // Fungsi load data dari GAS
       }
     });
 
+    // Toggle Sidebar (Menyembunyikan/Menampilkan Sidebar)
+    function toggleSidebar() {
+      const sidebar = document.getElementById('adminSidebar');
+      const mainContent = document.getElementById('mainContent');
+      const logo = document.getElementById('logoHeader');
+      
+      sidebar.classList.toggle('-translate-x-full');
+      
+      if (sidebar.classList.contains('-translate-x-full')) {
+        // Sidebar disembunyikan
+        mainContent.classList.remove('ml-56');
+        mainContent.classList.add('ml-0');
+        logo.classList.remove('w-48');
+        logo.classList.add('w-0', 'overflow-hidden', 'opacity-0');
+      } else {
+        // Sidebar ditampilkan
+        mainContent.classList.remove('ml-0');
+        mainContent.classList.add('ml-56');
+        logo.classList.remove('w-0', 'overflow-hidden', 'opacity-0');
+        logo.classList.add('w-48');
+      }
+    }
+
+    // Toggle Submenu (Dropdown Master Data)
+    function toggleSubmenu(id) {
+      const el = document.getElementById(id);
+      const icon = document.getElementById('icon-' + id);
+      if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        el.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // Navigasi Antar Halaman di Back Office
+    function showSection(sectionId) {
+      // Sembunyikan semua section
+      const sections = document.querySelectorAll('.content-section');
+      sections.forEach(sec => sec.classList.add('hidden'));
+      
+      // Tampilkan section yang dituju
+      document.getElementById(sectionId).classList.remove('hidden');
+    }
+
+    // Modal Handle
+    function toggleModal(id) {
+      const modal = document.getElementById(id);
+      if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    // Fungsi Login API ke GAS
     async function callGAS(payload) {
       const res = await fetch(GAS_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
       return JSON.parse(await res.text());
@@ -188,44 +368,35 @@
         if (res.status === "success") {
           localStorage.setItem("admin_session", JSON.stringify(res.admin));
           document.getElementById("adminNameDisplay").innerHTML = `${res.admin.nama} ▼`;
-          showDashboard();
+          document.getElementById("loginView").classList.add("hidden");
+          document.getElementById("dashboardWrapper").classList.remove("hidden");
+          loadAdminData();
         } else { alert(res.message); }
       } catch (err) { alert("Gagal terhubung ke server"); } 
       finally { btn.textContent = "Login to Admin"; btn.disabled = false; }
     });
 
-    function showDashboard() {
-      document.getElementById("loginView").classList.add("hidden");
-      document.getElementById("dashboardView").classList.remove("hidden");
-      loadAdminData();
-    }
-
     async function loadAdminData() {
       try {
         const res = await callGAS({ action: "getAdminDashboard" });
         if (res.status === "success") {
-          // Render Stats
           document.getElementById("statKaryawan").textContent = res.stats.karyawan;
           document.getElementById("statJabatan").textContent = res.stats.jabatan;
           document.getElementById("statOutlet").textContent = res.stats.outlet;
           document.getElementById("statJam").textContent = res.stats.jamKerja;
 
-          // Render Absensi
           const tbAbs = document.getElementById("tableAbsensiBody");
           if(res.absensi.length > 0) {
-            tbAbs.innerHTML = res.absensi.map(a => `<tr><td class="py-3 px-2">${a.no}</td><td class="py-3 px-2">${a.nama}</td><td class="py-3 px-2">${a.jamMasuk}</td><td class="py-3 px-2">${a.jamPulang}</td><td class="py-3 px-2 text-right"><button class="bg-amber-500 text-white p-1 rounded hover:bg-amber-600">📝</button></td></tr>`).join("");
+            tbAbs.innerHTML = res.absensi.map(a => `<tr class="hover:bg-slate-50"><td class="py-3 px-2">${a.no}</td><td class="py-3 px-2">${a.nama}</td><td class="py-3 px-2">${a.jamMasuk}</td><td class="py-3 px-2">${a.jamPulang}</td><td class="py-3 px-2 text-right"><button class="bg-amber-500 text-white p-1 rounded hover:bg-amber-600">📝</button></td></tr>`).join("");
           } else { tbAbs.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Tidak ada absensi hari ini.</td></tr>`; }
-
-          // Render Cuti
-          const tbCuti = document.getElementById("tableCutiBody");
-          if(res.cuti.length > 0) {
-            tbCuti.innerHTML = res.cuti.map(c => `<tr><td class="py-3 px-2">${c.no}</td><td class="py-3 px-2">${c.nama}</td><td class="py-3 px-2">${c.tanggalCuti}</td><td class="py-3 px-2 text-center"><span class="bg-amber-400 text-white px-2 py-0.5 rounded text-xs">${c.jumlah}</span></td><td class="py-3 px-2">${c.masukKerja}</td></tr>`).join("");
-          } else { tbCuti.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Tidak ada permohonan cuti baru.</td></tr>`; }
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { console.log(err); }
     }
 
-    function logoutAdmin() { localStorage.removeItem("admin_session"); location.reload(); }
+    function logoutAdmin() { 
+      localStorage.removeItem("admin_session"); 
+      location.reload(); 
+    }
   </script>
 </body>
 </html>
