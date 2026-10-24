@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Samchick Presensi — Portal Karyawan</title>
+  <!-- Konfigurasi PWA (Chrome & Safari iOS) -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#dc2626" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  
+  <!-- Khusus Safari iOS (iPhone/iPad) -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Presensi" />
+  <link rel="apple-touch-icon" href="/logo.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -1625,6 +1635,12 @@
       }`;
       d.classList.remove("hidden");
       setTimeout(() => d.classList.add("hidden"), 4000);
+    }
+    // Registrasi Service Worker untuk PWA (Installable Web App)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js").catch(err => console.log("SW gagal:", err));
+      });
     }
   </script>
 </body>
