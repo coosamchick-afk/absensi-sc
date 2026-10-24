@@ -169,6 +169,13 @@
           </div>
           <span>Permohonan Cuti</span>
         </button>
+        
+        <button onclick="toggleSidebar(); openSlipGajiModal();" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold text-xs transition group">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 text-emerald-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <span>Slip Gaji Rahasia</span>
+        </button>
 
         <button onclick="switchView('appView'); setTimeout(()=> { document.getElementById('sectionRiwayat').scrollIntoView({behavior:'smooth'}); }, 250);" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-600 font-semibold text-xs transition group">
           <div class="w-9 h-9 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 text-emerald-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
@@ -177,6 +184,8 @@
           <span>Riwayat Kehadiran</span>
         </button>
       </div>
+
+      
 
       <!-- Sidebar Footer -->
       <div class="p-4 border-t border-slate-100 bg-slate-50/60">
@@ -827,6 +836,118 @@
       </div>
     </div>
 
+    <!-- ==================== MODAL 3: SLIP GAJI RAHASIA ==================== -->
+    <div id="slipGajiModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl relative animate-fade-up max-h-[92vh] overflow-y-auto">
+        
+        <!-- Header Modal -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg bg-red-50 text-red-600 text-[10px] font-extrabold uppercase tracking-wider border border-red-200">🔒 Pribadi & Rahasia</span>
+          </div>
+          <button onclick="closeSlipGajiModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">✕</button>
+        </div>
+
+        <!-- Langkah 1: Verifikasi Password Keamanan -->
+        <div id="slipAuthBox" class="py-6 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 mx-auto flex items-center justify-center mb-3">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <h3 class="text-base font-extrabold text-slate-800">Dokumen Rahasia</h3>
+          <p class="text-xs text-slate-400 mt-1 mb-4">Masukkan password akun Anda untuk membuka Slip Gaji</p>
+          <input type="password" id="slipPinInput" placeholder="Masukkan password login..." class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs font-bold focus:outline-none focus:border-red-600 mb-3" />
+          <button id="btnUnlockSlip" onclick="loadSlipGajiData()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#dc2626] to-[#991b1b] text-white text-xs font-extrabold shadow-lg shadow-red-600/20">
+            Buka Slip Gaji Saya
+          </button>
+        </div>
+
+        <!-- Langkah 2: Tampilan Slip Gaji Resmi -->
+        <div id="slipContentBox" class="hidden pt-3">
+          <div class="border-2 border-slate-800 rounded-xl p-4 bg-white text-slate-800 relative overflow-hidden">
+            <!-- Kop Slip Gaji -->
+            <div class="text-center border-b-2 border-slate-800 pb-3 mb-3">
+              <h2 class="text-sm font-extrabold tracking-wide uppercase">SLIP GAJI OFFICE</h2>
+              <p class="text-[11px] font-bold text-slate-600">CV SAMCHICK PRIMA BERKAH</p>
+            </div>
+
+            <!-- Identitas Karyawan -->
+            <div class="grid grid-cols-2 gap-2 text-[10px] mb-3 pb-3 border-b border-slate-200">
+              <div>
+                <p class="text-slate-400">Nama:</p>
+                <p id="slpNama" class="font-extrabold text-slate-800">-</p>
+                <p class="text-slate-400 mt-1">Departemen / Jabatan:</p>
+                <p id="slpJabatan" class="font-bold text-slate-700">-</p>
+              </div>
+              <div class="text-right">
+                <p class="text-slate-400">Golongan:</p>
+                <p id="slpGolongan" class="font-bold text-slate-800">-</p>
+                <p class="text-slate-400 mt-1">Periode:</p>
+                <p id="slpPeriode" class="font-extrabold text-red-600">-</p>
+              </div>
+            </div>
+
+            <!-- Master Tarif Gaji -->
+            <div class="grid grid-cols-3 gap-1.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[9px] mb-3 text-center">
+              <div><span class="text-slate-400 block">Gaji Pokok</span><strong id="slpGapok" class="text-slate-800">-</strong></div>
+              <div><span class="text-slate-400 block">Tunjangan</span><strong id="slpTunj" class="text-slate-800">-</strong></div>
+              <div><span class="text-slate-400 block">Tunj. HRD</span><strong id="slpTunjHrd" class="text-slate-800">-</strong></div>
+              <div><span class="text-slate-400 block">Gaji / Hari</span><strong id="slpPerHari" class="text-slate-800">-</strong></div>
+              <div><span class="text-slate-400 block">Gaji / Jam</span><strong id="slpPerJam" class="text-slate-800">-</strong></div>
+              <div><span class="text-slate-400 block">Gaji / Menit</span><strong id="slpPerMenit" class="text-slate-800">-</strong></div>
+            </div>
+
+            <!-- Tabel Rincian Gaji -->
+            <div class="text-[10px] font-extrabold text-center uppercase tracking-wider mb-1.5 text-slate-600">Rincian Penerimaan Gaji</div>
+            <div class="border border-slate-300 rounded-lg overflow-hidden mb-3">
+              <div class="grid grid-cols-12 bg-slate-100 border-b border-slate-300 px-2.5 py-1.5 text-[9px] font-extrabold text-slate-700">
+                <div class="col-span-5">KETERANGAN</div>
+                <div class="col-span-2 text-center">WAKTU</div>
+                <div class="col-span-2 text-right">GAJI</div>
+                <div class="col-span-3 text-right">TOTAL</div>
+              </div>
+              <div id="slpRincianRows" class="divide-y divide-slate-200 text-[10px]"></div>
+              
+              <!-- Grand Total & Take Home Pay -->
+              <div class="grid grid-cols-12 px-2.5 py-1.5 bg-slate-50 border-t border-slate-300 text-[10px] font-bold">
+                <div class="col-span-8 text-right pr-2">GRAND TOTAL</div>
+                <div id="slpGrandTotal" class="col-span-4 text-right font-extrabold">-</div>
+              </div>
+              <div class="grid grid-cols-12 px-2.5 py-2 bg-emerald-500 text-white text-[11px] font-extrabold">
+                <div class="col-span-7 text-right pr-2">TAKE HOME PAY</div>
+                <div id="slpThp" class="col-span-5 text-right">-</div>
+              </div>
+            </div>
+
+            <p id="slpCatatan" class="text-[9px] font-bold text-slate-500 italic text-right mb-4"></p>
+
+            <!-- Tanda Tangan / Pengesahan -->
+            <p id="slpTanggalCetak" class="text-[9px] font-semibold text-right text-slate-600 mb-2"></p>
+            <div class="grid grid-cols-3 gap-1 text-center text-[9px] text-slate-600 pt-2 border-t border-dashed border-slate-200">
+              <div>
+                <p>Disetujui,</p>
+                <p id="slpSetujuNama" class="font-extrabold text-slate-800 mt-6">-</p>
+                <p id="slpSetujuJab" class="text-[8px] text-slate-400">-</p>
+              </div>
+              <div>
+                <p>Mengetahui,</p>
+                <p id="slpTahuNama" class="font-extrabold text-slate-800 mt-6">-</p>
+                <p id="slpTahuJab" class="text-[8px] text-slate-400">-</p>
+              </div>
+              <div>
+                <p>Diterima,</p>
+                <p id="slpTerimaNama" class="font-extrabold text-slate-800 mt-6">-</p>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="window.print()" class="w-full mt-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-extrabold shadow-md flex items-center justify-center gap-2">
+            <span>🖨️ Cetak / Simpan PDF</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+    
     <!-- ==================== FLOATING GLASS BOTTOM NAVIGATION DOCK ==================== -->
     <div id="bottomNav" class="hidden fixed bottom-4 left-4 right-4 max-w-[calc(28rem-2rem)] mx-auto glass-card rounded-3xl px-5 py-2.5 flex justify-between items-center z-30 shadow-xl shadow-slate-900/10">
       <button onclick="switchView('appView')" class="flex flex-col items-center text-red-600 group">
@@ -849,7 +970,7 @@
         <span class="text-[9px] font-bold mt-1">Izin</span>
       </button>
 
-      <button onclick="showProfileInfo()" class="flex flex-col items-center text-slate-500 hover:text-red-600 group">
+      <button onclick="openSlipGajiModal()" class="flex flex-col items-center text-slate-500 hover:text-red-600 group">
         <svg class="w-5 h-5 group-active:scale-90 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
         <span class="text-[9px] font-bold mt-1">Profil</span>
       </button>
@@ -1642,6 +1763,83 @@
         navigator.serviceWorker.register("/sw.js").catch(err => console.log("SW gagal:", err));
       });
     }
+
+    // 10. SLIP GAJI RAHASIA HANDLER
+    function openSlipGajiModal() {
+      document.getElementById("slipPinInput").value = "";
+      document.getElementById("slipAuthBox").classList.remove("hidden");
+      document.getElementById("slipContentBox").classList.add("hidden");
+      document.getElementById("slipGajiModal").classList.remove("hidden");
+      document.getElementById("slipGajiModal").classList.add("flex");
+    }
+
+    function closeSlipGajiModal() {
+      document.getElementById("slipGajiModal").classList.add("hidden");
+      document.getElementById("slipGajiModal").classList.remove("flex");
+    }
+
+    async function loadSlipGajiData() {
+      const pass = document.getElementById("slipPinInput").value;
+      if (!pass) return showToast("Masukkan password untuk verifikasi keamanan!", "error");
+
+      const btn = document.getElementById("btnUnlockSlip");
+      btn.textContent = "Memverifikasi & Memuat Slip...";
+      btn.disabled = true;
+
+      try {
+        const res = await callGAS({
+          action: "getSlipGaji",
+          idKaryawan: currentUser.idKaryawan,
+          password: pass
+        });
+
+        if (res.status === "success" && res.slip) {
+          const s = res.slip;
+          document.getElementById("slpNama").textContent = s.nama;
+          document.getElementById("slpJabatan").textContent = `${s.departemen} • ${s.jabatan}`;
+          document.getElementById("slpGolongan").textContent = s.golongan || "-";
+          document.getElementById("slpPeriode").textContent = s.periode || "-";
+
+          document.getElementById("slpGapok").textContent = s.gajiPokok || "Rp0";
+          document.getElementById("slpTunj").textContent = s.tunjangan || "Rp0";
+          document.getElementById("slpTunjHrd").textContent = s.tunjanganHrd || "Rp0";
+          document.getElementById("slpPerHari").textContent = s.gajiPerHari || "Rp0";
+          document.getElementById("slpPerJam").textContent = s.gajiPerJam || "Rp0";
+          document.getElementById("slpPerMenit").textContent = s.gajiPerMenit || "Rp0";
+
+          document.getElementById("slpRincianRows").innerHTML = (s.rincian || []).map(r => `
+            <div class="grid grid-cols-12 px-2.5 py-1.5 items-center">
+              <div class="col-span-5 font-semibold text-slate-700">${r.keterangan}</div>
+              <div class="col-span-2 text-center text-slate-500">${r.waktu || "-"}</div>
+              <div class="col-span-2 text-right text-slate-500">${r.gaji}</div>
+              <div class="col-span-3 text-right font-bold text-slate-800">${r.total}</div>
+            </div>
+          `).join("");
+
+          document.getElementById("slpGrandTotal").textContent = s.grandTotal || "Rp0";
+          document.getElementById("slpThp").textContent = s.takeHomePay || "Rp0";
+          document.getElementById("slpCatatan").textContent = s.catatanBpjs || "";
+          document.getElementById("slpTanggalCetak").textContent = s.tanggalCetak || "";
+
+          document.getElementById("slpSetujuNama").textContent = s.disetujuiNama || "-";
+          document.getElementById("slpSetujuJab").textContent = s.disetujuiJabatan || "";
+          document.getElementById("slpTahuNama").textContent = s.mengetahuiNama || "-";
+          document.getElementById("slpTahuJab").textContent = s.mengetahuiJabatan || "";
+          document.getElementById("slpTerimaNama").textContent = s.diterimaNama || s.nama;
+
+          document.getElementById("slipAuthBox").classList.add("hidden");
+          document.getElementById("slipContentBox").classList.remove("hidden");
+        } else {
+          showToast(res.message || "Gagal membuka slip gaji", "error");
+        }
+      } catch (e) {
+        showToast("Gagal terhubung ke server", "error");
+      } finally {
+        btn.textContent = "Buka Slip Gaji Saya";
+        btn.disabled = false;
+      }
+    }
+    
   </script>
 </body>
 </html>
