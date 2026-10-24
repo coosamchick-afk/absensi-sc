@@ -202,8 +202,8 @@
       </div>
     </div>
 
-    <!-- ==================== VIEW 1: MODERN LOGIN SCREEN ==================== -->
-    <div id="loginView" class="min-h-screen flex flex-col justify-center px-6 bg-gradient-to-br from-[#dc2626] via-[#991b1b] to-[#450a0a] relative overflow-hidden">
+<!-- ==================== VIEW 1: MODERN LOGIN SCREEN ==================== -->
+    <div id="loginView" class="fixed inset-0 max-w-md mx-auto h-[100dvh] z-50 flex flex-col justify-center px-6 bg-gradient-to-br from-[#dc2626] via-[#991b1b] to-[#450a0a] overflow-hidden touch-none">
       <div class="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-red-500/20 blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-20 -right-20 w-72 h-72 rounded-full bg-amber-500/15 blur-3xl pointer-events-none"></div>
 
@@ -818,7 +818,7 @@
     </div>
 
     <!-- ==================== FLOATING GLASS BOTTOM NAVIGATION DOCK ==================== -->
-    <div id="bottomNav" class="fixed bottom-4 left-4 right-4 max-w-[calc(28rem-2rem)] mx-auto glass-card rounded-3xl px-5 py-2.5 flex justify-between items-center z-30 shadow-xl shadow-slate-900/10">
+    <div id="bottomNav" class="hidden fixed bottom-4 left-4 right-4 max-w-[calc(28rem-2rem)] mx-auto glass-card rounded-3xl px-5 py-2.5 flex justify-between items-center z-30 shadow-xl shadow-slate-900/10">
       <button onclick="switchView('appView')" class="flex flex-col items-center text-red-600 group">
         <svg class="w-5 h-5 group-active:scale-90 transition" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span class="text-[9px] font-extrabold mt-1">Home</span>
@@ -1004,7 +1004,10 @@
       });
       document.getElementById(viewId).classList.remove("hidden");
 
-      const hideGlobals = (viewId === "loginView" || viewId === "tambahCutiView" || viewId === "tambahIzinView");
+      const isLogin = (viewId === "loginView");
+      document.body.style.overflow = isLogin ? "hidden" : "";
+
+      const hideGlobals = (isLogin || viewId === "tambahCutiView" || viewId === "tambahIzinView");
       document.getElementById("globalHeader").classList.toggle("hidden", hideGlobals);
       document.getElementById("bottomNav").classList.toggle("hidden", hideGlobals);
 
