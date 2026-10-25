@@ -132,6 +132,20 @@
             </div>
           </div>
 
+          <!-- Panel Kontrol Validasi & Rilis Slip Gaji Global -->
+          <div class="bg-white rounded shadow mb-6 p-4 border-l-4 border-amber-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-bold text-slate-800">Kontrol Akses Slip Gaji Karyawan (Global)</h3>
+                <span id="badgeStatusSlip" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700">🔒 Terkunci (Belum Divalidasi)</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Jika dikunci, karyawan tidak dapat melihat slip gaji di aplikasi sampai Anda selesai menghitung dan memvalidasinya.</p>
+            </div>
+            <button id="btnToggleSlip" onclick="toggleValidasiSlipGaji()" class="bg-admin-green hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold shadow transition shrink-0">
+              🔓 Validasi & Rilis Slip Gaji
+            </button>
+          </div>
+
           <!-- Tabel Absensi Hari Ini -->
           <div class="bg-white rounded shadow mb-6 border-t-[3px] border-admin-green">
             <div class="px-4 py-3 border-b border-slate-100"><h3 class="text-sm font-semibold text-slate-700">Absensi Hari ini</h3></div>
@@ -371,6 +385,7 @@
           document.getElementById("statJabatan").textContent = res.stats.jabatan;
           document.getElementById("statOutlet").textContent = res.stats.outlet;
           document.getElementById("statJam").textContent = res.stats.jamKerja;
+          renderSlipToggleUI(Boolean(res.slipReleased));
 
           const selJab = document.getElementById("pegJabatan");
           if(res.jabatan) selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
@@ -552,6 +567,59 @@
       localStorage.removeItem("admin_session"); 
       location.reload(); 
     }
+
+    let currentSlipReleased = false;
+
+    function renderSlipToggleUI(isReleased) {
+      currentSlipReleased = isReleased;
+      const badge = document.getElementById("badgeStatusSlip");
+      const btn = document.getElementById("btnToggleSlip");
+      if (!badge || !btn) return;
+
+      if (isReleased) {
+        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700";
+        badge.textContent = "✅ Tervalidasi & Dirilis (Karyawan Bisa Cek)";
+        btn.className = "bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded text-xs font-bold shadow transition shrink-0";
+        btn.textContent = "🔒 Kunci Kembali Slip Gaji";
+      } else {
+        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700";
+        badge.textContent = "🔒 Terkunci (Proses Hitung / Belum Valid)";
+        btn.className = "bg-admin-green hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold shadow transition shrink-0";
+        btn.textContent = "🔓 Validasi & Rilis Slip Gaji";
+      }
+    }
+
+    function toggleValidasiSlipGaji() {
+      const targetState = !currentSlipReleased;
+      Swal.fire({
+        title: targetState ? 'Rilis Slip Gaji Sekarang?' : 'Kunci Akses Slip Gaji?',
+        text: targetState 
+          ? 'Seluruh karyawan akan dapat melihat rincian slip gaji mereka di aplikasi.' 
+          : 'Karyawan tidak akan bisa melihat slip gaji selama masa perhitungan.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: targetState ? '#00a65a' : '#d33',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: targetState ? 'Ya, Rilis Sekarang!' : 'Ya, Kunci!',
+        cancelButtonText: 'Batal'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          try {
+            const res = await callGAS({ action: "toggleSlipGaji", release: targetState });
+            if (res.status === "success") {
+              renderSlipToggleUI(res.slipReleased);
+              Swal.fire('Berhasil!', res.message, 'success');
+            } else {
+              Swal.fire('Gagal', res.message, 'error');
+            }
+          } catch (e) {
+            Swal.fire('Error', 'Gagal menghubungi server.', 'error');
+          }
+        }
+      });
+    }
+    
   </script>
 </body>
 </html>
