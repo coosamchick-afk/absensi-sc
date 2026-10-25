@@ -3,254 +3,528 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Back Office - Kehadiran</title>
+  <title>Samchick Back Office — Executive HR Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Roboto', sans-serif; background-color: #f4f6f9; }
-    .bg-admin-green { background-color: #00a65a; }
-    .text-admin-green { color: #00a65a; }
-    .card-blue { background-color: #00c0ef; color: white; }
-    .card-yellow { background-color: #f39c12; color: white; }
-    .card-red { background-color: #dd4b39; color: white; }
-    .card-green { background-color: #00a65a; color: white; }
-    .sidebar-link:hover { background-color: #e9ecef; border-left: 3px solid #00a65a; color: #333; }
-    .submenu-link:hover { color: #00a65a; }
-    .fade-in { animation: fadeIn 0.3s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    
-    /* Custom Scrollbar for Sidebar */
-    aside::-webkit-scrollbar { width: 5px; }
-    aside::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fade-up { animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-scale-in { animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .card-surface {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    }
+
+    .nav-item {
+      transition: all 0.2s ease;
+    }
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(220, 38, 38, 0.16) 0%, rgba(220, 38, 38, 0.04) 100%);
+      color: #ffffff;
+      border-left: 3px solid #ef4444;
+    }
   </style>
 </head>
 <body class="text-slate-800 overflow-x-hidden">
 
-  <!-- ==================== VIEW LOGIN ADMIN ==================== -->
-  <div id="loginView" class="min-h-screen flex items-center justify-center bg-[#f4f6f9]">
-    <div class="bg-white p-8 rounded shadow-lg w-full max-w-md fade-in">
-      <div class="text-center mb-6">
-        <h2 class="text-lg text-slate-600 mb-4">Silahkan masukkan username dan password :</h2>
+  <!-- ==================== VIEW 1: EXECUTIVE LOGIN SCREEN ==================== -->
+  <div id="loginView" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090d16] overflow-hidden">
+    <!-- Ambient Background Glows -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-red-600/20 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-indigo-600/15 blur-3xl pointer-events-none"></div>
+
+    <div class="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10 animate-fade-up">
+      <div class="flex flex-col items-center text-center mb-8">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-rose-700 flex items-center justify-center shadow-lg shadow-red-600/30 mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <span class="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-extrabold uppercase tracking-widest">Back Office System</span>
+        <h1 class="text-2xl font-extrabold text-white mt-2.5 tracking-tight">Samchick Admin Portal</h1>
+        <p class="text-xs text-slate-400 mt-1">Masuk menggunakan kredensial administrator resmi</p>
       </div>
+
       <form id="loginForm" class="space-y-4">
-        <div class="relative">
-          <input type="text" id="username" required placeholder="Username" class="w-full bg-[#e8f0fe] border border-slate-300 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
-          <span class="absolute right-4 top-3 text-slate-400">👤</span>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5 ml-1">Username Admin</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </span>
+            <input type="text" id="username" required placeholder="Contoh: samchick-office"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl pl-10 pr-4 py-3.5 text-xs font-semibold text-white placeholder-slate-600 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition">
+          </div>
         </div>
-        <div class="relative">
-          <input type="password" id="password" required placeholder="Password" class="w-full bg-[#e8f0fe] border border-slate-300 rounded px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
-          <span class="absolute right-4 top-3 text-slate-400">🔒</span>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5 ml-1">Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </span>
+            <input type="password" id="password" required placeholder="••••••••"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl pl-10 pr-10 py-3.5 text-xs font-semibold text-white placeholder-slate-600 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition">
+            <button type="button" onclick="toggleAdminPass()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
         </div>
-        <button type="submit" id="btnLogin" class="w-full bg-[#3c8dbc] hover:bg-[#367fa9] text-white py-3 rounded text-sm transition font-medium mt-2">Login to Admin</button>
+
+        <button type="submit" id="btnLogin"
+          class="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 active:scale-[0.99] text-white py-3.5 rounded-2xl text-xs font-extrabold tracking-wide transition shadow-lg shadow-red-600/25 mt-2 flex items-center justify-center gap-2">
+          <span>Masuk ke Back Office</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </button>
       </form>
     </div>
   </div>
 
   <!-- ==================== WRAPPER DASHBOARD ADMIN ==================== -->
-  <div id="dashboardWrapper" class="hidden min-h-screen flex flex-col fade-in">
-    
-    <!-- Navbar Top -->
-    <header class="bg-admin-green text-white h-14 flex items-center justify-between px-4 fixed w-full z-30 transition-all duration-300">
-      <div class="flex items-center gap-4">
-        <div id="logoHeader" class="font-bold text-lg tracking-wide w-48 text-center transition-all duration-300">KEHADIRAN</div>
-        <button onclick="toggleSidebar()" class="hover:bg-black/10 p-2 rounded cursor-pointer">☰</button>
-        <div class="hidden md:block text-sm" id="headerDate">19-10-2026</div>
+  <div id="dashboardWrapper" class="hidden min-h-screen flex flex-col bg-[#f8fafc]">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 hidden lg:hidden"></div>
+
+    <!-- ==================== SIDEBAR NAVIGATION (DARK OBSIDIAN) ==================== -->
+    <aside id="adminSidebar" class="w-64 bg-[#0b0f19] text-slate-300 fixed inset-y-0 left-0 z-40 flex flex-col transition-transform duration-300 ease-in-out transform -translate-x-full lg:translate-x-0 border-r border-slate-800/80">
+      <!-- Brand Logo -->
+      <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800/80 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-rose-700 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-red-600/20">
+            SC
+          </div>
+          <div>
+            <span class="font-extrabold text-white text-sm tracking-wide block leading-none">SAMCHICK</span>
+            <span class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase">HR Management</span>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1">✕</button>
       </div>
-      <div class="flex items-center gap-4 text-sm">
-        <span class="bg-yellow-400 text-yellow-900 px-1.5 rounded text-xs font-bold">0</span>
-        <button onclick="logoutAdmin()" id="adminNameDisplay" class="flex items-center gap-2 hover:bg-black/10 p-2 rounded cursor-pointer">
-          Super Admin ▼
+
+      <!-- Navigation Links -->
+      <div class="flex-1 overflow-y-auto py-5 px-3 space-y-1">
+        <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Menu Utama</p>
+
+        <a href="#" id="nav-dashboard" onclick="showSection('section-dashboard', this)" class="nav-item active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span>Dashboard Analitik</span>
+        </a>
+
+        <!-- Master Data Dropdown -->
+        <div>
+          <button onclick="toggleSubmenu('submenu-master')" class="w-full nav-item flex justify-between items-center px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+              <span>Master Data</span>
+            </div>
+            <svg id="icon-submenu-master" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          <div id="submenu-master" class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1 hidden">
+            <a href="#" id="nav-pegawai" onclick="showSection('section-data-pegawai', this)" class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Data Pegawai
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Data Jabatan siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Data Jabatan
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Data Jam Kerja siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Data Jam Kerja
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Data Lokasi siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Data Lokasi
+            </a>
+            <a href="#" onclick="Swal.fire('Info', 'Modul Libur Nasional siap dikembangkan di tahap berikutnya.', 'info')" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> Libur Nasional
+            </a>
+          </div>
+        </div>
+
+        <p class="px-3 pt-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Operasional & Laporan</p>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Data Izin & Sakit</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Permohonan Cuti</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Laporan Absensi</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Laporan Harian</span>
+        </a>
+
+        <p class="px-3 pt-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Sistem</p>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Pengaturan Web</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Manajemen Admin</span>
+        </a>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-slate-800/80 bg-slate-950/40">
+        <button onclick="logoutAdmin()" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white text-xs font-extrabold transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Keluar Sesi</span>
         </button>
       </div>
-    </header>
+    </aside>
 
-    <div class="flex flex-1 pt-14">
-      
-      <!-- Sidebar Left -->
-      <aside id="adminSidebar" class="w-56 bg-white border-r border-slate-200 fixed h-full z-20 overflow-y-auto pb-20 transition-transform duration-300 transform translate-x-0">
-        <div class="px-4 py-3 text-xs font-bold text-slate-400 bg-slate-50 uppercase border-b border-slate-200">Main Navigation</div>
-        <nav class="mt-2 text-sm text-slate-600 font-medium">
-          <a href="#" onclick="showSection('section-dashboard')" class="sidebar-link flex items-center gap-3 px-4 py-3 bg-slate-100 border-l-4 border-admin-green text-slate-800">
-            <span>🏠</span> Dashboard
-          </a>
-          
-          <!-- Master Data Dropdown -->
+    <!-- ==================== MAIN WORKSPACE AREA ==================== -->
+    <div id="mainContent" class="lg:ml-64 flex-1 flex flex-col min-h-screen transition-all duration-300">
+
+      <!-- Top Glass Navbar -->
+      <header class="h-16 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-4 lg:px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h12M4 18h16"/></svg>
+          </button>
           <div>
-            <a href="#" onclick="toggleSubmenu('submenu-master')" class="sidebar-link flex justify-between items-center px-4 py-3">
-              <div class="flex gap-3"><span>🗄️</span> Master Data</div>
-              <span id="icon-submenu-master" class="text-xs transition-transform transform">▼</span>
-            </a>
-            <div id="submenu-master" class="bg-slate-50 py-1 hidden">
-              <a href="#" onclick="showSection('section-data-pegawai')" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Pegawai</a>
-              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Jabatan</a>
-              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Jam Kerja</a>
-              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Data Lokasi</a>
-              <a href="#" class="submenu-link flex items-center gap-2 px-8 py-2 text-sm text-slate-600"><span class="text-[10px]">⚪</span> Libur Nasional</a>
+            <h2 id="topPageTitle" class="text-sm font-extrabold text-slate-800 leading-tight">Dashboard Analitik</h2>
+            <p id="headerDate" class="text-[11px] font-semibold text-slate-400">Memuat tanggal...</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Sync Button -->
+          <button onclick="loadAdminData(true)" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition" title="Refresh Data">
+            <svg id="adminSyncIcon" class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span class="hidden sm:inline">Sinkronisasi</span>
+          </button>
+
+          <!-- Admin Profile Pill -->
+          <div class="flex items-center gap-2.5 pl-2 border-l border-slate-200">
+            <div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 font-extrabold text-xs flex items-center justify-center border border-red-200">
+              AD
+            </div>
+            <div class="hidden sm:block text-left">
+              <p id="adminNameDisplay" class="text-xs font-extrabold text-slate-800 leading-none">Super Admin</p>
+              <span class="text-[10px] font-semibold text-emerald-600">● Online</span>
             </div>
           </div>
+        </div>
+      </header>
 
-          <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>📄</span> Data Izin</a>
-          <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>📅</span> Data Permohonan Cuti</a>
-          <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>📊</span> Laporan Absensi</a>
-          <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>📈</span> Laporan Harian</a>
-          <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>⚙️</span> Pengaturan Web</a>
-          <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3"><span>👤</span> Admin</a>
-          <a href="#" onclick="logoutAdmin()" class="sidebar-link flex items-center gap-3 px-4 py-3 text-red-600 mt-4 border-t border-slate-100">
-            <span>🚪</span> Keluar
-          </a>
-        </nav>
-      </aside>
+      <!-- Content Container -->
+      <main class="p-4 lg:p-8 flex-1 space-y-6">
 
-      <!-- Main Content Area -->
-      <main id="mainContent" class="ml-56 flex-1 p-6 bg-[#f4f6f9] transition-all duration-300">
-        
-        <!-- SECTION 1: DASHBOARD STATISTIK -->
-        <div id="section-dashboard" class="content-section fade-in">
-          <!-- 4 Stat Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="card-blue rounded flex flex-col relative overflow-hidden shadow">
-              <div class="p-4 z-10"><h3 id="statKaryawan" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Karyawan</p></div>
-              <div class="absolute right-[-10px] top-2 opacity-20 text-6xl">👤</div>
-              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+        <!-- ==================== SECTION 1: DASHBOARD STATISTIK ==================== -->
+        <div id="section-dashboard" class="content-section animate-fade-up space-y-6">
+
+          <!-- 4 Modern KPI Stat Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <!-- Card 1: Karyawan -->
+            <div onclick="showSection('section-data-pegawai', document.getElementById('nav-pegawai'))" class="card-surface rounded-2xl p-5 cursor-pointer hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Karyawan</p>
+                  <h3 id="statKaryawan" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-sky-600">
+                <span>Kelola Data Pegawai</span>
+                <span>➔</span>
+              </div>
             </div>
-            <div class="card-yellow rounded flex flex-col relative overflow-hidden shadow">
-              <div class="p-4 z-10"><h3 id="statJabatan" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Jabatan</p></div>
-              <div class="absolute right-2 top-4 opacity-20 text-5xl">💼</div>
-              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+
+            <!-- Card 2: Jabatan -->
+            <div class="card-surface rounded-2xl p-5 hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Master Jabatan</p>
+                  <h3 id="statJabatan" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-400">
+                <span>Posisi & Divisi Aktif</span>
+                <span>✓</span>
+              </div>
             </div>
-            <div class="card-red rounded flex flex-col relative overflow-hidden shadow">
-              <div class="p-4 z-10"><h3 id="statOutlet" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Lokasi Kantor</p></div>
-              <div class="absolute right-2 top-4 opacity-20 text-5xl">🏢</div>
-              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+
+            <!-- Card 3: Lokasi Kantor -->
+            <div class="card-surface rounded-2xl p-5 hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lokasi Outlet</p>
+                  <h3 id="statOutlet" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-400">
+                <span>Titik Koordinat GPS</span>
+                <span>✓</span>
+              </div>
             </div>
-            <div class="card-green rounded flex flex-col relative overflow-hidden shadow">
-              <div class="p-4 z-10"><h3 id="statJam" class="text-3xl font-bold mb-1">0</h3><p class="text-sm">Jam Kerja</p></div>
-              <div class="absolute right-2 top-4 opacity-20 text-5xl">🔄</div>
-              <div class="bg-black/10 py-1.5 text-center text-xs mt-auto cursor-pointer hover:bg-black/20">More info ➔</div>
+
+            <!-- Card 4: Jam Kerja -->
+            <div class="card-surface rounded-2xl p-5 hover:-translate-y-0.5 transition-all group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Shift Jam Kerja</p>
+                  <h3 id="statJam" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-400">
+                <span>Jadwal Operasional</span>
+                <span>✓</span>
+              </div>
             </div>
           </div>
 
           <!-- Panel Kontrol Validasi & Rilis Slip Gaji Global -->
-          <div class="bg-white rounded shadow mb-6 p-4 border-l-4 border-amber-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-sm font-bold text-slate-800">Kontrol Akses Slip Gaji Karyawan (Global)</h3>
-                <span id="badgeStatusSlip" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700">🔒 Terkunci (Belum Divalidasi)</span>
+          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-amber-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
-              <p class="text-xs text-slate-500 mt-1">Jika dikunci, karyawan tidak dapat melihat slip gaji di aplikasi sampai Anda selesai menghitung dan memvalidasinya.</p>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-sm font-extrabold text-slate-800">Otorisasi Akses Slip Gaji Karyawan (Global)</h3>
+                  <span id="badgeStatusSlip" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-100 text-rose-700">🔒 Terkunci (Belum Divalidasi)</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Selama dikunci, karyawan tidak dapat membuka menu Slip Gaji Rahasia di aplikasi sampai perhitungan selesai divalidasi HRD.</p>
+              </div>
             </div>
-            <button id="btnToggleSlip" onclick="toggleValidasiSlipGaji()" class="bg-admin-green hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold shadow transition shrink-0">
+            <button id="btnToggleSlip" onclick="toggleValidasiSlipGaji()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-md shadow-emerald-600/20 transition shrink-0 active:scale-95">
               🔓 Validasi & Rilis Slip Gaji
             </button>
           </div>
 
-          <!-- Tabel Absensi Hari Ini -->
-          <div class="bg-white rounded shadow mb-6 border-t-[3px] border-admin-green">
-            <div class="px-4 py-3 border-b border-slate-100"><h3 class="text-sm font-semibold text-slate-700">Absensi Hari ini</h3></div>
-            <div class="p-4 overflow-x-auto">
-              <table class="w-full text-sm text-left whitespace-nowrap">
-                <thead class="text-slate-700 border-b border-slate-200">
-                  <tr><th class="pb-3 px-2">No.</th><th class="pb-3 px-2">Nama</th><th class="pb-3 px-2">Jam Masuk</th><th class="pb-3 px-2">Jam Pulang</th><th class="pb-3 px-2 text-right">Aksi</th></tr>
+          <!-- Grid Tabel: Absensi Hari Ini & Permohonan Cuti -->
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- Tabel Absensi Hari Ini (2 Kolom Lebar) -->
+            <div class="xl:col-span-2 card-surface rounded-2xl overflow-hidden">
+              <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-800">Monitor Kehadiran Hari Ini</h3>
+                  <p class="text-[11px] text-slate-400">Daftar karyawan yang telah melakukan scan masuk/pulang</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-extrabold">Live Data</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left whitespace-nowrap">
+                  <thead class="bg-slate-50/80 text-slate-500 uppercase font-extrabold border-b border-slate-100">
+                    <tr>
+                      <th class="py-3.5 px-5">No</th>
+                      <th class="py-3.5 px-5">Nama Karyawan</th>
+                      <th class="py-3.5 px-5 text-center">Scan Masuk</th>
+                      <th class="py-3.5 px-5 text-center">Scan Pulang</th>
+                      <th class="py-3.5 px-5 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableAbsensiBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                    <tr><td colspan="5" class="py-8 text-center text-slate-400">Memuat data kehadiran hari ini...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Tabel Permohonan Cuti Menunggu (1 Kolom) -->
+            <div class="card-surface rounded-2xl overflow-hidden flex flex-col">
+              <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-800">Antrean Permohonan Cuti</h3>
+                  <p class="text-[11px] text-slate-400">Menunggu persetujuan HRD</p>
+                </div>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              </div>
+              <div class="overflow-x-auto flex-1">
+                <table class="w-full text-xs text-left whitespace-nowrap">
+                  <thead class="bg-slate-50/80 text-slate-500 uppercase font-extrabold border-b border-slate-100">
+                    <tr>
+                      <th class="py-3 px-4">Nama</th>
+                      <th class="py-3 px-4">Tanggal Cuti</th>
+                      <th class="py-3 px-4 text-center">Hari</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableCutiBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                    <tr><td colspan="3" class="py-8 text-center text-slate-400">Memuat permohonan cuti...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================== SECTION 2: DATA PEGAWAI ==================== -->
+        <div id="section-data-pegawai" class="content-section hidden animate-fade-up space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-1">
+                <span>Master Data</span> <span>/</span> <span class="text-red-600">Data Pegawai</span>
+              </div>
+              <h2 class="text-xl font-extrabold text-slate-800">Manajemen Data Pegawai</h2>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button onclick="toggleModal('modalImport')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold shadow-md shadow-amber-500/20 flex items-center gap-2 transition active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                <span>Import Excel</span>
+              </button>
+              <button onclick="openTambahPegawaiBaru()" class="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold shadow-md shadow-red-600/20 flex items-center gap-2 transition active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <span>Tambah Pegawai</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <!-- Filter & Search Bar -->
+            <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
+                <span>Tampilkan</span>
+                <select id="entriesPegawai" onchange="renderTabelPegawai()" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-500">
+                  <option value="10">10</option>
+                  <option value="25" selected>25</option>
+                  <option value="50">50</option>
+                  <option value="9999">Semua</option>
+                </select>
+                <span>baris</span>
+              </div>
+
+              <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </span>
+                <input type="text" id="searchPegawai" oninput="renderTabelPegawai()" placeholder="Cari nama, NIP, jabatan, outlet..."
+                  class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/10">
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left whitespace-nowrap">
+                <thead class="text-slate-500 uppercase font-extrabold border-b border-slate-200 bg-slate-50/80">
+                  <tr>
+                    <th class="py-3.5 px-4">No</th>
+                    <th class="py-3.5 px-4">ID Karyawan</th>
+                    <th class="py-3.5 px-4">Nama Lengkap</th>
+                    <th class="py-3.5 px-4">Username Login</th>
+                    <th class="py-3.5 px-4">Jabatan</th>
+                    <th class="py-3.5 px-4">ID Outlet</th>
+                    <th class="py-3.5 px-4 text-center">Aksi</th>
+                  </tr>
                 </thead>
-                <tbody id="tableAbsensiBody" class="divide-y divide-slate-100 font-medium text-slate-600">
-                  <tr><td colspan="5" class="py-4 text-center text-slate-400">Memuat data...</td></tr>
+                <tbody id="tablePegawaiBody" class="divide-y divide-slate-100 text-slate-700 font-semibold">
+                  <tr><td colspan="7" class="py-8 text-center text-slate-400">Memuat data pegawai...</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- SECTION 2: DATA PEGAWAI -->
-        <div id="section-data-pegawai" class="content-section hidden fade-in">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl text-slate-700">Data Pegawai</h2>
-            <div class="text-xs text-slate-500">🏠 Beranda > Data Pegawai</div>
-          </div>
-
-          <div class="bg-white rounded shadow border-t-[3px] border-admin-green">
-            <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center">
-              <h3 class="text-sm font-semibold text-slate-700">Data Pegawai</h3>
-              <div class="flex gap-2">
-                <button onclick="toggleModal('modalImport')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-1.5 rounded text-sm shadow">Import</button>
-                <button onclick="showSection('section-tambah-pegawai')" class="bg-admin-green hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm shadow">+ Tambah Baru</button>
-              </div>
+        <!-- ==================== SECTION 3: TAMBAH / EDIT DATA PEGAWAI ==================== -->
+        <div id="section-tambah-pegawai" class="content-section hidden animate-fade-up max-w-3xl">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <span class="text-xs font-bold text-red-600 uppercase tracking-wider">Formulir Master Karyawan</span>
+              <h2 id="titleFormPegawai" class="text-xl font-extrabold text-slate-800 mt-0.5">Tambah Data Pegawai</h2>
             </div>
-            <div class="p-4">
-              <div class="flex justify-between items-center mb-4 text-sm text-slate-600">
-                <div>Show <select class="border rounded p-1 mx-1"><option>25</option></select> entries</div>
-                <div>Search: <input type="text" class="border rounded p-1 ml-1 focus:outline-admin-green"></div>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left whitespace-nowrap">
-                  <thead class="text-slate-700 border-y border-slate-200 bg-slate-50">
-                    <tr>
-                      <th class="py-3 px-3 font-bold">No</th>
-                      <th class="py-3 px-3 font-bold">ID Karyawan</th>
-                      <th class="py-3 px-3 font-bold">Nama</th>
-                      <th class="py-3 px-3 font-bold">Username</th>
-                      <th class="py-3 px-3 font-bold">Jabatan</th>
-                      <th class="py-3 px-3 font-bold">ID Outlet</th>
-                      <th class="py-3 px-3 font-bold text-center">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tablePegawaiBody" class="divide-y divide-slate-100 text-slate-600 font-medium">
-                    <tr><td colspan="7" class="py-4 text-center text-slate-400">Memuat data...</td></tr>
-                 </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SECTION 3: TAMBAH / EDIT DATA PEGAWAI -->
-        <div id="section-tambah-pegawai" class="content-section hidden fade-in">
-          <div class="flex justify-between items-center mb-4">
-            <h2 id="titleFormPegawai" class="text-2xl text-slate-700">Tambah Data Pegawai</h2>
+            <button onclick="resetFormPegawai()" class="px-3.5 py-2 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-700 text-xs font-bold transition">
+              ← Kembali
+            </button>
           </div>
 
-          <!-- LAYOUT FORM DIRAPIKAN AGAR TIDAK MENUMPUK -->
-          <div class="bg-white rounded shadow border-t-[3px] border-admin-green p-6 max-w-3xl">
+          <div class="card-surface rounded-3xl p-6 sm:p-8">
             <form id="formTambahPegawai" class="space-y-5">
-              <!-- Input tersembunyi untuk menyimpan ID lama saat proses EDIT -->
               <input type="hidden" id="oldPegId" value="">
-              
-              <div class="flex flex-col gap-1.5">
-                <label class="font-bold text-sm text-slate-700">ID Karyawan</label>
-                <input type="text" id="pegId" required placeholder="Contoh: EMP02" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
-              </div>
-              
-              <div class="flex flex-col gap-1.5">
-                <label class="font-bold text-sm text-slate-700">Nama Lengkap</label>
-                <input type="text" id="pegNama" required placeholder="Nama Lengkap Karyawan" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
-              </div>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div class="flex flex-col gap-1.5">
-                  <label class="font-bold text-sm text-slate-700">Username (Login)</label>
-                  <input type="text" id="pegUser" required placeholder="Username" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">ID Karyawan / NIP</label>
+                  <input type="text" id="pegId" required placeholder="Contoh: EMP02 atau SAM-1"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
                 </div>
-                <div class="flex flex-col gap-1.5">
-                  <label class="font-bold text-sm text-slate-700">Password (Login)</label>
-                  <input type="text" id="pegPass" required placeholder="Password" class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Nama Lengkap</label>
+                  <input type="text" id="pegNama" required placeholder="Nama Lengkap Sesuai Master"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
                 </div>
               </div>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div class="flex flex-col gap-1.5">
-                  <label class="font-bold text-sm text-slate-700">Jabatan</label>
-                  <select id="pegJabatan" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full"></select>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Username (Untuk Login HP)</label>
+                  <input type="text" id="pegUser" required placeholder="Username unik tanpa spasi"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
                 </div>
-                <div class="flex flex-col gap-1.5">
-                  <label class="font-bold text-sm text-slate-700">Penempatan Outlet</label>
-                  <select id="pegOutlet" required class="border border-slate-300 rounded p-2.5 focus:outline-admin-green text-sm bg-slate-50 w-full"></select>
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Password (Untuk Login HP)</label>
+                  <input type="text" id="pegPass" required placeholder="Password minimal 6 karakter"
+                    class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition">
                 </div>
               </div>
-              
-              <div class="flex gap-3 pt-4 border-t border-slate-100 mt-6">
-                <button type="button" onclick="submitPegawai()" id="btnSimpanPegawai" class="bg-admin-green hover:bg-green-700 text-white px-6 py-2.5 rounded text-sm font-medium shadow">✓ Simpan</button>
-                <button type="button" onclick="resetFormPegawai()" class="bg-slate-400 hover:bg-slate-500 text-white px-6 py-2.5 rounded text-sm font-medium shadow">✖ Batal</button>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jabatan</label>
+                  <select id="pegJabatan" required class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Penempatan Outlet</label>
+                  <select id="pegOutlet" required class="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-red-500 text-xs font-semibold bg-slate-50/70 focus:bg-white transition"></select>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 pt-5 border-t border-slate-100">
+                <button type="button" onclick="submitPegawai()" id="btnSimpanPegawai"
+                  class="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white px-6 py-3 rounded-xl text-xs font-extrabold shadow-lg shadow-red-600/20 transition active:scale-95">
+                  ✓ Simpan Data Pegawai
+                </button>
+                <button type="button" onclick="resetFormPegawai()"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-6 py-3 rounded-xl text-xs font-extrabold transition">
+                  Batal
+                </button>
               </div>
             </form>
           </div>
@@ -261,123 +535,161 @@
   </div>
 
   <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
-  <div id="modalImport" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 fade-in">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden relative">
-      <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-        <h3 class="text-lg font-medium text-slate-700">Import Data Pegawai</h3>
-        <button onclick="toggleModal('modalImport')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-      </div>
-      <div class="p-6">
-        <label class="block text-sm font-bold text-slate-700 mb-2">Upload File Excel (.xlsx)</label>
-        <div class="flex items-center">
-          <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="document.getElementById('fileNameDisplay').value = this.files[0].name">
-          <button onclick="document.getElementById('fileImportExcel').click()" class="bg-[#3c8dbc] text-white px-4 py-2 text-sm rounded-l border border-[#3c8dbc] shadow hover:bg-[#367fa9] transition">Upload</button>
-          <input type="text" id="fileNameDisplay" readonly placeholder="Pilih file Excel..." class="w-full border border-l-0 border-slate-300 rounded-r px-3 py-2 text-sm bg-slate-50 text-slate-500 cursor-not-allowed">
+  <div id="modalImport" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scale-in">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+        <div>
+          <h3 class="text-sm font-extrabold text-slate-800">Import Data Pegawai Massal</h3>
+          <p class="text-[11px] text-slate-400">Unggah file Excel (.xlsx) sesuai struktur template</p>
         </div>
-        <button onclick="downloadTemplate()" class="inline-block mt-3 text-sm text-[#3c8dbc] hover:underline font-medium">Download Sample File</button>
+        <button onclick="toggleModal('modalImport')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold">✕</button>
       </div>
-      <div class="px-6 py-3 border-t border-slate-200 flex justify-end gap-2">
-        <button onclick="toggleModal('modalImport')" class="bg-slate-400 hover:bg-slate-500 text-white px-5 py-2 rounded text-sm font-medium shadow">Batal</button>
-        <button onclick="submitImport()" class="bg-admin-green hover:bg-green-700 text-white px-5 py-2 rounded text-sm font-medium shadow">✓ Simpan</button>
+
+      <div class="p-6 space-y-4">
+        <div onclick="document.getElementById('fileImportExcel').click()"
+          class="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-2xl p-6 text-center cursor-pointer bg-slate-50/60 hover:bg-red-50/30 transition">
+          <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="document.getElementById('fileNameDisplay').textContent = this.files[0] ? this.files[0].name : 'Pilih file Excel (.xlsx)'">
+          <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-600 mx-auto flex items-center justify-center mb-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          </div>
+          <p id="fileNameDisplay" class="text-xs font-extrabold text-slate-700">Klik untuk memilih file Excel (.xlsx)</p>
+          <p class="text-[10px] text-slate-400 mt-1">Kolom: ID_Karyawan, Username, Password, Nama, Jabatan, ID_Outlet</p>
+        </div>
+
+        <button onclick="downloadTemplate()" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 transition">
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Download Sample Template Excel</span>
+        </button>
+      </div>
+
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+        <button onclick="toggleModal('modalImport')" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-100">Batal</button>
+        <button onclick="submitImport()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md shadow-emerald-600/20">✓ Proses Import</button>
       </div>
     </div>
   </div>
 
   <!-- ==================== SCRIPT LOGIC ==================== -->
   <script>
-    // TEMPELKAN URL WEB APP GAS ANDA DI SINI (CONTOH)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbz0_VD3CjQh0wJ418r2WloIvUzBOKXa-IGP9iXzxpwTh49bcGW03h-h26b6gn1IqThH/exec";
-    
+
+    let allPegawaiData = [];
+    let currentSlipReleased = false;
+
     window.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("headerDate").textContent = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+      document.getElementById("headerDate").textContent = new Date().toLocaleDateString("id-ID", {
+        weekday: "long", day: "2-digit", month: "long", year: "numeric"
+      });
       const adminSession = localStorage.getItem("admin_session");
       if (adminSession) {
         const adminData = JSON.parse(adminSession);
-        document.getElementById("adminNameDisplay").innerHTML = `${adminData.nama} ▼`;
+        document.getElementById("adminNameDisplay").textContent = adminData.nama;
         document.getElementById("loginView").classList.add("hidden");
         document.getElementById("dashboardWrapper").classList.remove("hidden");
-        loadAdminData();
+        loadAdminData(false);
       }
     });
 
-    // Toggle Sidebar
+    function toggleAdminPass() {
+      const p = document.getElementById("password");
+      p.type = p.type === "password" ? "text" : "password";
+    }
+
+    // Responsive Sidebar Toggle (Works on both Mobile & Desktop)
     function toggleSidebar() {
-      const sidebar = document.getElementById('adminSidebar');
-      const mainContent = document.getElementById('mainContent');
-      const logo = document.getElementById('logoHeader');
-      
-      sidebar.classList.toggle('-translate-x-full');
-      
-      if (sidebar.classList.contains('-translate-x-full')) {
-        mainContent.classList.remove('ml-56');
-        mainContent.classList.add('ml-0');
-        logo.classList.remove('w-48');
-        logo.classList.add('w-0', 'overflow-hidden', 'opacity-0');
+      const sidebar = document.getElementById("adminSidebar");
+      const mainContent = document.getElementById("mainContent");
+      const overlay = document.getElementById("mobileOverlay");
+
+      if (window.innerWidth < 1024) {
+        sidebar.classList.toggle("-translate-x-full");
+        overlay.classList.toggle("hidden");
       } else {
-        mainContent.classList.remove('ml-0');
-        mainContent.classList.add('ml-56');
-        logo.classList.remove('w-0', 'overflow-hidden', 'opacity-0');
-        logo.classList.add('w-48');
+        sidebar.classList.toggle("lg:translate-x-0");
+        sidebar.classList.toggle("lg:-translate-x-full");
+        mainContent.classList.toggle("lg:ml-64");
+        mainContent.classList.toggle("lg:ml-0");
       }
     }
 
-    // Toggle Submenu Master Data
     function toggleSubmenu(id) {
       const el = document.getElementById(id);
-      const icon = document.getElementById('icon-' + id);
-      if (el.classList.contains('hidden')) {
-        el.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-      } else {
-        el.classList.add('hidden');
-        icon.classList.remove('rotate-180');
+      const icon = document.getElementById("icon-" + id);
+      el.classList.toggle("hidden");
+      icon.classList.toggle("rotate-180");
+    }
+
+    function showSection(sectionId, navEl = null) {
+      document.querySelectorAll(".content-section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById(sectionId).classList.remove("hidden");
+
+      const titles = {
+        "section-dashboard": "Dashboard Analitik",
+        "section-data-pegawai": "Master Data Pegawai",
+        "section-tambah-pegawai": "Formulir Data Pegawai"
+      };
+      document.getElementById("topPageTitle").textContent = titles[sectionId] || "Dashboard Admin";
+
+      if (navEl) {
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+        navEl.classList.add("active");
       }
+
+      if (window.innerWidth < 1024) {
+        document.getElementById("adminSidebar").classList.add("-translate-x-full");
+        document.getElementById("mobileOverlay").classList.add("hidden");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Navigasi Section di Back Office
-    function showSection(sectionId) {
-      const sections = document.querySelectorAll('.content-section');
-      sections.forEach(sec => sec.classList.add('hidden'));
-      document.getElementById(sectionId).classList.remove('hidden');
+    function openTambahPegawaiBaru() {
+      document.getElementById("formTambahPegawai").reset();
+      document.getElementById("oldPegId").value = "";
+      document.getElementById("titleFormPegawai").textContent = "Tambah Data Pegawai Baru";
+      showSection("section-tambah-pegawai");
     }
 
-    // Toggle Modal Import
     function toggleModal(id) {
       const modal = document.getElementById(id);
-      if (modal.classList.contains('hidden')) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-      } else {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
+      modal.classList.toggle("hidden");
+      modal.classList.toggle("flex");
     }
 
-    // Panggilan API ke Google Apps Script
     async function callGAS(payload) {
       const res = await fetch(GAS_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
       return JSON.parse(await res.text());
     }
 
-    // Fungsi Login
+    // Login Handler
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const btn = document.getElementById("btnLogin"); btn.textContent = "Loading..."; btn.disabled = true;
+      const btn = document.getElementById("btnLogin");
+      btn.innerHTML = `<span>Memverifikasi...</span>`;
+      btn.disabled = true;
       try {
         const res = await callGAS({ action: "adminLogin", username: username.value, password: password.value });
         if (res.status === "success") {
           localStorage.setItem("admin_session", JSON.stringify(res.admin));
-          document.getElementById("adminNameDisplay").innerHTML = `${res.admin.nama} ▼`;
+          document.getElementById("adminNameDisplay").textContent = res.admin.nama;
           document.getElementById("loginView").classList.add("hidden");
           document.getElementById("dashboardWrapper").classList.remove("hidden");
-          loadAdminData();
-        } else { Swal.fire("Gagal", res.message, "error"); }
-      } catch (err) { Swal.fire("Error", "Gagal terhubung ke server", "error"); } 
-      finally { btn.textContent = "Login to Admin"; btn.disabled = false; }
+          loadAdminData(false);
+        } else {
+          Swal.fire("Akses Ditolak", res.message, "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Gagal terhubung ke server GAS", "error");
+      } finally {
+        btn.innerHTML = `<span>Masuk ke Back Office</span>`;
+        btn.disabled = false;
+      }
     });
 
-    // Render Data Dashboard & Pegawai
-    async function loadAdminData() {
+    // Load Dashboard & Master Data
+    async function loadAdminData(showToast = false) {
+      const icon = document.getElementById("adminSyncIcon");
+      if (icon) icon.classList.add("animate-spin");
+
       try {
         const res = await callGAS({ action: "getAdminDashboard" });
         if (res.status === "success") {
@@ -385,92 +697,202 @@
           document.getElementById("statJabatan").textContent = res.stats.jabatan;
           document.getElementById("statOutlet").textContent = res.stats.outlet;
           document.getElementById("statJam").textContent = res.stats.jamKerja;
+
           renderSlipToggleUI(Boolean(res.slipReleased));
 
+          // Populate Dropdowns
           const selJab = document.getElementById("pegJabatan");
-          if(res.jabatan) selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
-          
+          if (res.jabatan) selJab.innerHTML = `<option value="">- Pilih Jabatan -</option>` + res.jabatan.map(j => `<option value="${j}">${j}</option>`).join("");
+
           const selOut = document.getElementById("pegOutlet");
-          if(res.outlet) selOut.innerHTML = `<option value="">- Pilih Penempatan Outlet -</option>` + res.outlet.map(o => `<option value="${o.id}">${o.id} - ${o.nama}</option>`).join("");
+          if (res.outlet) selOut.innerHTML = `<option value="">- Pilih Penempatan Outlet -</option>` + res.outlet.map(o => `<option value="${o.id}">${o.id} — ${o.nama}</option>`).join("");
 
+          // Render Absensi Hari Ini
           const tbAbs = document.getElementById("tableAbsensiBody");
-          if(res.absensi && res.absensi.length > 0) {
-            tbAbs.innerHTML = res.absensi.map(a => `<tr class="hover:bg-slate-50"><td class="py-3 px-2">${a.no}</td><td class="py-3 px-2">${a.nama}</td><td class="py-3 px-2">${a.jamMasuk}</td><td class="py-3 px-2">${a.jamPulang}</td><td class="py-3 px-2 text-right"><button class="bg-amber-500 text-white px-2 py-1 rounded hover:bg-amber-600">📝</button></td></tr>`).join("");
-          } else { tbAbs.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-400">Tidak ada absensi hari ini.</td></tr>`; }
-
-          // Render Data Pegawai
-          const tbPegawai = document.getElementById("tablePegawaiBody");
-          if(res.pegawai && res.pegawai.length > 0) {
-            tbPegawai.innerHTML = res.pegawai.map(p => `
-              <tr class="hover:bg-slate-50 border-b border-slate-100">
-                <td class="py-3 px-3">${p.no}</td>
-                <td class="py-3 px-3">${p.idKaryawan}</td>
-                <td class="py-3 px-3">${p.nama}</td>
-                <td class="py-3 px-3">${p.username}</td>
-                <td class="py-3 px-3">${p.jabatan}</td>
-                <td class="py-3 px-3">${p.idOutlet}</td>
-                <td class="py-3 px-3 text-center whitespace-nowrap">
-                  <!-- Tombol Edit & Hapus -->
-                  <button type="button" onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')" class="bg-yellow-500 text-white px-2 py-1 rounded mr-1 hover:bg-yellow-600 shadow" title="Edit Data">📝</button>
-                  <button type="button" onclick="deletePegawai('${p.idKaryawan}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 shadow" title="Hapus Data">🗑️</button>
-                </td>
+          if (res.absensi && res.absensi.length > 0) {
+            tbAbs.innerHTML = res.absensi.map(a => `
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-5 text-slate-400">${a.no}</td>
+                <td class="py-3.5 px-5 font-bold text-slate-800">${a.nama}</td>
+                <td class="py-3.5 px-5 text-center"><span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold">${a.jamMasuk}</span></td>
+                <td class="py-3.5 px-5 text-center"><span class="px-2.5 py-1 rounded-lg ${a.jamPulang !== '00:00:00' ? 'bg-sky-50 text-sky-700' : 'bg-slate-100 text-slate-400'} font-bold">${a.jamPulang}</span></td>
+                <td class="py-3.5 px-5 text-right"><span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold">Hadir</span></td>
               </tr>
             `).join("");
           } else {
-            tbPegawai.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-400">Tidak ada data pegawai.</td></tr>`;
+            tbAbs.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada aktivitas absensi hari ini.</td></tr>`;
+          }
+
+          // Render Permohonan Cuti
+          const tbCuti = document.getElementById("tableCutiBody");
+          if (tbCuti) {
+            if (res.cuti && res.cuti.length > 0) {
+              tbCuti.innerHTML = res.cuti.map(c => `
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-4 font-bold text-slate-800">${c.nama}</td>
+                  <td class="py-3 px-4 text-slate-500 text-[11px]">${c.tanggalCuti}</td>
+                  <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 font-extrabold text-[11px]">${c.jumlah} Hr</span></td>
+                </tr>
+              `).join("");
+            } else {
+              tbCuti.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-400">Tidak ada permohonan cuti baru.</td></tr>`;
+            }
+          }
+
+          // Simpan & Render Tabel Pegawai
+          allPegawaiData = res.pegawai || [];
+          renderTabelPegawai();
+
+          if (showToast) {
+            Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Data berhasil disinkronkan", showConfirmButton: false, timer: 2000 });
           }
         }
-      } catch (err) { console.log("Gagal memuat data admin:", err); }
+      } catch (err) {
+        console.error("Gagal memuat data admin:", err);
+      } finally {
+        if (icon) icon.classList.remove("animate-spin");
+      }
     }
 
-    // Fungsi Saat Tombol Edit Ditekan
-    function editPegawai(id, nama, user, pass, jab, out) {
-      document.getElementById('titleFormPegawai').textContent = "Edit Data Pegawai";
-      document.getElementById('oldPegId').value = id; 
-      document.getElementById('pegId').value = id;
-      document.getElementById('pegNama').value = nama;
-      document.getElementById('pegUser').value = user;
-      document.getElementById('pegPass').value = pass;
-      document.getElementById('pegJabatan').value = jab;
-      document.getElementById('pegOutlet').value = out;
-      showSection('section-tambah-pegawai');
-      window.scrollTo(0, 0);
+    // Live Search & Entries Filter Pegawai
+    function renderTabelPegawai() {
+      const tbPegawai = document.getElementById("tablePegawaiBody");
+      const keyword = (document.getElementById("searchPegawai")?.value || "").toLowerCase().trim();
+      const limit = parseInt(document.getElementById("entriesPegawai")?.value || "25", 10);
+
+      const filtered = allPegawaiData.filter(p =>
+        String(p.idKaryawan).toLowerCase().includes(keyword) ||
+        String(p.nama).toLowerCase().includes(keyword) ||
+        String(p.username).toLowerCase().includes(keyword) ||
+        String(p.jabatan).toLowerCase().includes(keyword) ||
+        String(p.idOutlet).toLowerCase().includes(keyword)
+      ).slice(0, limit);
+
+      if (filtered.length > 0) {
+        tbPegawai.innerHTML = filtered.map((p, idx) => `
+          <tr class="hover:bg-slate-50/90 transition">
+            <td class="py-3.5 px-4 text-slate-400">${idx + 1}</td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-extrabold text-[11px]">${p.idKaryawan}</span></td>
+            <td class="py-3.5 px-4 font-extrabold text-slate-800">${p.nama}</td>
+            <td class="py-3.5 px-4 text-slate-500">${p.username}</td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-[11px]">${p.jabatan}</span></td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-[11px]">${p.idOutlet}</span></td>
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+              <button type="button" onclick="editPegawai('${p.idKaryawan}', '${p.nama}', '${p.username}', '${p.password}', '${p.jabatan}', '${p.idOutlet}')"
+                class="bg-amber-50 hover:bg-amber-500 text-amber-600 hover:text-white px-2.5 py-1.5 rounded-lg mr-1 transition font-bold text-xs shadow-2xs" title="Edit Pegawai">
+                ✎ Edit
+              </button>
+              <button type="button" onclick="deletePegawai('${p.idKaryawan}')"
+                class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white px-2.5 py-1.5 rounded-lg transition font-bold text-xs shadow-2xs" title="Hapus Pegawai">
+                🗑 Hapus
+              </button>
+            </td>
+          </tr>
+        `).join("");
+      } else {
+        tbPegawai.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada data pegawai yang cocok.</td></tr>`;
+      }
     }
 
-    // Fungsi Saat Tombol Reset / Batal Ditekan
-    function resetFormPegawai() {
-      document.getElementById('formTambahPegawai').reset();
-      document.getElementById('oldPegId').value = "";
-      document.getElementById('titleFormPegawai').textContent = "Tambah Data Pegawai";
-      showSection('section-data-pegawai');
+    // Kontrol Saklar Slip Gaji Global
+    function renderSlipToggleUI(isReleased) {
+      currentSlipReleased = isReleased;
+      const badge = document.getElementById("badgeStatusSlip");
+      const btn = document.getElementById("btnToggleSlip");
+      if (!badge || !btn) return;
+
+      if (isReleased) {
+        badge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-700";
+        badge.textContent = "✅ Tervalidasi & Dirilis (Karyawan Bisa Cek)";
+        btn.className = "bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-md shadow-rose-600/20 transition shrink-0 active:scale-95";
+        btn.textContent = "🔒 Kunci Kembali Slip Gaji";
+      } else {
+        badge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-100 text-rose-700";
+        badge.textContent = "🔒 Terkunci (Proses Hitung / Belum Valid)";
+        btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-md shadow-emerald-600/20 transition shrink-0 active:scale-95";
+        btn.textContent = "🔓 Validasi & Rilis Slip Gaji";
+      }
     }
 
-    // Fungsi Saat Tombol Hapus Ditekan (SweetAlert)
-    function deletePegawai(idKaryawan) {
+    function toggleValidasiSlipGaji() {
+      const targetState = !currentSlipReleased;
       Swal.fire({
-        title: 'Hapus Pegawai?',
-        text: `Pegawai dengan ID ${idKaryawan} akan dihapus permanen!`,
-        icon: 'warning',
+        title: targetState ? "Rilis Slip Gaji Sekarang?" : "Kunci Akses Slip Gaji?",
+        text: targetState
+          ? "Seluruh karyawan akan dapat melihat rincian slip gaji mereka di aplikasi."
+          : "Karyawan tidak akan bisa melihat slip gaji selama masa perhitungan.",
+        icon: "question",
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
+        confirmButtonColor: targetState ? "#059669" : "#e11d48",
+        cancelButtonColor: "#64748b",
+        confirmButtonText: targetState ? "Ya, Rilis Sekarang!" : "Ya, Kunci!",
+        cancelButtonText: "Batal"
       }).then(async (result) => {
         if (result.isConfirmed) {
-          Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          Swal.fire({ title: "Memproses...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
           try {
-            const res = await callGAS({ action: 'deleteKaryawan', idKaryawan: idKaryawan });
-            if (res.status === 'success') {
-              Swal.fire('Terhapus!', res.message, 'success');
-              loadAdminData(); // Refresh Data Tabel
-            } else { Swal.fire('Gagal', res.message, 'error'); }
-          } catch(e) { Swal.fire('Error', 'Gagal menghubungi server.', 'error'); }
+            const res = await callGAS({ action: "toggleSlipGaji", release: targetState });
+            if (res.status === "success") {
+              renderSlipToggleUI(res.slipReleased);
+              Swal.fire("Berhasil!", res.message, "success");
+            } else {
+              Swal.fire("Gagal", res.message, "error");
+            }
+          } catch (e) {
+            Swal.fire("Error", "Gagal menghubungi server.", "error");
+          }
         }
       });
     }
 
-    // Fungsi Submit (Tambah & Edit) Pegawai
+    // CRUD Pegawai Functions
+    function editPegawai(id, nama, user, pass, jab, out) {
+      document.getElementById("titleFormPegawai").textContent = "Edit Data Pegawai";
+      document.getElementById("oldPegId").value = id;
+      document.getElementById("pegId").value = id;
+      document.getElementById("pegNama").value = nama;
+      document.getElementById("pegUser").value = user;
+      document.getElementById("pegPass").value = pass;
+      document.getElementById("pegJabatan").value = jab;
+      document.getElementById("pegOutlet").value = out;
+      showSection("section-tambah-pegawai");
+    }
+
+    function resetFormPegawai() {
+      document.getElementById("formTambahPegawai").reset();
+      document.getElementById("oldPegId").value = "";
+      document.getElementById("titleFormPegawai").textContent = "Tambah Data Pegawai";
+      showSection("section-data-pegawai", document.getElementById("nav-pegawai"));
+    }
+
+    function deletePegawai(idKaryawan) {
+      Swal.fire({
+        title: "Hapus Pegawai?",
+        text: `Pegawai dengan ID ${idKaryawan} akan dihapus permanen dari Spreadsheet!`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e11d48",
+        cancelButtonColor: "#64748b",
+        confirmButtonText: "Ya, Hapus!",
+        cancelButtonText: "Batal"
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.fire({ title: "Menghapus...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          try {
+            const res = await callGAS({ action: "deleteKaryawan", idKaryawan });
+            if (res.status === "success") {
+              Swal.fire("Terhapus!", res.message, "success");
+              loadAdminData(false);
+            } else {
+              Swal.fire("Gagal", res.message, "error");
+            }
+          } catch (e) {
+            Swal.fire("Error", "Gagal menghubungi server.", "error");
+          }
+        }
+      });
+    }
+
     async function submitPegawai() {
       const oldId = document.getElementById("oldPegId").value;
       const id = document.getElementById("pegId").value;
@@ -480,31 +902,38 @@
       const jab = document.getElementById("pegJabatan").value;
       const out = document.getElementById("pegOutlet").value;
 
-      if(!id || !nama || !user || !pass || !jab || !out) {
+      if (!id || !nama || !user || !pass || !jab || !out) {
         return Swal.fire("Perhatian", "Semua kolom wajib diisi!", "warning");
       }
 
       const btn = document.getElementById("btnSimpanPegawai");
-      btn.textContent = "Menyimpan..."; btn.disabled = true;
-      
+      btn.textContent = "Menyimpan...";
+      btn.disabled = true;
+
       const actionType = oldId ? "updateKaryawan" : "addKaryawan";
 
       try {
-        const res = await callGAS({ 
+        const res = await callGAS({
           action: actionType, oldIdKaryawan: oldId,
-          idKaryawan: id, nama: nama, username: user, password: pass, jabatan: jab, idOutlet: out 
+          idKaryawan: id, nama, username: user, password: pass, jabatan: jab, idOutlet: out
         });
-        
+
         if (res.status === "success") {
           Swal.fire("Berhasil!", res.message, "success");
           resetFormPegawai();
-          loadAdminData();
-        } else { Swal.fire("Gagal!", res.message, "error"); }
-      } catch(e) { Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error"); } 
-      finally { btn.textContent = "✓ Simpan"; btn.disabled = false; }
+          loadAdminData(false);
+        } else {
+          Swal.fire("Gagal!", res.message, "error");
+        }
+      } catch (e) {
+        Swal.fire("Error!", "Gagal menyimpan data pegawai.", "error");
+      } finally {
+        btn.textContent = "✓ Simpan Data Pegawai";
+        btn.disabled = false;
+      }
     }
 
-    // Fungsi Download Template Excel (SheetJS)
+    // Download & Import Excel (SheetJS)
     function downloadTemplate() {
       const ws = XLSX.utils.aoa_to_sheet([
         ["ID_Karyawan", "Username", "Password", "Nama", "Jabatan", "ID_Outlet"],
@@ -515,111 +944,64 @@
       XLSX.writeFile(wb, "Template_Import_Karyawan.xlsx");
     }
 
-    // Fungsi Import Excel
     async function submitImport() {
-      const fileInput = document.getElementById('fileImportExcel');
-      if(!fileInput.files.length) return Swal.fire("Peringatan", "Pilih file Excel terlebih dahulu!", "warning");
-      
+      const fileInput = document.getElementById("fileImportExcel");
+      if (!fileInput.files.length) return Swal.fire("Peringatan", "Pilih file Excel terlebih dahulu!", "warning");
+
       const file = fileInput.files[0];
       const reader = new FileReader();
-      
+
       reader.onload = async (e) => {
         const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type: 'array'});
+        const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
-        
-        if(json.length < 2) return Swal.fire("Gagal", "File Excel kosong atau tidak ada data.", "error");
-        
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        if (json.length < 2) return Swal.fire("Gagal", "File Excel kosong atau tidak ada data.", "error");
+
         const headers = json[0];
-        if(headers[0]!=="ID_Karyawan" || headers[1]!=="Username" || headers[2]!=="Password" || headers[3]!=="Nama" || headers[4]!=="Jabatan" || headers[5]!=="ID_Outlet") {
-          return Swal.fire("Format Salah!", "Format kolom Excel tidak sesuai. Gunakan file Download Sample File!", "error");
+        if (headers[0] !== "ID_Karyawan" || headers[1] !== "Username" || headers[2] !== "Password" || headers[3] !== "Nama" || headers[4] !== "Jabatan" || headers[5] !== "ID_Outlet") {
+          return Swal.fire("Format Salah!", "Format kolom Excel tidak sesuai. Gunakan file Download Sample Template Excel!", "error");
         }
-        
+
         const payloadData = [];
-        for(let i=1; i<json.length; i++) {
-          if(json[i].length > 0 && json[i][0]) {
+        for (let i = 1; i < json.length; i++) {
+          if (json[i].length > 0 && json[i][0]) {
             payloadData.push({
-              idKaryawan: String(json[i][0]||""), username: String(json[i][1]||""),
-              password: String(json[i][2]||""), nama: String(json[i][3]||""),
-              jabatan: String(json[i][4]||""), idOutlet: String(json[i][5]||"")
+              idKaryawan: String(json[i][0] || ""),
+              username: String(json[i][1] || ""),
+              password: String(json[i][2] || ""),
+              nama: String(json[i][3] || ""),
+              jabatan: String(json[i][4] || ""),
+              idOutlet: String(json[i][5] || "")
             });
           }
         }
-        
-        Swal.fire({ title: 'Mengimpor Data...', text: 'Tunggu sebentar', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        
+
+        Swal.fire({ title: "Mengimpor Data...", text: "Mohon tunggu sebentar", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
         try {
           const res = await callGAS({ action: "importKaryawan", payload: payloadData });
-          if(res.status === "success") {
+          if (res.status === "success") {
             Swal.fire("Berhasil!", res.message, "success");
-            toggleModal('modalImport');
-            document.getElementById('fileImportExcel').value = "";
-            document.getElementById('fileNameDisplay').value = "";
-            loadAdminData();
-          } else { Swal.fire("Gagal", res.message, "error"); }
-        } catch(err) { Swal.fire("Error", "Gagal menghubungi server", "error"); }
+            toggleModal("modalImport");
+            document.getElementById("fileImportExcel").value = "";
+            document.getElementById("fileNameDisplay").textContent = "Klik untuk memilih file Excel (.xlsx)";
+            loadAdminData(false);
+          } else {
+            Swal.fire("Gagal", res.message, "error");
+          }
+        } catch (err) {
+          Swal.fire("Error", "Gagal menghubungi server", "error");
+        }
       };
       reader.readAsArrayBuffer(file);
     }
 
-    function logoutAdmin() { 
-      localStorage.removeItem("admin_session"); 
-      location.reload(); 
+    function logoutAdmin() {
+      localStorage.removeItem("admin_session");
+      location.reload();
     }
-
-    let currentSlipReleased = false;
-
-    function renderSlipToggleUI(isReleased) {
-      currentSlipReleased = isReleased;
-      const badge = document.getElementById("badgeStatusSlip");
-      const btn = document.getElementById("btnToggleSlip");
-      if (!badge || !btn) return;
-
-      if (isReleased) {
-        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700";
-        badge.textContent = "✅ Tervalidasi & Dirilis (Karyawan Bisa Cek)";
-        btn.className = "bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded text-xs font-bold shadow transition shrink-0";
-        btn.textContent = "🔒 Kunci Kembali Slip Gaji";
-      } else {
-        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700";
-        badge.textContent = "🔒 Terkunci (Proses Hitung / Belum Valid)";
-        btn.className = "bg-admin-green hover:bg-green-700 text-white px-4 py-2 rounded text-xs font-bold shadow transition shrink-0";
-        btn.textContent = "🔓 Validasi & Rilis Slip Gaji";
-      }
-    }
-
-    function toggleValidasiSlipGaji() {
-      const targetState = !currentSlipReleased;
-      Swal.fire({
-        title: targetState ? 'Rilis Slip Gaji Sekarang?' : 'Kunci Akses Slip Gaji?',
-        text: targetState 
-          ? 'Seluruh karyawan akan dapat melihat rincian slip gaji mereka di aplikasi.' 
-          : 'Karyawan tidak akan bisa melihat slip gaji selama masa perhitungan.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: targetState ? '#00a65a' : '#d33',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: targetState ? 'Ya, Rilis Sekarang!' : 'Ya, Kunci!',
-        cancelButtonText: 'Batal'
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-          try {
-            const res = await callGAS({ action: "toggleSlipGaji", release: targetState });
-            if (res.status === "success") {
-              renderSlipToggleUI(res.slipReleased);
-              Swal.fire('Berhasil!', res.message, 'success');
-            } else {
-              Swal.fire('Gagal', res.message, 'error');
-            }
-          } catch (e) {
-            Swal.fire('Error', 'Gagal menghubungi server.', 'error');
-          }
-        }
-      });
-    }
-    
   </script>
 </body>
 </html>
