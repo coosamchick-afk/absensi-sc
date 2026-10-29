@@ -177,6 +177,14 @@
           <span>Slip Gaji Rahasia</span>
         </button>
 
+        <!-- Tombol Menu Report Pekerjaan di Sidebar -->
+        <button onclick="toggleSidebar(); openReportKerjaModal();" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-red-50 text-slate-700 hover:text-red-600 font-semibold text-xs transition group">
+          <div class="w-9 h-9 rounded-xl bg-red-50 group-hover:bg-red-600 text-red-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <span>Report Pekerjaan Hari Ini</span>
+        </button>
+
         <button onclick="switchView('appView'); setTimeout(()=> { document.getElementById('sectionRiwayat').scrollIntoView({behavior:'smooth'}); }, 250);" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-600 font-semibold text-xs transition group">
           <div class="w-9 h-9 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 text-emerald-600 group-hover:text-white flex items-center justify-center transition shadow-2xs">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -947,6 +955,171 @@
 
       </div>
     </div>
+
+    <!-- ==================== MODAL: REPORT PEKERJAAN HARI INI ==================== -->
+    <div id="reportKerjaModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl relative animate-fade-up max-h-[92vh] flex flex-col overflow-hidden">
+        
+        <!-- Header Modal (Tema Merah Upgrade + Kaligrafi Bismillah) -->
+        <div class="bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-5 py-4 text-white relative shrink-0">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase tracking-wider">📋 Daily Activity Report</span>
+              <h3 class="text-base font-extrabold mt-1">Report Pekerjaan Hari Ini</h3>
+            </div>
+            <button onclick="closeReportKerjaModal()" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center font-bold transition">✕</button>
+          </div>
+          <p class="text-center text-lg font-bold mt-2 tracking-wide text-amber-200" style="font-family: 'Traditional Arabic', 'Amiri', serif;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+        </div>
+
+        <!-- Body Modal (Scrollable) -->
+        <div class="p-5 overflow-y-auto space-y-4 flex-1">
+          
+          <!-- STEP 1: FORM INPUT REPORT PEKERJAAN -->
+          <div id="formReportKerjaBox" class="space-y-4">
+            
+            <!-- Info Otomatis: Hari/Tanggal & Nama -->
+            <div class="grid grid-cols-1 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+              <div>
+                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">📅 Hari & Tanggal Report</label>
+                <input type="text" id="rkHariTanggal" readonly class="w-full bg-white px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-extrabold text-slate-700 focus:outline-none cursor-not-allowed" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">👤 Nama Karyawan</label>
+                <input type="text" id="rkNamaKaryawan" readonly class="w-full bg-white px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-extrabold text-slate-700 focus:outline-none cursor-not-allowed" />
+              </div>
+            </div>
+
+            <!-- Tempat Bekerja (Multi-Select Dropdown dari List Outlet) -->
+            <div class="relative">
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">📍 Tempat Bekerja <span class="text-[10px] font-semibold text-red-600">(Bisa pilih lebih dari 1 outlet)</span></label>
+              
+              <!-- Tombol Pembuka Dropdown Multi-Select -->
+              <button type="button" onclick="toggleMultiOutletDropdown()" class="w-full px-3.5 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs font-bold text-slate-700 flex items-center justify-between focus:outline-none focus:border-red-600 transition">
+                <span id="rkSelectedOutletsText" class="truncate text-slate-400">-- Pilih Outlet Tempat Bekerja --</span>
+                <svg class="w-4 h-4 text-slate-400 shrink-0 ml-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+
+              <!-- Badges Outlet Terpilih -->
+              <div id="rkSelectedOutletBadges" class="flex flex-wrap gap-1.5 mt-2 empty:hidden"></div>
+
+              <!-- Panel List Checkbox Outlet -->
+              <div id="rkMultiOutletPanel" class="hidden mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto p-2 space-y-1 z-30">
+                <p class="text-[11px] text-slate-400 text-center py-2">Memuat daftar outlet...</p>
+              </div>
+            </div>
+
+            <hr class="border-slate-100" />
+
+            <!-- BAGIAN 1: Poin Report Pekerjaan Hari Ini -->
+            <div class="bg-red-50/40 p-3.5 rounded-2xl border border-red-100 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-extrabold text-slate-800">🛠️ Report Pekerjaan Hari Ini</label>
+                <span class="text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-md">Wajib Diisi</span>
+              </div>
+              <div id="rkPoinKerjaContainer" class="space-y-2.5"></div>
+              <button type="button" onclick="addPoinField('rkPoinKerjaContainer', 'rk-poin-kerja', 'Tulis detail poin pekerjaan...')" class="w-full py-2.5 rounded-xl border-2 border-dashed border-red-300 hover:border-red-500 text-red-600 hover:bg-red-50 text-xs font-extrabold flex items-center justify-center gap-1.5 transition">
+                <span>＋ Tambah Poin Pekerjaan</span>
+              </button>
+            </div>
+
+            <!-- BAGIAN 2: Masukan Untuk Divisi Lain -->
+            <div class="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-200/70 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-extrabold text-slate-800">💡 Masukan Untuk Divisi Lain</label>
+                <span class="text-[10px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">Multi-Poin</span>
+              </div>
+              <div id="rkPoinMasukanContainer" class="space-y-2.5"></div>
+              <button type="button" onclick="addPoinField('rkPoinMasukanContainer', 'rk-poin-masukan', 'Tulis masukan untuk divisi lain (ketik - jika tidak ada)...')" class="w-full py-2.5 rounded-xl border-2 border-dashed border-amber-300 hover:border-amber-500 text-amber-700 hover:bg-amber-50 text-xs font-extrabold flex items-center justify-center gap-1.5 transition">
+                <span>＋ Tambah Poin Masukan</span>
+              </button>
+            </div>
+
+            <!-- BAGIAN 3: Planning Pekerjaan Besok -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+              <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+                <span class="text-sm">🚀</span>
+                <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Planning Pekerjaan Besok</h4>
+              </div>
+
+              <!-- 1. Plan Masuk Jam Berapa (Format 24 Jam Pasti) -->
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Plan Masuk Jam Berapa <span class="text-[10px] text-slate-400 font-normal">(Format 24 Jam)</span></label>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
+                    <span class="text-[10px] font-extrabold text-slate-400 mr-2">JAM</span>
+                    <select id="rkPlanJam" class="w-full text-xs font-extrabold text-slate-800 bg-transparent focus:outline-none"></select>
+                  </div>
+                  <div class="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
+                    <span class="text-[10px] font-extrabold text-slate-400 mr-2">MENIT</span>
+                    <select id="rkPlanMenit" class="w-full text-xs font-extrabold text-slate-800 bg-transparent focus:outline-none"></select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Dropdown List Outlet Besok -->
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">2. Lokasi Outlet Besok</label>
+                <select id="rkPlanOutlet" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 focus:outline-none focus:border-red-600">
+                  <option value="">-- Pilih Outlet Besok --</option>
+                </select>
+              </div>
+
+              <!-- 3. Plan Pekerjaan Besok -->
+              <div class="space-y-2">
+                <label class="block text-[11px] font-bold text-slate-700">3. Plan Pekerjaan Besok</label>
+                <div id="rkPoinPlanContainer" class="space-y-2"></div>
+                <button type="button" onclick="addPoinField('rkPoinPlanContainer', 'rk-poin-plan', 'Tulis rencana pekerjaan besok...')" class="w-full py-2 rounded-xl border-2 border-dashed border-slate-300 hover:border-slate-500 text-slate-600 hover:bg-slate-100 text-[11px] font-extrabold flex items-center justify-center gap-1 transition">
+                  <span>＋ Tambah Poin Plan Besok</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tombol Kirim & Rekap -->
+            <button type="button" id="btnSubmitReportKerja" onclick="submitReportKerja()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#dc2626] to-[#991b1b] hover:from-[#b91c1c] hover:to-[#7f1d1d] text-white text-xs font-extrabold shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 transition">
+              <span>🚀 Kirim & Rekap Report Pekerjaan</span>
+            </button>
+          </div>
+
+          <!-- STEP 2: KARTU KONFIRMASI & SHARE WHATSAPP (SEPERTI REPORT IBADAH) -->
+          <div id="suksesReportKerjaBox" class="hidden py-3 text-center space-y-4">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-3xl shadow-inner">
+              ✅
+            </div>
+            <div>
+              <h4 class="text-base font-extrabold text-slate-800">Alhamdulillah, Tersimpan!</h4>
+              <p class="text-xs text-slate-500 mt-0.5">Report pekerjaan hari ini telah terekap di Spreadsheet. Silakan teruskan ke WhatsApp:</p>
+            </div>
+
+            <!-- Kotak Preview Pesan WA -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-left max-h-56 overflow-y-auto">
+              <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">Preview Format Pesan WhatsApp:</p>
+              <pre id="rkPreviewWaText" class="text-[11px] text-slate-700 whitespace-pre-wrap font-sans leading-relaxed"></pre>
+            </div>
+
+            <!-- Tombol Share ke WA Biasa & WA Business -->
+            <div class="grid grid-cols-1 gap-2.5 pt-1">
+              <button type="button" onclick="shareReportKerjaWA('regular')" class="w-full py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#1ebe5d] text-white text-xs font-extrabold shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition">
+                <span>📲 Kirim ke WhatsApp Biasa</span>
+              </button>
+              <button type="button" onclick="shareReportKerjaWA('business')" class="w-full py-3.5 rounded-2xl bg-[#075E54] hover:bg-[#054c44] text-white text-xs font-extrabold shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2 transition">
+                <span>🏢 Kirim ke WhatsApp Business</span>
+              </button>
+              <button type="button" onclick="copyReportKerjaWA()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                📋 Salin Teks Laporan
+              </button>
+            </div>
+
+            <button type="button" onclick="closeReportKerjaModal()" class="w-full py-2.5 text-xs font-bold text-slate-400 hover:text-slate-600">
+              Tutup Jendela
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
     
     <!-- ==================== FLOATING GLASS BOTTOM NAVIGATION DOCK ==================== -->
     <div id="bottomNav" class="hidden fixed bottom-4 left-4 right-4 max-w-[calc(28rem-2rem)] mx-auto glass-card rounded-3xl px-5 py-2.5 flex justify-between items-center z-30 shadow-xl shadow-slate-900/10">
@@ -1838,6 +2011,285 @@
         btn.textContent = "Buka Slip Gaji Saya";
         btn.disabled = false;
       }
+    }
+
+    // ==================== HANDLER REPORT PEKERJAAN HARI INI ====================
+    let cachedDaftarOutlet = [];
+    let lastReportKerjaWAText = "";
+
+    // Inisialisasi Pilihan Jam 24-Jam (00-23 dan 00-59)
+    function initTime24Picker() {
+      const selJam = document.getElementById("rkPlanJam");
+      const selMenit = document.getElementById("rkPlanMenit");
+      if (!selJam || selJam.options.length > 0) return;
+
+      for (let h = 0; h < 24; h++) {
+        const hh = String(h).padStart(2, "0");
+        selJam.insertAdjacentHTML("beforeend", `<option value="${hh}">${hh}</option>`);
+      }
+      for (let m = 0; m < 60; m += 5) {
+        const mm = String(m).padStart(2, "0");
+        selMenit.insertAdjacentHTML("beforeend", `<option value="${mm}">${mm}</option>`);
+      }
+      selJam.value = "08";
+      selMenit.value = "00";
+    }
+
+    // Format Hari & Tanggal Indonesia Otomatis
+    function getHariTanggalSekarangIndo() {
+      const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const d = new Date();
+      return `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    // Buka Modal Report Pekerjaan
+    async function openReportKerjaModal() {
+      if (!currentUser) return showToast("Silakan login terlebih dahulu!", "error");
+
+      initTime24Picker();
+
+      // Reset tampilan ke Form Input
+      document.getElementById("formReportKerjaBox").classList.remove("hidden");
+      document.getElementById("suksesReportKerjaBox").classList.add("hidden");
+      document.getElementById("rkMultiOutletPanel").classList.add("hidden");
+
+      // Isi otomatis Hari/Tanggal & Nama Karyawan
+      document.getElementById("rkHariTanggal").value = getHariTanggalSekarangIndo();
+      document.getElementById("rkNamaKaryawan").value = currentUser.nama || "";
+
+      // Reset Poin Pekerjaan, Masukan, dan Plan Besok menjadi masing-masing 1 baris awal
+      document.getElementById("rkPoinKerjaContainer").innerHTML = "";
+      addPoinField("rkPoinKerjaContainer", "rk-poin-kerja", "Tulis detail poin pekerjaan...");
+
+      document.getElementById("rkPoinMasukanContainer").innerHTML = "";
+      addPoinField("rkPoinMasukanContainer", "rk-poin-masukan", "Tulis masukan untuk divisi lain (ketik - jika tidak ada)...");
+
+      document.getElementById("rkPoinPlanContainer").innerHTML = "";
+      addPoinField("rkPoinPlanContainer", "rk-poin-plan", "Tulis rencana pekerjaan besok...");
+
+      // Tampilkan modal
+      const modal = document.getElementById("reportKerjaModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+
+      // Muat daftar outlet dinamis dari Spreadsheet jika belum ada di memori
+      await ensureDaftarOutletLoaded();
+      renderOutletSelectors();
+    }
+
+    function closeReportKerjaModal() {
+      const modal = document.getElementById("reportKerjaModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    async function ensureDaftarOutletLoaded() {
+      if (cachedDaftarOutlet.length > 0) return;
+      try {
+        const res = await callGAS({ action: "getDaftarOutlet" });
+        if (res && res.status === "success" && Array.isArray(res.daftarOutlet) && res.daftarOutlet.length > 0) {
+          cachedDaftarOutlet = res.daftarOutlet;
+        }
+      } catch (e) {
+        console.log("Gagal memuat daftar outlet:", e);
+      }
+      // Fallback ke outlet bawaan user jika sheet Outlet belum terbaca
+      if (cachedDaftarOutlet.length === 0 && currentUser && currentUser.outlet && currentUser.outlet.namaOutlet) {
+        cachedDaftarOutlet = [currentUser.outlet.namaOutlet];
+      }
+    }
+
+    function renderOutletSelectors() {
+      const panel = document.getElementById("rkMultiOutletPanel");
+      const selBesok = document.getElementById("rkPlanOutlet");
+      const defaultOutlet = (currentUser && currentUser.outlet && currentUser.outlet.namaOutlet) ? currentUser.outlet.namaOutlet : "";
+
+      // 1. Render Multi-Select Checkbox untuk Tempat Bekerja Hari Ini
+      if (cachedDaftarOutlet.length === 0) {
+        panel.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Tidak ada data outlet</p>`;
+      } else {
+        panel.innerHTML = cachedDaftarOutlet.map((namaOut) => {
+          const isChecked = namaOut === defaultOutlet ? "checked" : "";
+          return `
+            <label class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-50 cursor-pointer transition">
+              <input type="checkbox" value="${namaOut}" ${isChecked} onchange="updateSelectedOutletsUI()" class="rk-outlet-checkbox w-4 h-4 accent-[#dc2626] rounded cursor-pointer" />
+              <span class="text-xs font-bold text-slate-700">${namaOut}</span>
+            </label>
+          `;
+        }).join("");
+      }
+      updateSelectedOutletsUI();
+
+      // 2. Render Dropdown Outlet untuk Planning Besok
+      selBesok.innerHTML = `<option value="">-- Pilih Outlet Besok --</option>` +
+        cachedDaftarOutlet.map(namaOut => `<option value="${namaOut}" ${namaOut === defaultOutlet ? "selected" : ""}>${namaOut}</option>`).join("");
+    }
+
+    function toggleMultiOutletDropdown() {
+      const panel = document.getElementById("rkMultiOutletPanel");
+      panel.classList.toggle("hidden");
+    }
+
+    function updateSelectedOutletsUI() {
+      const checked = Array.from(document.querySelectorAll(".rk-outlet-checkbox:checked")).map(cb => cb.value);
+      const textEl = document.getElementById("rkSelectedOutletsText");
+      const badgesEl = document.getElementById("rkSelectedOutletBadges");
+
+      if (checked.length === 0) {
+        textEl.textContent = "-- Pilih Outlet Tempat Bekerja --";
+        textEl.className = "truncate text-slate-400";
+        badgesEl.innerHTML = "";
+      } else {
+        textEl.textContent = `${checked.length} Outlet Dipilih`;
+        textEl.className = "truncate text-slate-800 font-extrabold";
+        badgesEl.innerHTML = checked.map(out => `
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 text-red-700 border border-red-200 text-[10px] font-extrabold">
+            📍 ${out}
+          </span>
+        `).join("");
+      }
+    }
+
+    // Menambahkan Form Teks Panjang (Poin Baru) Secara Dinamis
+    function addPoinField(containerId, inputClass, placeholderText) {
+      const container = document.getElementById(containerId);
+      const index = container.children.length + 1;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "poin-item bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs transition";
+      wrapper.innerHTML = `
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="poin-label text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Poin ${index}</span>
+          ${index > 1 ? `<button type="button" onclick="removePoinField(this, '${containerId}')" class="text-[10px] font-bold text-red-500 hover:text-red-700 px-1.5 py-0.5 rounded bg-red-50">✕ Hapus</button>` : ""}
+        </div>
+        <textarea rows="2" placeholder="${placeholderText}" class="${inputClass} w-full text-xs font-semibold text-slate-700 bg-slate-50/70 p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-red-600 focus:bg-white resize-y"></textarea>
+      `;
+      container.appendChild(wrapper);
+    }
+
+    function removePoinField(btnEl, containerId) {
+      const item = btnEl.closest(".poin-item");
+      if (item) item.remove();
+      // Urutkan ulang nomor Poin 1, Poin 2, dst.
+      const container = document.getElementById(containerId);
+      Array.from(container.querySelectorAll(".poin-label")).forEach((lbl, idx) => {
+        lbl.textContent = `Poin ${idx + 1}`;
+      });
+    }
+
+    // Kirim Report Pekerjaan ke Spreadsheet & Buat Format WhatsApp
+    async function submitReportKerja() {
+      const hariTanggal = document.getElementById("rkHariTanggal").value;
+      const nama = document.getElementById("rkNamaKaryawan").value;
+      const tempatBekerja = Array.from(document.querySelectorAll(".rk-outlet-checkbox:checked")).map(cb => cb.value);
+
+      const poinPekerjaan = Array.from(document.querySelectorAll(".rk-poin-kerja"))
+        .map(el => el.value.trim())
+        .filter(v => v !== "");
+
+      const poinMasukan = Array.from(document.querySelectorAll(".rk-poin-masukan"))
+        .map(el => el.value.trim())
+        .filter(v => v !== "");
+
+      const planJamMasuk = `${document.getElementById("rkPlanJam").value}:${document.getElementById("rkPlanMenit").value}`;
+      const planOutlet = document.getElementById("rkPlanOutlet").value;
+      const planPekerjaan = Array.from(document.querySelectorAll(".rk-poin-plan"))
+        .map(el => el.value.trim())
+        .filter(v => v !== "");
+
+      // Validasi isian wajib
+      if (tempatBekerja.length === 0) return showToast("Pilih minimal 1 Outlet tempat bekerja!", "error");
+      if (poinPekerjaan.length === 0) return showToast("Isi minimal 1 poin Report Pekerjaan hari ini!", "error");
+      if (!planOutlet) return showToast("Pilih lokasi Outlet untuk planning besok!", "error");
+      if (planPekerjaan.length === 0) return showToast("Isi minimal 1 poin Plan Pekerjaan besok!", "error");
+
+      const masukanFinal = poinMasukan.length > 0 ? poinMasukan : ["-"];
+
+      const btn = document.getElementById("btnSubmitReportKerja");
+      const originalText = btn.innerHTML;
+      btn.textContent = "Menyimpan ke Spreadsheet...";
+      btn.disabled = true;
+
+      try {
+        const res = await callGAS({
+          action: "simpanReportKerja",
+          idKaryawan: currentUser.idKaryawan,
+          hariTanggal: hariTanggal,
+          nama: nama,
+          tempatBekerja: tempatBekerja,
+          poinPekerjaan: poinPekerjaan,
+          poinMasukan: masukanFinal,
+          planJamMasuk: planJamMasuk,
+          planOutlet: planOutlet,
+          planPekerjaan: planPekerjaan
+        });
+
+        if (res.status === "success") {
+          // Susun format teks WhatsApp sesuai permintaan
+          let teksWA = `بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\n\n`;
+          teksWA += `*REPORT PEKERJAAN HARI INI*\n`;
+          teksWA += `📅 Hari/Tanggal : ${hariTanggal}\n`;
+          teksWA += `👤 Nama : ${nama}\n`;
+          teksWA += `📍 Tempat Bekerja : ${tempatBekerja.join(", ")}\n\n`;
+
+          teksWA += `*🛠️ Report Pekerjaan :*\n`;
+          poinPekerjaan.forEach((p, i) => {
+            teksWA += `${i + 1}. ${p}\n`;
+          });
+
+          teksWA += `\n*💡 Masukan Untuk Divisi Lain :*\n`;
+          masukanFinal.forEach((m, i) => {
+            teksWA += `${i + 1}. ${m}\n`;
+          });
+
+          teksWA += `\n*🚀 Planning Pekerjaan Besok :*\n`;
+          teksWA += `• Plan Masuk : ${planJamMasuk} WIB\n`;
+          teksWA += `• Lokasi Outlet : ${planOutlet}\n`;
+          teksWA += `• Plan Pekerjaan :\n`;
+          planPekerjaan.forEach((pl, i) => {
+            teksWA += `  ${i + 1}. ${pl}\n`;
+          });
+
+          teksWA += `\nTerimakasih`;
+
+          lastReportKerjaWAText = teksWA;
+          document.getElementById("rkPreviewWaText").textContent = teksWA;
+
+          // Tampilkan Kartu Sukses & Tombol Share WA
+          document.getElementById("formReportKerjaBox").classList.add("hidden");
+          document.getElementById("suksesReportKerjaBox").classList.remove("hidden");
+          showToast("Report pekerjaan berhasil direkap!", "success");
+        } else {
+          showToast(res.message || "Gagal menyimpan laporan", "error");
+        }
+      } catch (err) {
+        showToast("Gagal terhubung ke server", "error");
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    // Fungsi Share ke WhatsApp Biasa & WhatsApp Business (Kompatibel Android & iOS)
+    function shareReportKerjaWA(type) {
+      if (!lastReportKerjaWAText) return;
+      const encoded = encodeURIComponent(lastReportKerjaWAText);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+        const pkg = type === "business" ? "com.whatsapp.w4b" : "com.whatsapp";
+        window.location.href = `intent://send?text=${encoded}#Intent;scheme=whatsapp;package=${pkg};end`;
+      } else {
+        window.open(`https://api.whatsapp.com/send?text=${encoded}`, "_blank");
+      }
+    }
+
+    function copyReportKerjaWA() {
+      if (!lastReportKerjaWAText) return;
+      navigator.clipboard.writeText(lastReportKerjaWAText).then(() => {
+        showToast("Teks laporan berhasil disalin!", "success");
+      });
     }
     
   </script>
