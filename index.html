@@ -311,7 +311,7 @@
           </div>
 
           <!-- QUICK ACTION MENU GRID (5 ICONS) -->
-          <div class="grid grid-cols-6 gap-2 pt-4 text-center">
+          <div class="grid grid-cols-5 gap-2 pt-4 text-center">
             <button onclick="openCameraModal()" class="flex flex-col items-center group">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 text-white flex items-center justify-center shadow-md shadow-red-500/25 group-hover:-translate-y-0.5 group-active:scale-90 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
@@ -326,7 +326,17 @@
               <span class="text-[11px] font-bold text-slate-700 mt-1.5">Ibadah</span>
             </button>
 
-            <button onclick="switchView('izinView')" class="flex flex-col items-center group">
+
+            <!-- Tombol Pintasan Report Pekerjaan di Deretan Menu Cepat Dashboard -->
+            <button type="button" onclick="openReportKerjaModal()" class="flex flex-col items-center gap-1.5 group">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-[#dc2626] text-white flex items-center justify-center shadow-md shadow-red-500/25 group-active:scale-95 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+              </div>
+              <span class="text-[11px] font-bold text-slate-700">Report Kerja</span>
+            </button>
+                        <button onclick="switchView('izinView')" class="flex flex-col items-center group">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-md shadow-amber-500/25 group-hover:-translate-y-0.5 group-active:scale-90 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               </div>
@@ -338,22 +348,6 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
               </div>
               <span class="text-[11px] font-bold text-slate-700 mt-1.5">Cuti</span>
-            </button>
-            <!-- Tombol Pintasan Report Pekerjaan di Deretan Menu Cepat Dashboard -->
-            <button type="button" onclick="openReportKerjaModal()" class="flex flex-col items-center gap-1.5 group">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-[#dc2626] text-white flex items-center justify-center shadow-md shadow-red-500/25 group-active:scale-95 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-              </div>
-              <span class="text-[11px] font-bold text-slate-700">Report Kerja</span>
-            </button>
-
-            <button onclick="document.getElementById('sectionRiwayat').scrollIntoView({behavior:'smooth'})" class="flex flex-col items-center group">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/25 group-hover:-translate-y-0.5 group-active:scale-90 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </div>
-              <span class="text-[11px] font-bold text-slate-700 mt-1.5">Riwayat</span>
             </button>
           </div>
         </div>
