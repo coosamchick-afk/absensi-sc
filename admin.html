@@ -182,9 +182,9 @@
           <span>Laporan Absensi</span>
         </a>
 
-        <a href="#" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+        <a href="#" id="nav-laporan-harian" onclick="showSection('section-laporan-master', this); loadMasterLaporan();" class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
           <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span>Laporan Harian</span>
+          <span>Laporan Detail Harian</span>
         </a>
 
         <p class="px-3 pt-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Sistem</p>
@@ -530,6 +530,67 @@
           </div>
         </div>
 
+        <!-- ==================== SECTION 4: LAPORAN DETAIL HARIAN (SHEET MASTER A-L) ==================== -->
+        <div id="section-laporan-master" class="content-section hidden animate-fade-up space-y-5">
+          
+          <!-- Baris Kontrol Filter A1 & B1 + Rentang Tanggal C1 & D1 -->
+          <div class="card-surface rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-l-4 border-l-red-600">
+            <div>
+              <span class="text-[10px] font-extrabold text-red-600 uppercase tracking-widest">Live Spreadsheet Sync • Sheet Master</span>
+              <h2 class="text-lg font-extrabold text-slate-800 mt-0.5">Laporan Detail Harian (Kolom A – L)</h2>
+              <p class="text-xs text-slate-500">Ubah dropdown Bulan/Periode atau centang kolom Keterangan (L) untuk memperbarui Spreadsheet secara langsung.</p>
+            </div>
+
+            <!-- Kontrol Sel A1, B1, C1, D1 -->
+            <div class="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+              <!-- Dropdown A1: Bulan -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Bulan (Sel A1)</label>
+                <select id="masterDropBulan" onchange="onChangeMasterFilter()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-600 cursor-pointer">
+                  <option value="">Memuat...</option>
+                </select>
+              </div>
+
+              <!-- Dropdown B1: Periode -->
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Periode (Sel B1)</label>
+                <select id="masterDropPeriode" onchange="onChangeMasterFilter()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-600 cursor-pointer">
+                  <option value="">-</option>
+                </select>
+              </div>
+
+              <!-- Info C1 & D1: Tanggal Periode -->
+              <div class="pl-2 border-l border-slate-200">
+                <span class="block text-[10px] font-extrabold text-slate-400 uppercase">Rentang Tanggal (C1 - D1)</span>
+                <div class="mt-1 flex items-center gap-1.5 text-xs font-extrabold text-slate-700">
+                  <span id="masterTglAwal" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200">-</span>
+                  <span class="text-slate-400">s/d</span>
+                  <span id="masterTglAkhir" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200">-</span>
+                </div>
+              </div>
+
+              <button onclick="loadMasterLaporan(true)" class="p-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow transition" title="Muat Ulang Sheet Master">
+                🔄
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabel Lengkap Kolom A sampai L -->
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto max-h-[75vh]">
+              <table class="w-full text-xs text-left whitespace-nowrap border-collapse">
+                <tbody id="tableMasterBody" class="divide-y divide-slate-200">
+                  <tr>
+                    <td colspan="12" class="py-12 text-center text-slate-400 font-semibold">
+                      Klik menu atau tombol refresh untuk memuat tabel dari Sheet Master...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
       </main>
     </div>
   </div>
@@ -1001,6 +1062,194 @@
     function logoutAdmin() {
       localStorage.removeItem("admin_session");
       location.reload();
+    }
+    // ==================== FUNGSI SINKRONISASI SHEET MASTER (KOLOM A - L) ====================
+
+    async function loadMasterLaporan(showNotif = false) {
+      const tbody = document.getElementById("tableMasterBody");
+      if (tbody && tbody.children.length <= 1) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-12 text-center text-slate-500 font-bold animate-pulse">⏳ Sedang menyinkronkan data Kolom A - L dari Sheet Master...</td></tr>`;
+      }
+
+      try {
+        const res = await callGAS({ action: "getMasterLaporan" });
+        if (res.status === "success") {
+          renderMasterLaporanUI(res);
+          if (showNotif) {
+            Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Sheet Master diperbarui", showConfirmButton: false, timer: 1800 });
+          }
+        } else {
+          Swal.fire("Gagal", res.message, "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Gagal memuat data Sheet Master", "error");
+      }
+    }
+
+    function renderMasterLaporanUI(res) {
+      // 1. Render Dropdown A1 (Bulan) & B1 (Periode) beserta C1-D1
+      const f = res.filter || {};
+      const selBulan = document.getElementById("masterDropBulan");
+      const selPeriode = document.getElementById("masterDropPeriode");
+
+      if (selBulan && f.bulanOptions) {
+        selBulan.innerHTML = f.bulanOptions.map(b => `<option value="${b}" ${String(b) === String(f.bulan) ? "selected" : ""}>${b}</option>`).join("");
+      }
+      if (selPeriode && f.periodeOptions) {
+        selPeriode.innerHTML = f.periodeOptions.map(p => `<option value="${p}" ${String(p) === String(f.periode) ? "selected" : ""}>${p}</option>`).join("");
+      }
+
+      document.getElementById("masterTglAwal").textContent = f.tglAwal || "-";
+      document.getElementById("masterTglAkhir").textContent = f.tglAkhir || "-";
+
+      // 2. Render Baris 1 s/d Baris Terakhir (Kolom A - L)
+      const tbody = document.getElementById("tableMasterBody");
+      const rows = res.rows || [];
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-8 text-center text-slate-400">Tidak ada data di Sheet Master.</td></tr>`;
+        return;
+      }
+
+      const colLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+      let html = `
+        <tr class="bg-slate-900 text-slate-400 text-[10px] font-extrabold text-center sticky top-0 z-10">
+          ${colLetters.map(l => `<th class="py-1.5 px-3 border-r border-slate-800">${l}</th>`).join("")}
+        </tr>
+      `;
+
+      rows.forEach(r => {
+        const c = r.cells; // Array 12 kolom (A - L)
+
+        // Lewati baris kosong pemisah agar tetap rapi
+        if (r.rowType === "spacer_row") {
+          html += `<tr class="h-3 bg-slate-100/70"><td colspan="12"></td></tr>`;
+          return;
+        }
+
+        // Baris Judul "LAPORAN DETAIL HARIAN"
+        if (r.rowType === "title_row") {
+          html += `
+            <tr class="bg-slate-800 text-white font-extrabold text-sm">
+              <td colspan="12" class="py-3 px-4 text-center tracking-wider uppercase">${c.join(" ").trim()}</td>
+            </tr>
+          `;
+          return;
+        }
+
+        // Baris Ringkasan Nama Karyawan (Contoh: Baris 3 & Baris 25 - M ARIF DARMAWAN)
+        if (r.rowType === "employee_summary") {
+          html += `
+            <tr class="bg-indigo-50/90 border-y-2 border-indigo-200 font-extrabold text-slate-900 text-xs">
+              <td colspan="2" class="py-3 px-4 text-indigo-950 text-sm">👤 ${c[0]}</td>
+              <td class="py-3 px-3 text-center">${c[2]}</td>
+              <td class="py-3 px-3 text-center text-rose-700">${c[3]}</td>
+              <td class="py-3 px-3 text-center">${c[4]}</td>
+              <td class="py-3 px-3 text-center">${c[5]}</td>
+              <td class="py-3 px-3 text-center">${c[6]}</td>
+              <td class="py-3 px-3 text-center">${c[7]}</td>
+              <td class="py-3 px-3 text-center">${c[8]}</td>
+              <td class="py-3 px-3 text-center bg-amber-100/80">${c[9]}</td>
+              <td class="py-3 px-3 text-center bg-amber-100/80">${c[10]}</td>
+              <td class="py-3 px-3 text-center">${c[11]}</td>
+            </tr>
+          `;
+          return;
+        }
+
+        // Baris Header Tabel (Tanggal | Jam Masuk | ... | Overtime 100% | Overtime 50% | Keterangan)
+        if (r.rowType === "header_row") {
+          html += `
+            <tr class="bg-slate-100 text-slate-700 font-extrabold text-[11px] uppercase border-y border-slate-300">
+              ${c.map((val, idx) => {
+                const isYellowHeader = (idx === 9 || idx === 10);
+                return `<th class="py-2.5 px-3 ${isYellowHeader ? 'bg-amber-300 text-slate-900 text-center' : ''} ${idx === 11 ? 'text-center' : ''}">${val}</th>`;
+              }).join("")}
+            </tr>
+          `;
+          return;
+        }
+
+        // Baris 1 (Baris Filter di Spreadsheet) atau Baris Data Harian
+        html += `<tr class="hover:bg-slate-50 transition font-semibold text-slate-700">`;
+        for (let idx = 0; idx < 12; idx++) {
+          const val = c[idx];
+          const isOvertimeCol = (idx === 9 || idx === 10); // Kolom J & K (Warna Kuning sesuai Spreadsheet)
+          const bgClass = isOvertimeCol ? "bg-yellow-200/70 font-extrabold text-slate-900 text-center" : "";
+
+          // Jika Kolom L (index 11) dan bertipe Checkbox
+          if (idx === 11 && r.isCheckbox) {
+            html += `
+              <td class="py-2 px-3 text-center bg-slate-50/50 border-l border-slate-200">
+                <input type="checkbox" ${r.checked ? "checked" : ""} 
+                  onchange="toggleMasterCheckbox(${r.rowNumber}, this.checked)"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer transition transform hover:scale-110" 
+                  title="Baris ${r.rowNumber} Kolom L" />
+              </td>
+            `;
+          } else {
+            const alignClass = (idx >= 1 && idx <= 10) ? "text-center" : "";
+            html += `<td class="py-2 px-3 border-r border-slate-100 ${bgClass} ${alignClass}">${val}</td>`;
+          }
+        }
+        html += `</tr>`;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    // Saat Admin Mengubah Dropdown A1 (Bulan) atau B1 (Periode)
+    async function onChangeMasterFilter() {
+      const bulan = document.getElementById("masterDropBulan").value;
+      const periode = document.getElementById("masterDropPeriode").value;
+
+      Swal.fire({
+        title: "Mengubah Periode...",
+        text: `Menyinkronkan A1 (${bulan}) & B1 (Periode ${periode}) di Sheet Master`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        const res = await callGAS({ action: "updateMasterFilter", bulan: bulan, periode: periode });
+        Swal.close();
+        if (res.status === "success") {
+          renderMasterLaporanUI(res);
+        } else {
+          Swal.fire("Gagal", res.message, "error");
+        }
+      } catch (e) {
+        Swal.close();
+        Swal.fire("Error", "Gagal menghubungi server", "error");
+      }
+    }
+
+    // Saat Admin Mencentang / Menghapus Centang di Kolom L
+    async function toggleMasterCheckbox(rowNumber, isChecked) {
+      try {
+        const res = await callGAS({
+          action: "updateMasterCheckbox",
+          rowNumber: rowNumber,
+          checked: isChecked
+        });
+        if (res.status === "success") {
+          // Render ulang tabel agar perubahan angka rumus Overtime (Kolom J & K) langsung terlihat
+          renderMasterLaporanUI(res);
+          Swal.fire({
+            toast: true,
+            position: "bottom-end",
+            icon: "success",
+            title: `Baris ${rowNumber} (Kolom L) diperbarui`,
+            showConfirmButton: false,
+            timer: 1500
+          });
+        } else {
+          Swal.fire("Gagal", res.message, "error");
+          loadMasterLaporan(false);
+        }
+      } catch (e) {
+        Swal.fire("Error", "Gagal memperbarui centang di Spreadsheet", "error");
+        loadMasterLaporan(false);
+      }
     }
   </script>
 </body>
