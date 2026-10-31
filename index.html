@@ -1844,13 +1844,14 @@
       );
     }
 
-    async function submitAttendance(tipe) {
+async function submitAttendance(tipe) {
       const v = document.getElementById("cameraStream");
       const cv = document.getElementById("captureCanvas");
       if (!v.srcObject) return showToast("Kamera belum siap!", "error");
 
-      cv.width = 640;
-      cv.height = 480;
+      // Resolusi optimal 480x360: Wajah & Watermark tetap tajam, ukuran upload 3x lebih ringan
+      cv.width = 480;
+      cv.height = 360;
       const ctx = cv.getContext("2d");
 
       ctx.save();
@@ -1860,14 +1861,15 @@
 
       // Watermark Timestamp & Geotag
       ctx.fillStyle = "rgba(15, 23, 42, 0.65)";
-      ctx.fillRect(0, cv.height - 54, cv.width, 54);
+      ctx.fillRect(0, cv.height - 46, cv.width, 46);
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 13px sans-serif";
-      ctx.fillText(`${currentUser.nama} • Absen ${tipe}`, 14, cv.height - 30);
-      ctx.font = "11px sans-serif";
-      ctx.fillText(`${new Date().toLocaleString("id-ID")} | Jarak: ${currentPos.distance || 0}m`, 14, cv.height - 12);
+      ctx.font = "bold 11px sans-serif";
+      ctx.fillText(`${currentUser.nama} • Absen ${tipe}`, 12, cv.height - 26);
+      ctx.font = "10px sans-serif";
+      ctx.fillText(`${new Date().toLocaleString("id-ID")} | Jarak: ${currentPos.distance || 0}m`, 12, cv.height - 10);
 
-      const b64 = cv.toDataURL("image/jpeg", 0.8);
+      // Kompresi JPEG 0.6 (~25KB, sangat cepat dikirim lewat jaringan seluler)
+      const b64 = cv.toDataURL("image/jpeg", 0.6);
 
       document.getElementById("btnMasuk").disabled = true;
       document.getElementById("btnPulang").disabled = true;
@@ -1891,11 +1893,26 @@
         if (res.status === "success") {
           showToast(res.message, "success");
           closeCameraModal();
-          if (res.dashboard) {
+
+          // Update instan kartu di layar tanpa menunggu loading ulang seluruh sheet
+          if (res.quickUpdate) {
+            const savedDash = JSON.parse(localStorage.getItem("absensi_dashboard") || "{}");
+            if (res.quickUpdate.tipe === "Masuk") {
+              savedDash.jamMasuk = res.quickUpdate.scanTime;
+              savedDash.sudahMasuk = true;
+              savedDash.hadir = (savedDash.hadir || 0) + 1;
+            } else {
+              savedDash.jamPulang = res.quickUpdate.scanTime;
+              savedDash.sudahPulang = true;
+            }
+            savedDash.keteranganHariIni = res.quickUpdate.keterangan;
+            localStorage.setItem("absensi_dashboard", JSON.stringify(savedDash));
+            renderDashboardStats(savedDash);
+            // Sinkronisasi riwayat lengkap berjalan diam-diam di latar belakang
+            refreshDashboardData(false);
+          } else if (res.dashboard) {
             localStorage.setItem("absensi_dashboard", JSON.stringify(res.dashboard));
             renderDashboardStats(res.dashboard);
-          } else {
-            refreshDashboardData(false);
           }
         } else {
           showToast(res.message, "error");
