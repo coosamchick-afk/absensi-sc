@@ -1251,49 +1251,44 @@
     }
 
     // 2. LOGIN HANDLER
-// 1. LOGIN INSTAN (< 1 Detik Masuk Dashboard, Riwayat Menyusul di Latar Belakang)
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnLogin");
-      const usernameInput = document.getElementById("username").value.trim();
-      const passwordInput = document.getElementById("password").value.trim();
-
       btn.disabled = true;
-      btn.textContent = "Memverifikasi...";
+      btn.innerHTML = `<span>Memverifikasi Akun...</span>`;
 
       try {
-        const res = await callGAS({
-          action: "login",
-          username: usernameInput,
-          password: passwordInput
-        });
+        const usernameVal = document.getElementById("username").value;
+        const passwordVal = document.getElementById("password").value;
+        const res = await callGAS({ action: "login", username: usernameVal, password: passwordVal });
 
         if (res.status === "success") {
           currentUser = res.user;
+          availableShifts = res.shifts || [];
+          daftarNamaKaryawan = res.daftarNama || [currentUser.nama];
+
           localStorage.setItem("absensi_user", JSON.stringify(currentUser));
-          if (res.shifts) {
-            cachedShifts = res.shifts;
-            localStorage.setItem("absensi_shifts", JSON.stringify(res.shifts));
-          }
-          if (res.daftarNama) {
-            cachedDaftarNama = res.daftarNama;
-            localStorage.setItem("absensi_nama", JSON.stringify(res.daftarNama));
-          }
+          localStorage.setItem("absensi_shifts", JSON.stringify(availableShifts));
+          localStorage.setItem("absensi_daftar_nama", JSON.stringify(daftarNamaKaryawan));
 
-          // Langsung buka Dashboard seketika (< 1 detik)
-          showDashboard(res.dashboard);
-          showToast("Selamat datang, " + currentUser.nama + "!", "success");
+          updateUserIdentityUI();
+          renderShiftOptions();
+          switchView("appView");
+          showToast(`Selamat datang, ${currentUser.nama}!`, "success");
 
-          // Sinkronkan riwayat absensi & ibadah di latar belakang tanpa menahan layar
-          refreshDashboardData(false);
+          if (res.dashboard) {
+            localStorage.setItem("absensi_dashboard", JSON.stringify(res.dashboard));
+            renderDashboardStats(res.dashboard);
+          }
+          fetchIzinCuti();
         } else {
-          showToast(res.message || "Username atau password salah.", "error");
+          showToast(res.message || "Username atau password salah", "error");
         }
       } catch (err) {
-        showToast("Gagal terhubung ke server", "error");
+        showToast("Gagal terhubung ke server GAS", "error");
       } finally {
         btn.disabled = false;
-        btn.textContent = "Masuk ke Aplikasi";
+        btn.innerHTML = `<span>Masuk ke Aplikasi</span>`;
       }
     });
 
