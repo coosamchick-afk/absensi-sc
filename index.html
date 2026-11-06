@@ -301,18 +301,17 @@
             </div>
 
             <!-- Shift Selector Pill -->
-            <!-- Kotak Jadwal Masuk Hari Ini (Terkunci dari Master Jadwal Admin) -->
-               <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-right min-w-[145px]">
-                 <span class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400">JADWAL HARI INI</span>
-                 <p id="lockedShiftName" class="text-xs font-extrabold text-slate-800 mt-0.5">Memuat Jadwal...</p>
-                 <p id="lockedShiftTime" class="text-[11px] font-bold text-red-600">--:-- s/d --:--</p>
-                 <button type="button" onclick="openRevisiJadwalModal()" class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-extrabold transition">
-                 <span>✎ Revisi Jam</span>
-                </button>
-    <!-- Hidden input agar fungsi kamera tetap kompatibel -->
-                  <input type="hidden" id="shiftSelect" value="" />
-               </div>
-          </div>
+            <!-- Kotak Jadwal Masuk Hari Ini (Kompatibel Penuh dengan Fungsi Bawaan) -->
+                  <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-right min-w-[145px]">
+                     <span class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400">JADWAL HARI INI</span>
+                    <p id="lockedShiftName" class="text-xs font-extrabold text-slate-800 mt-0.5">Memuat Jadwal...</p>
+                    <p id="jamKerjaDisplay" class="text-[11px] font-bold text-red-600">--:-- s/d --:--</p>
+                  <button type="button" onclick="openRevisiJadwalModal()" class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-extrabold transition">
+                    <span>✎ Revisi Jam</span>
+                  </button>
+                    <!-- Tetap gunakan tag select tersembunyi agar script bawaan tidak crash -->
+                  <select id="shiftSelect" class="hidden"></select>
+                </div>
 
           <!-- QUICK ACTION MENU GRID (5 ICONS) -->
           <div class="grid grid-cols-5 gap-2 pt-4 text-center">
@@ -1312,44 +1311,58 @@
     }
 
     // 2. LOGIN HANDLER
-      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+// Proses Login Aman (Memisahkan Error Jaringan GAS vs Error Render Tampilan)
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnLogin");
+      const usernameInput = document.getElementById("username").value.trim();
+      const passwordInput = document.getElementById("password").value.trim();
+
       btn.disabled = true;
-      btn.innerHTML = `<span>Memverifikasi Akun...</span>`;
+      btn.textContent = "Memverifikasi...";
+
+      let res = null;
+      try {
+        res = await callGAS({
+          action: "login",
+          username: usernameInput,
+          password: passwordInput
+        });
+      } catch (networkErr) {
+        console.error("GAS Error:", networkErr);
+        showToast("Gagal terhubung ke GAS. Pastikan Code.gs sudah di-Deploy New Version.", "error");
+        btn.disabled = false;
+        btn.textContent = "Masuk ke Aplikasi";
+        return;
+      }
 
       try {
-        const usernameVal = document.getElementById("username").value;
-        const passwordVal = document.getElementById("password").value;
-        const res = await callGAS({ action: "login", username: usernameVal, password: passwordVal });
-
-        if (res.status === "success") {
+        if (res && res.status === "success") {
           currentUser = res.user;
-          availableShifts = res.shifts || [];
-          daftarNamaKaryawan = res.daftarNama || [currentUser.nama];
-
           localStorage.setItem("absensi_user", JSON.stringify(currentUser));
-          localStorage.setItem("absensi_shifts", JSON.stringify(availableShifts));
-          localStorage.setItem("absensi_daftar_nama", JSON.stringify(daftarNamaKaryawan));
-
-          updateUserIdentityUI();
-          renderShiftOptions();
-          switchView("appView");
-          showToast(`Selamat datang, ${currentUser.nama}!`, "success");
-
+          if (res.shifts) {
+            cachedShifts = res.shifts;
+            localStorage.setItem("absensi_shifts", JSON.stringify(res.shifts));
+          }
+          if (res.daftarNama) {
+            cachedDaftarNama = res.daftarNama;
+            localStorage.setItem("absensi_nama", JSON.stringify(res.daftarNama));
+          }
           if (res.dashboard) {
             localStorage.setItem("absensi_dashboard", JSON.stringify(res.dashboard));
-            renderDashboardStats(res.dashboard);
           }
-          fetchIzinCuti();
+
+          showDashboard(res.dashboard);
+          applyLockedScheduleUI(res.dashboard);
+          showToast("Selamat datang, " + currentUser.nama + "!", "success");
         } else {
-          showToast(res.message || "Username atau password salah", "error");
+          showToast((res && res.message) ? res.message : "Username atau password salah.", "error");
         }
-      } catch (err) {
-        showToast("Gagal terhubung ke server GAS", "error");
+      } catch (uiErr) {
+        console.error("UI Render Error:", uiErr);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<span>Masuk ke Aplikasi</span>`;
+        btn.textContent = "Masuk ke Aplikasi";
       }
     });
 
@@ -2384,9 +2397,9 @@ async function submitAttendance(tipe) {
     }
 
     // Render Jadwal Terkunci di Kartu Atas & Otomatis Isi Plan Besok
-    function applyLockedScheduleUI(dashData) {
+function applyLockedScheduleUI(dashData) {
       const nameEl = document.getElementById("lockedShiftName");
-      const timeEl = document.getElementById("lockedShiftTime");
+      const timeEl = document.getElementById("jamKerjaDisplay");
       const hiddenSelect = document.getElementById("shiftSelect");
 
       if (dashData && dashData.jadwalHariIni) {
@@ -2395,13 +2408,18 @@ async function submitAttendance(tipe) {
         if (timeEl) {
           timeEl.textContent = j.kodeShift === "LIBUR" ? "STATUS: LIBUR / OFF" : `${j.jamMasuk} - ${j.jamPulang}`;
         }
-        if (hiddenSelect) hiddenSelect.value = j.kodeShift;
+        if (hiddenSelect) {
+          hiddenSelect.innerHTML = `<option value="${j.kodeShift}" selected>${j.namaShift}</option>`;
+          hiddenSelect.value = j.kodeShift;
+        }
+      } else if (dashData && dashData.shiftHariIni) {
+        if (nameEl) nameEl.textContent = dashData.shiftHariIni.nama || "Jadwal Hari Ini";
+        if (timeEl) timeEl.textContent = `${dashData.shiftHariIni.jamMasuk} - ${dashData.shiftHariIni.jamPulang}`;
       } else {
         if (nameEl) nameEl.textContent = "Belum Dirilis";
         if (timeEl) timeEl.textContent = "Hubungi Admin";
       }
 
-      // Simpan jadwal besok untuk dipakai otomatis di Report Pekerjaan
       const planBesokInput = document.getElementById("rkPlanJamOtomatis");
       if (planBesokInput) {
         if (dashData && dashData.jadwalBesok) {
