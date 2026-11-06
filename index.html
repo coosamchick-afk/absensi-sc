@@ -301,13 +301,17 @@
             </div>
 
             <!-- Shift Selector Pill -->
-            <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2 text-right shrink-0">
-              <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Shift Kerja</label>
-              <select id="shiftSelect" onchange="onShiftChange()" class="mt-0.5 bg-transparent text-slate-800 text-xs font-extrabold focus:outline-none cursor-pointer text-right">
-                <option value="">Memuat...</option>
-              </select>
-              <p id="jamKerjaDisplay" class="text-[10px] font-semibold text-slate-500 mt-0.5">00:00 - 00:00</p>
-            </div>
+            <!-- Kotak Jadwal Masuk Hari Ini (Terkunci dari Master Jadwal Admin) -->
+               <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 text-right min-w-[145px]">
+                 <span class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400">JADWAL HARI INI</span>
+                 <p id="lockedShiftName" class="text-xs font-extrabold text-slate-800 mt-0.5">Memuat Jadwal...</p>
+                 <p id="lockedShiftTime" class="text-[11px] font-bold text-red-600">--:-- s/d --:--</p>
+                 <button type="button" onclick="openRevisiJadwalModal()" class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-extrabold transition">
+                 <span>✎ Revisi Jam</span>
+                </button>
+    <!-- Hidden input agar fungsi kamera tetap kompatibel -->
+                  <input type="hidden" id="shiftSelect" value="" />
+               </div>
           </div>
 
           <!-- QUICK ACTION MENU GRID (5 ICONS) -->
@@ -1045,19 +1049,15 @@
                 <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Planning Pekerjaan Besok</h4>
               </div>
 
-              <!-- 1. Plan Masuk Jam Berapa (Format 24 Jam Pasti) -->
+              <!-- 1. Plan Masuk Besok (Otomatis dari Master Jadwal Admin) -->
               <div>
-                <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Plan Masuk Jam Berapa <span class="text-[10px] text-slate-400 font-normal">(Format 24 Jam)</span></label>
-                <div class="grid grid-cols-2 gap-2">
-                  <div class="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
-                    <span class="text-[10px] font-extrabold text-slate-400 mr-2">JAM</span>
-                    <select id="rkPlanJam" class="w-full text-xs font-extrabold text-slate-800 bg-transparent focus:outline-none"></select>
-                  </div>
-                  <div class="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2">
-                    <span class="text-[10px] font-extrabold text-slate-400 mr-2">MENIT</span>
-                    <select id="rkPlanMenit" class="w-full text-xs font-extrabold text-slate-800 bg-transparent focus:outline-none"></select>
-                  </div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-[11px] font-bold text-slate-700">1. Plan Masuk Besok <span class="text-[10px] text-emerald-600 font-extrabold">(Otomatis Sesuai Jadwal)</span></label>
+                  <button type="button" onclick="closeReportKerjaModal(); openRevisiJadwalModal();" class="text-[10px] font-extrabold text-red-600 underline">Ajukan Revisi?</button>
                 </div>
+                <input type="text" id="rkPlanJamOtomatis" readonly
+                  class="w-full bg-slate-100 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-extrabold text-slate-800 focus:outline-none cursor-not-allowed"
+                  value="Memuat jadwal besok..." />
               </div>
 
               <!-- 2. Dropdown List Outlet Besok -->
@@ -1122,6 +1122,67 @@
       </div>
     </div>
 
+    <!-- ==================== MODAL: PENGAJUAN REVISI JAM MASUK ==================== -->
+    <div id="revisiJadwalModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl relative animate-fade-up max-h-[90vh] flex flex-col overflow-hidden">
+        <div class="bg-gradient-to-br from-[#dc2626] to-[#991b1b] px-5 py-4 text-white flex items-center justify-between shrink-0">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase tracking-wider">⏱️ Schedule Revision</span>
+            <h3 class="text-base font-extrabold mt-1">Pengajuan Revisi Jam Masuk</h3>
+          </div>
+          <button onclick="closeRevisiJadwalModal()" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center font-bold">✕</button>
+        </div>
+
+        <div class="p-5 overflow-y-auto space-y-4 flex-1">
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-[11px] text-amber-800 font-semibold">
+            💡 Perubahan jam masuk wajib diajukan dan disetujui oleh Admin sebelum jam absensi berlangsung.
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1">Tanggal yang Diajukan Revisi</label>
+              <input type="date" id="revTanggalTarget" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-red-600" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1">Pilih Shift / Kategori Baru</label>
+              <select id="revShiftBaru" onchange="onChangeRevShiftPilihan()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-red-600">
+                <option value="">-- Pilih Shift / Custom Jam --</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Jam Masuk Baru (24 Jam)</label>
+                <input type="text" id="revJamMasukBaru" placeholder="Contoh: 08:00:00" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-600" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Jam Pulang Baru (24 Jam)</label>
+                <input type="text" id="revJamPulangBaru" placeholder="Contoh: 16:00:00" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-red-600" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1">Alasan Perubahan Jam Masuk</label>
+              <textarea id="revAlasan" rows="2" placeholder="Contoh: Tukar shift atas instruksi SPV / keperluan mendadak..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:border-red-600"></textarea>
+            </div>
+
+            <button type="button" id="btnSubmitRevisi" onclick="submitRevisiJadwal()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#dc2626] to-[#991b1b] text-white text-xs font-extrabold shadow-lg shadow-red-600/25 transition">
+              📤 Kirim Pengajuan Revisi Jam
+            </button>
+          </div>
+
+          <hr class="border-slate-100" />
+
+          <div>
+            <h4 class="text-xs font-extrabold text-slate-800 mb-2">Riwayat Pengajuan Revisi Anda</h4>
+            <div id="listRiwayatRevisiKaryawan" class="space-y-2">
+              <p class="text-xs text-slate-400 text-center py-3">Memuat riwayat...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     
     <!-- ==================== FLOATING GLASS BOTTOM NAVIGATION DOCK ==================== -->
@@ -1493,6 +1554,7 @@
       } else {
         cont.innerHTML = `<div class="px-4 py-6 text-center text-slate-400 font-medium">Belum ada riwayat pada bulan ini</div>`;
       }
+      applyLockedScheduleUI(dashData);
     }
 
     // 6. IZIN & CUTI HANDLER
@@ -2104,6 +2166,7 @@ async function submitAttendance(tipe) {
       // Muat daftar outlet dinamis dari Spreadsheet jika belum ada di memori
       await ensureDaftarOutletLoaded();
       renderOutletSelectors();
+      applyLockedScheduleUI(dashData);
     }
 
     function closeReportKerjaModal() {
@@ -2318,6 +2381,143 @@ async function submitAttendance(tipe) {
       navigator.clipboard.writeText(lastReportKerjaWAText).then(() => {
         showToast("Teks laporan berhasil disalin!", "success");
       });
+    }
+
+    // Render Jadwal Terkunci di Kartu Atas & Otomatis Isi Plan Besok
+    function applyLockedScheduleUI(dashData) {
+      const nameEl = document.getElementById("lockedShiftName");
+      const timeEl = document.getElementById("lockedShiftTime");
+      const hiddenSelect = document.getElementById("shiftSelect");
+
+      if (dashData && dashData.jadwalHariIni) {
+        const j = dashData.jadwalHariIni;
+        if (nameEl) nameEl.textContent = j.namaShift || j.kodeShift;
+        if (timeEl) {
+          timeEl.textContent = j.kodeShift === "LIBUR" ? "STATUS: LIBUR / OFF" : `${j.jamMasuk} - ${j.jamPulang}`;
+        }
+        if (hiddenSelect) hiddenSelect.value = j.kodeShift;
+      } else {
+        if (nameEl) nameEl.textContent = "Belum Dirilis";
+        if (timeEl) timeEl.textContent = "Hubungi Admin";
+      }
+
+      // Simpan jadwal besok untuk dipakai otomatis di Report Pekerjaan
+      const planBesokInput = document.getElementById("rkPlanJamOtomatis");
+      if (planBesokInput) {
+        if (dashData && dashData.jadwalBesok) {
+          const jb = dashData.jadwalBesok;
+          planBesokInput.value = jb.kodeShift === "LIBUR"
+            ? "LIBUR / OFF (Sesuai Master Jadwal)"
+            : `${jb.jamMasuk.slice(0, 5)} WIB — ${jb.namaShift} (${jb.jamMasuk} - ${jb.jamPulang})`;
+        } else {
+          planBesokInput.value = "Jadwal besok belum dirilis Admin";
+        }
+      }
+    }
+
+    // Panggil applyLockedScheduleUI setiap kali openReportKerjaModal() dibuka
+    // (Di dalam submitReportKerja(), ganti baris const planJamMasuk = ... menjadi:
+    //  const planJamMasuk = document.getElementById("rkPlanJamOtomatis").value; )
+
+    function openRevisiJadwalModal() {
+      if (!currentUser) return showToast("Silakan login terlebih dahulu!", "error");
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("revTanggalTarget").value = today;
+      document.getElementById("revAlasan").value = "";
+
+      const sel = document.getElementById("revShiftBaru");
+      const shifts = JSON.parse(localStorage.getItem("absensi_shifts") || "[]");
+      sel.innerHTML = `<option value="">-- Pilih Shift / Custom Jam --</option>` +
+        shifts.map(s => `<option value="${s.nama}" data-masuk="${s.jamMasuk}" data-pulang="${s.jamPulang}">${s.nama} (${s.jamMasuk} - ${s.jamPulang})</option>`).join("") +
+        `<option value="CUSTOM" data-masuk="08:00:00" data-pulang="17:00:00">⚡ Jam Khusus / Custom Manual</option>` +
+        `<option value="LIBUR" data-masuk="LIBUR" data-pulang="LIBUR">🏖️ Tukar Libur / OFF</option>`;
+
+      const modal = document.getElementById("revisiJadwalModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      loadRiwayatRevisiKaryawan();
+    }
+
+    function closeRevisiJadwalModal() {
+      const modal = document.getElementById("revisiJadwalModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function onChangeRevShiftPilihan() {
+      const sel = document.getElementById("revShiftBaru");
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt) return;
+      document.getElementById("revJamMasukBaru").value = opt.getAttribute("data-masuk") || "";
+      document.getElementById("revJamPulangBaru").value = opt.getAttribute("data-pulang") || "";
+    }
+
+    async function submitRevisiJadwal() {
+      const tanggalTarget = document.getElementById("revTanggalTarget").value;
+      const shiftBaru = document.getElementById("revShiftBaru").value;
+      const jamMasukBaru = document.getElementById("revJamMasukBaru").value.trim();
+      const jamPulangBaru = document.getElementById("revJamPulangBaru").value.trim();
+      const alasan = document.getElementById("revAlasan").value.trim();
+
+      if (!tanggalTarget || !shiftBaru || !jamMasukBaru || !alasan) {
+        return showToast("Lengkapi tanggal, jam masuk baru, dan alasan!", "error");
+      }
+
+      const btn = document.getElementById("btnSubmitRevisi");
+      btn.disabled = true;
+      btn.textContent = "Mengirim...";
+
+      try {
+        const res = await callGAS({
+          action: "submitRevisiJadwal",
+          idKaryawan: currentUser.idKaryawan,
+          nama: currentUser.nama,
+          tanggalTarget,
+          shiftBaru,
+          jamMasukBaru,
+          jamPulangBaru: jamPulangBaru || "-",
+          alasan
+        });
+        if (res.status === "success") {
+          showToast(res.message, "success");
+          document.getElementById("revAlasan").value = "";
+          loadRiwayatRevisiKaryawan();
+        } else {
+          showToast(res.message, "error");
+        }
+      } catch (e) {
+        showToast("Gagal mengirim pengajuan revisi", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "📤 Kirim Pengajuan Revisi Jam";
+      }
+    }
+
+    async function loadRiwayatRevisiKaryawan() {
+      const box = document.getElementById("listRiwayatRevisiKaryawan");
+      try {
+        const res = await callGAS({ action: "getRevisiJadwal", idKaryawan: currentUser.idKaryawan });
+        if (res.status === "success" && res.data.length > 0) {
+          box.innerHTML = res.data.slice(0, 6).map(r => {
+            const badgeColor = r.status === "Disetujui"
+              ? "bg-emerald-100 text-emerald-700"
+              : (r.status === "Ditolak" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700");
+            return `
+              <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs flex items-center justify-between">
+                <div>
+                  <p class="font-extrabold text-slate-800">📅 ${r.tanggalTarget} ➔ ${r.jamMasukBaru}</p>
+                  <p class="text-[11px] text-slate-500">Alasan: ${r.alasan}</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeColor}">${r.status}</span>
+              </div>
+            `;
+          }).join("");
+        } else {
+          box.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Belum ada pengajuan revisi jam masuk.</p>`;
+        }
+      } catch (e) {
+        box.innerHTML = `<p class="text-xs text-rose-500 text-center py-3">Gagal memuat riwayat.</p>`;
+      }
     }
     
   </script>
