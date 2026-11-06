@@ -198,6 +198,22 @@
           <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <span>Manajemen Admin</span>
         </a>
+
+        <a href="#" id="nav-master-jadwal" onclick="showSection('section-master-jadwal', this); loadMasterJadwalPeriode();" class="nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Master Jadwal Masuk</span>
+          </div>
+          <span class="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-extrabold">P1 & P2</span>
+        </a>
+
+        <a href="#" id="nav-approve-revisi" onclick="showSection('section-approve-revisi', this); loadAdminRevisiJadwal();" class="nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center gap-3">
+            <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Approve Revisi Jam</span>
+          </div>
+          <span id="badgePendingRevisi" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-extrabold">0</span>
+        </a>
       </div>
 
       <!-- Sidebar Footer -->
@@ -590,6 +606,100 @@
             </div>
           </div>
 
+        </div>
+
+        <!-- ==================== SECTION: MASTER JADWAL MASUK (PERIODE 1 & 2) ==================== -->
+        <div id="section-master-jadwal" class="content-section hidden animate-fade-up space-y-5">
+          
+          <!-- Banner Aturan Rilis Jadwal -->
+          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-red-600 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-extrabold uppercase tracking-wider">Kedisiplinan Presensi</span>
+                <span id="deadlineJadwalBadge" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold">⏰ Batas Rilis: Tgl 30/31 & Tgl 15</span>
+              </div>
+              <h2 class="text-lg font-extrabold text-slate-800 mt-1">Master Jadwal Masuk Karyawan Per Periode</h2>
+              <p class="text-xs text-slate-500 mt-0.5">
+                • <b>Periode 1 (Tgl 1 – 15):</b> Maksimal dirilis tanggal <b>30/31 (akhir bulan sebelumnya)</b>.<br>
+                • <b>Periode 2 (Tgl 16 – 30/31):</b> Maksimal dirilis tanggal <b>15 bulan berjalan</b>.
+              </p>
+            </div>
+
+            <!-- Filter Bulan, Tahun & Periode -->
+            <div class="flex flex-wrap items-end gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Bulan</label>
+                <select id="jadwalBulan" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800">
+                  <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                  <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                  <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                  <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Tahun</label>
+                <input type="number" id="jadwalTahun" value="2026" onchange="loadMasterJadwalPeriode()" class="mt-0.5 w-20 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Periode Jadwal</label>
+                <select id="jadwalPeriode" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-red-600">
+                  <option value="1">Periode 1 (Tgl 1 – 15)</option>
+                  <option value="2">Periode 2 (Tgl 16 – Akhir Bulan)</option>
+                </select>
+              </div>
+              <button onclick="saveMasterJadwalPeriode()" id="btnSimpanJadwal" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md shadow-emerald-600/20 transition">
+                💾 Simpan & Rilis Jadwal
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabel Matriks Jadwal Karyawan x Tanggal -->
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto max-h-[70vh]">
+              <table class="w-full text-xs text-left whitespace-nowrap border-collapse">
+                <thead id="theadMasterJadwal" class="bg-slate-900 text-white uppercase font-extrabold sticky top-0 z-10"></thead>
+                <tbody id="tbodyMasterJadwal" class="divide-y divide-slate-200 font-semibold text-slate-700">
+                  <tr><td colspan="18" class="py-10 text-center text-slate-400">Memuat matriks jadwal...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SECTION: APPROVE REVISI JAM MASUK ==================== -->
+        <div id="section-approve-revisi" class="content-section hidden animate-fade-up space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold text-amber-600 uppercase tracking-wider">Otorisasi Perubahan Shift</span>
+              <h2 class="text-xl font-extrabold text-slate-800">Persetujuan Revisi Jam Masuk Karyawan</h2>
+              <p class="text-xs text-slate-500">Saat Anda menyetujui pengajuan, Master Jadwal karyawan pada tanggal tersebut otomatis diperbarui.</p>
+            </div>
+            <button onclick="loadAdminRevisiJadwal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition">
+              🔄 Muat Ulang Antrean
+            </button>
+          </div>
+
+          <div class="card-surface rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-extrabold border-b border-slate-200">
+                  <tr>
+                    <th class="py-3.5 px-4">Waktu Pengajuan</th>
+                    <th class="py-3.5 px-4">Nama Karyawan</th>
+                    <th class="py-3.5 px-4">Tanggal Target</th>
+                    <th class="py-3.5 px-4">Jadwal Awal</th>
+                    <th class="py-3.5 px-4">Usulan Jam Baru</th>
+                    <th class="py-3.5 px-4">Alasan</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-center">Aksi Approval</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyApproveRevisi" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                  <tr><td colspan="8" class="py-8 text-center text-slate-400">Memuat daftar pengajuan revisi...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </main>
     </div>
