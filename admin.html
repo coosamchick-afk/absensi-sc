@@ -1361,6 +1361,250 @@
         loadMasterLaporan(false);
       }
     }
+
+    // ==================== LOGIKA MASTER JADWAL MASUK & APPROVAL REVISI (ADMIN) ====================
+    let masterJadwalState = { dates: [], pegawai: [], shifts: [], periodeKey: "" };
+
+    // Set default bulan & periode saat pertama kali dibuka
+    (function initDefaultPeriodeFilter() {
+      const now = new Date();
+      const bEl = document.getElementById("jadwalBulan");
+      const tEl = document.getElementById("jadwalTahun");
+      const pEl = document.getElementById("jadwalPeriode");
+      if (bEl) bEl.value = String(now.getMonth() + 1);
+      if (tEl) tEl.value = String(now.getFullYear());
+      if (pEl) pEl.value = now.getDate() <= 15 ? "1" : "2";
+    })();
+
+    async function loadMasterJadwalPeriode() {
+      const bulan = document.getElementById("jadwalBulan").value;
+      const tahun = document.getElementById("jadwalTahun").value;
+      const periode = document.getElementById("jadwalPeriode").value;
+
+      const tbody = document.getElementById("tbodyMasterJadwal");
+      tbody.innerHTML = `<tr><td colspan="18" class="py-10 text-center text-slate-500 font-bold animate-pulse">⏳ Memuat matriks jadwal Periode ${periode}...</td></tr>`;
+
+      try {
+        const res = await callGAS({ action: "getMasterJadwal", bulan, tahun, periode });
+        if (res.status === "success") {
+          masterJadwalState = res;
+          updateBadgePendingRevisi(res.pendingRevisiCount || 0);
+          renderMasterJadwalTable(res);
+        } else {
+          Swal.fire("Gagal", res.message, "error");
+        }
+      } catch (e) {
+        Swal.fire("Error", "Gagal memuat Master Jadwal", "error");
+      }
+    }
+
+    function renderMasterJadwalTable(res) {
+      const thead = document.getElementById("theadMasterJadwal");
+      const tbody = document.getElementById("tbodyMasterJadwal");
+
+      // Header Kolom: Nama Karyawan | Set Cepat 1 Baris | Tgl 1 .. Tgl 15
+      let headHtml = `<tr>
+        <th class="py-3 px-4 sticky left-0 bg-slate-900 z-20 border-r border-slate-800">Nama Karyawan</th>
+        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700">⚡ Set 1 Periode</th>`;
+      res.dates.forEach(d => {
+        const tglNum = d.split("-")[2];
+        headHtml += `<th class="py-3 px-2.5 text-center border-r border-slate-800 min-w-[92px]">Tgl ${tglNum}</th>`;
+      });
+      headHtml += `</tr>`;
+      thead.innerHTML = headHtml;
+
+      if (!res.pegawai || res.pegawai.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="18" class="py-8 text-center text-slate-400">Belum ada data karyawan.</td></tr>`;
+        return;
+      }
+
+      const shiftOptionsHtml = res.shifts.map(s =>
+        `<option value="${s.kode}">${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`
+      ).join("");
+
+      tbody.innerHTML = res.pegawai.map(p => {
+        const cellsHtml = res.dates.map(tgl => {
+          const key = `${p.idKaryawan}_${tgl}`;
+          const saved = res.jadwalMap[key];
+          const selectedKode = saved ? saved.kodeShift : (res.shifts[0] ? res.shifts[0].kode : "");
+
+          return `
+            <td class="p-1.5 border-r border-slate-100 text-center">
+              <select data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}"
+                class="jadwal-cell-select emp-row-${p.idKaryawan} w-full bg-slate-50 hover:bg-white border border-slate-200 rounded-lg px-1.5 py-1.5 text-[11px] font-extrabold text-slate-800 focus:border-red-500 focus:outline-none">
+                ${res.shifts.map(s => `<option value="${s.kode}" ${s.kode === selectedKode ? "selected" : ""}>${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
+              </select>
+            </td>
+          `;
+        }).join("");
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-2.5 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200">
+              ${p.nama}
+              <span class="block text-[10px] font-semibold text-slate-400">${p.idKaryawan}</span>
+            </td>
+            <td class="p-1.5 bg-amber-50/60 border-r border-slate-200 text-center">
+              <select onchange="applyQuickRowJadwal('${p.idKaryawan}', this.value)" class="bg-white border border-amber-300 rounded-lg px-2 py-1.5 text-[11px] font-extrabold text-amber-900">
+                <option value="">-- Terapkan Semua --</option>
+                ${shiftOptionsHtml}
+              </select>
+            </td>
+            ${cellsHtml}
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function applyQuickRowJadwal(idKaryawan, kodeShift) {
+      if (!kodeShift) return;
+      document.querySelectorAll(`.emp-row-${CSS.escape(idKaryawan)}`).forEach(sel => {
+        sel.value = kodeShift;
+      });
+    }
+
+    async function saveMasterJadwalPeriode() {
+      const selects = document.querySelectorAll(".jadwal-cell-select");
+      if (selects.length === 0) return;
+
+      const shiftLookup = {};
+      masterJadwalState.shifts.forEach(s => { shiftLookup[s.kode] = s; });
+
+      const items = [];
+      selects.forEach(sel => {
+        const kode = sel.value;
+        const sh = shiftLookup[kode] || { kode: kode, nama: kode, jamMasuk: "08:00:00", jamPulang: "17:00:00" };
+        items.push({
+          idKaryawan: sel.getAttribute("data-emp"),
+          nama: sel.getAttribute("data-nama"),
+          tanggal: sel.getAttribute("data-date"),
+          kodeShift: sh.kode,
+          namaShift: sh.nama,
+          jamMasuk: sh.jamMasuk,
+          jamPulang: sh.jamPulang
+        });
+      });
+
+      Swal.fire({
+        title: "Simpan & Rilis Jadwal?",
+        text: `Sebanyak ${items.length} jadwal harian pada periode ini akan dikunci untuk absensi dan report pekerjaan karyawan.`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#059669",
+        confirmButtonText: "Ya, Rilis Sekarang!",
+        cancelButtonText: "Batal"
+      }).then(async (r) => {
+        if (!r.isConfirmed) return;
+        Swal.fire({ title: "Menyimpan Jadwal...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+          const res = await callGAS({
+            action: "saveMasterJadwal",
+            periodeKey: masterJadwalState.periodeKey,
+            items: items
+          });
+          if (res.status === "success") {
+            Swal.fire("Berhasil!", res.message, "success");
+          } else {
+            Swal.fire("Gagal", res.message, "error");
+          }
+        } catch (e) {
+          Swal.fire("Error", "Gagal menyimpan jadwal ke server.", "error");
+        }
+      });
+    }
+
+    // ==================== APPROVAL REVISI JAM MASUK ====================
+    function updateBadgePendingRevisi(count) {
+      const badge = document.getElementById("badgePendingRevisi");
+      if (!badge) return;
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
+    }
+
+    async function loadAdminRevisiJadwal() {
+      const tbody = document.getElementById("tbodyApproveRevisi");
+      tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Memuat pengajuan revisi jam masuk...</td></tr>`;
+
+      try {
+        const res = await callGAS({ action: "getRevisiJadwal" });
+        if (res.status === "success") {
+          const list = res.data || [];
+          const pendingCount = list.filter(x => x.status === "Menunggu").length;
+          updateBadgePendingRevisi(pendingCount);
+
+          if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Belum ada pengajuan revisi jam masuk.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = list.map(r => {
+            const badgeClass = r.status === "Disetujui"
+              ? "bg-emerald-100 text-emerald-700"
+              : (r.status === "Ditolak" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-800");
+
+            const actionBtns = r.status === "Menunggu"
+              ? `<div class="flex items-center justify-center gap-1.5">
+                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Disetujui')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-2xs transition">✓ Setujui</button>
+                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Ditolak')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-2xs transition">✕ Tolak</button>
+                 </div>`
+              : `<span class="text-[11px] text-slate-400">Oleh: ${r.diprosesOleh}</span>`;
+
+            return `
+              <tr class="hover:bg-slate-50 transition">
+                <td class="py-3.5 px-4 text-slate-400 text-[11px]">${r.timestamp}</td>
+                <td class="py-3.5 px-4 font-extrabold text-slate-800">${r.nama}</td>
+                <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-extrabold">${r.tanggalTarget}</span></td>
+                <td class="py-3.5 px-4 text-slate-500">${r.shiftAwal} (${r.jamMasukAwal})</td>
+                <td class="py-3.5 px-4 font-extrabold text-emerald-700">${r.shiftBaru} (${r.jamMasukBaru} - ${r.jamPulangBaru})</td>
+                <td class="py-3.5 px-4 max-w-xs truncate" title="${r.alasan}">${r.alasan}</td>
+                <td class="py-3.5 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${r.status}</span></td>
+                <td class="py-3.5 px-4 text-center">${actionBtns}</td>
+              </tr>
+            `;
+          }).join("");
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-rose-500">Gagal memuat data revisi.</td></tr>`;
+      }
+    }
+
+    function prosesApproveRevisi(idRevisi, keputusan) {
+      Swal.fire({
+        title: `${keputusan} Revisi Jam Masuk?`,
+        text: keputusan === "Disetujui"
+          ? "Jadwal kerja karyawan pada tanggal tersebut akan langsung diperbarui secara otomatis."
+          : "Pengajuan perubahan jam masuk ini akan ditolak.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: keputusan === "Disetujui" ? "#059669" : "#e11d48",
+        confirmButtonText: `Ya, ${keputusan}!`,
+        cancelButtonText: "Batal"
+      }).then(async (result) => {
+        if (!result.isConfirmed) return;
+        Swal.fire({ title: "Memproses...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+          const adminSession = JSON.parse(localStorage.getItem("admin_session") || "{}");
+          const res = await callGAS({
+            action: "approveRevisiJadwal",
+            idRevisi: idRevisi,
+            keputusan: keputusan,
+            adminName: adminSession.nama || "Admin"
+          });
+          if (res.status === "success") {
+            Swal.fire("Selesai!", res.message, "success");
+            loadAdminRevisiJadwal();
+          } else {
+            Swal.fire("Gagal", res.message, "error");
+          }
+        } catch (e) {
+          Swal.fire("Error", "Gagal menghubungi server.", "error");
+        }
+      });
+    }
   </script>
 </body>
 </html>
