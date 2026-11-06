@@ -1376,25 +1376,42 @@
       if (pEl) pEl.value = now.getDate() <= 15 ? "1" : "2";
     })();
 
-    async function loadMasterJadwalPeriode() {
-      const bulan = document.getElementById("jadwalBulan").value;
-      const tahun = document.getElementById("jadwalTahun").value;
-      const periode = document.getElementById("jadwalPeriode").value;
-
+   async function loadMasterJadwalPeriode() {
+      const bulanEl = document.getElementById("jadwalBulan");
+      const tahunEl = document.getElementById("jadwalTahun");
+      const periodeEl = document.getElementById("jadwalPeriode");
       const tbody = document.getElementById("tbodyMasterJadwal");
-      tbody.innerHTML = `<tr><td colspan="18" class="py-10 text-center text-slate-500 font-bold animate-pulse">⏳ Memuat matriks jadwal Periode ${periode}...</td></tr>`;
+      if (!tbody) return;
+
+      const bulan = bulanEl ? bulanEl.value : String(new Date().getMonth() + 1);
+      const tahun = tahunEl ? tahunEl.value : String(new Date().getFullYear());
+      const periode = periodeEl ? periodeEl.value : "1";
+
+      tbody.innerHTML = `<tr><td colspan="18" class="py-10 text-center text-slate-500 font-bold animate-pulse">⏳ Sedang mengambil daftar karyawan & jadwal Periode ${periode} dari Spreadsheet...</td></tr>`;
 
       try {
         const res = await callGAS({ action: "getMasterJadwal", bulan, tahun, periode });
-        if (res.status === "success") {
+        if (res && res.status === "success") {
           masterJadwalState = res;
           updateBadgePendingRevisi(res.pendingRevisiCount || 0);
           renderMasterJadwalTable(res);
         } else {
-          Swal.fire("Gagal", res.message, "error");
+          const msg = (res && res.message) ? res.message : "Respon tidak dikenali";
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="18" class="py-8 text-center text-rose-600 font-bold">
+                ⚠️ Gagal memuat tabel: ${msg}<br>
+                <span class="text-xs text-slate-500 font-normal">Pastikan rute "getMasterJadwal" sudah dipasang di doPost(e) pada Code.gs dan sudah di-Deploy (New Version).</span>
+              </td>
+            </tr>`;
         }
       } catch (e) {
-        Swal.fire("Error", "Gagal memuat Master Jadwal", "error");
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="18" class="py-8 text-center text-rose-600 font-bold">
+              ⚠️ Koneksi ke Code.gs gagal: ${e.message || e}
+            </td>
+          </tr>`;
       }
     }
 
