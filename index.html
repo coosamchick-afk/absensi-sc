@@ -1346,13 +1346,26 @@
 
     function updateUserIdentityUI() {
       if (!currentUser) return;
-      const initials = getInitials(currentUser.nama);
-      document.getElementById("sbNama").textContent = currentUser.nama;
-      document.getElementById("sbOutlet").innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ${currentUser.outlet.namaOutlet}`;
-      document.getElementById("sbAvatar").textContent = initials;
-      document.getElementById("heroAvatar").textContent = initials;
-      document.getElementById("userNama").textContent = currentUser.nama;
-      document.getElementById("userOutlet").textContent = `${currentUser.jabatan} • ${currentUser.outlet.namaOutlet}`;
+      
+      // Ambil nama user & jabatan
+      const namaEl = document.getElementById("userNameHeader");
+      const jabatanEl = document.getElementById("userJabatanHeader");
+      const avatarEl = document.getElementById("userInitialAvatar");
+      const outletEl = document.getElementById("lockedOutletName");
+
+      if (namaEl) namaEl.textContent = currentUser.nama || "-";
+      if (jabatanEl) jabatanEl.textContent = `${currentUser.jabatan || "Staff"} • ${currentUser.outlet ? currentUser.outlet.namaOutlet : "OFFICE"}`;
+      
+      if (avatarEl) {
+        const initials = currentUser.nama ? currentUser.nama.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "US";
+        avatarEl.textContent = initials;
+      }
+
+      // Pengaman aman untuk outlet (mencegah error null reading)
+      if (outletEl) {
+        const outletName = (currentUser.outlet && currentUser.outlet.namaOutlet) ? currentUser.outlet.namaOutlet : "Kantor Pusat / Office";
+        outletEl.textContent = `📍 ${outletName}`;
+      }
     }
 
     async function callGAS(payload) {
