@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
@@ -213,6 +214,11 @@
             <span>Approve Revisi Jam</span>
           </div>
           <span id="badgePendingRevisi" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-extrabold">0</span>
+        </a>
+        <!-- Tombol Menu Laporan Direktur -->
+        <a href="#" onclick="showSection('section-laporan-jadwal')" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition group">
+           <span class="text-lg group-hover:scale-110 transition-transform">📊</span>
+           <span class="text-xs font-bold">Laporan Direktur</span>
         </a>
       </div>
 
@@ -608,58 +614,114 @@
 
         </div>
 
-        <!-- ==================== SECTION: MASTER JADWAL MASUK (PERIODE 1 & 2) ==================== -->
-        <div id="section-master-jadwal" class="content-section hidden animate-fade-up space-y-5">
-          
-          <!-- Banner Aturan Rilis Jadwal -->
-          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-red-600 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- ==================== SECTION: LAPORAN EKSEKUTIF JADWAL (DIREKTUR) ==================== -->
+        <div id="section-laporan-jadwal" class="content-section hidden animate-fade-up space-y-5">
+          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-indigo-600 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-extrabold uppercase tracking-wider">Kedisiplinan Presensi</span>
-                <span id="deadlineJadwalBadge" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold">⏰ Batas Rilis: Tgl 30/31 & Tgl 15</span>
-              </div>
-              <h2 class="text-lg font-extrabold text-slate-800 mt-1">Master Jadwal Masuk Karyawan Per Periode</h2>
-              <p class="text-xs text-slate-500 mt-0.5">
-                • <b>Periode 1 (Tgl 1 – 15):</b> Maksimal dirilis tanggal <b>30/31 (akhir bulan sebelumnya)</b>.<br>
-                • <b>Periode 2 (Tgl 16 – 30/31):</b> Maksimal dirilis tanggal <b>15 bulan berjalan</b>.
-              </p>
+              <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider">Executive Report</span>
+              <h2 class="text-lg font-extrabold text-slate-800 mt-1">Laporan Jadwal Kerja Direktur (Format Matriks)</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Tampilan tabel penuh sesuai tanggal dengan pewarnaan otomatis dan siap diunduh ke PNG.</p>
             </div>
-
-            <!-- Filter Bulan, Tahun & Periode -->
-            <div class="flex flex-wrap items-end gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-              <div>
-                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Bulan</label>
-                <select id="jadwalBulan" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800">
-                  <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
-                  <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
-                  <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
-                  <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Tahun</label>
-                <input type="number" id="jadwalTahun" value="2026" onchange="loadMasterJadwalPeriode()" class="mt-0.5 w-20 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800" />
-              </div>
-              <div>
-                <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Periode Jadwal</label>
-                <select id="jadwalPeriode" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-red-600">
-                  <option value="1">Periode 1 (Tgl 1 – 15)</option>
-                  <option value="2">Periode 2 (Tgl 16 – Akhir Bulan)</option>
-                </select>
-              </div>
-              <button onclick="saveMasterJadwalPeriode()" id="btnSimpanJadwal" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md shadow-emerald-600/20 transition">
-                💾 Simpan & Rilis Jadwal
+            
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="reportJadwalBulan" class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800">
+                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+              </select>
+              <select id="reportJadwalPeriode" class="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-indigo-600">
+                <option value="1">Periode 1 (Tgl 1 – 15)</option>
+                <option value="2">Periode 2 (Tgl 16 – Akhir)</option>
+              </select>
+              <button onclick="loadLaporanJadwalDirektur()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-md transition">
+                🔍 Muat Laporan
+              </button>
+              <button onclick="downloadLaporanJadwalPNG()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md transition flex items-center gap-1.5">
+                <span>📥 Unduh PNG</span>
               </button>
             </div>
           </div>
 
-          <!-- Tabel Matriks Jadwal Karyawan x Tanggal -->
+          <!-- Area Tabel yang akan Dipotret menjadi PNG -->
+          <div id="printAreaLaporanJadwal" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 overflow-x-auto space-y-4">
+            <!-- Header Judul Laporan -->
+            <div class="text-center space-y-1 pb-2 border-b-2 border-slate-900">
+              <h1 class="text-base font-extrabold uppercase tracking-wider text-slate-900">JADWAL KERJA OFFICE</h1>
+              <p id="labelPeriodeReportText" class="text-xs font-bold text-slate-600">Periode 1 November 2026</p>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table id="tableLaporanDirektur" class="w-full text-[11px] border-collapse border border-slate-400 text-center whitespace-nowrap">
+                <thead id="theadLaporanDirektur" class="bg-amber-300 text-slate-900 font-extrabold"></thead>
+                <tbody id="tbodyLaporanDirektur" class="divide-y divide-slate-300 font-semibold text-slate-800">
+                  <tr><td colspan="32" class="py-10 text-center text-slate-400">Klik "Muat Laporan" untuk menampilkan data.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+<!-- ==================== SECTION: MASTER JADWAL & LOKASI KERJA ==================== -->
+        <div id="section-master-jadwal" class="content-section hidden animate-fade-up space-y-5">
+          
+          <!-- Panel Kontrol Buka/Kunci Isi Jadwal Mandiri & Rilis Jadwal -->
+          <div class="card-surface rounded-2xl p-5 border-l-4 border-l-red-600 space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-extrabold uppercase tracking-wider">Jadwal & Lokasi Dinamis</span>
+                  <span id="badgeStatusMandiriAdmin" class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-extrabold">🔒 Isi Mandiri: Terkunci</span>
+                </div>
+                <h2 class="text-lg font-extrabold text-slate-800 mt-1">Master Jadwal Masuk & Lokasi Outlet Per Periode</h2>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  1. Klik <b>Buka Isi Mandiri</b> agar karyawan mengisi jam & outlet sendiri. &nbsp;2. Setelah terisi, klik <b>Rilis & Kunci Jadwal</b>.
+                </p>
+              </div>
+
+              <!-- Filter Bulan, Tahun, Periode & Tombol Aksi -->
+              <div class="flex flex-wrap items-end gap-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                <div>
+                  <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Bulan</label>
+                  <select id="jadwalBulan" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800">
+                    <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+                    <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+                    <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+                    <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Tahun</label>
+                  <input type="number" id="jadwalTahun" value="2026" onchange="loadMasterJadwalPeriode()" class="mt-0.5 w-20 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-extrabold text-slate-400 uppercase">Periode Jadwal</label>
+                  <select id="jadwalPeriode" onchange="loadMasterJadwalPeriode()" class="mt-0.5 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold text-red-600">
+                    <option value="1">Periode 1 (Tgl 1 – 15)</option>
+                    <option value="2">Periode 2 (Tgl 16 – Akhir Bulan)</option>
+                  </select>
+                </div>
+
+                <!-- Tombol Saklar Buka/Tutup Pengisian Mandiri -->
+                <button onclick="toggleBukaIsiJadwalAdmin()" id="btnToggleMandiriAdmin" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold shadow-md transition">
+                  🔓 Buka Isi Mandiri Karyawan
+                </button>
+
+                <!-- Tombol Rilis & Kunci Otomatis -->
+                <button onclick="saveMasterJadwalPeriode()" id="btnSimpanJadwal" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-md transition">
+                  🚀 Rilis & Kunci Jadwal
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabel Matriks Jadwal (Shift + Outlet) -->
           <div class="card-surface rounded-2xl overflow-hidden">
-            <div class="overflow-x-auto max-h-[70vh]">
+            <div class="overflow-x-auto max-h-[72vh]">
               <table class="w-full text-xs text-left whitespace-nowrap border-collapse">
                 <thead id="theadMasterJadwal" class="bg-slate-900 text-white uppercase font-extrabold sticky top-0 z-10"></thead>
                 <tbody id="tbodyMasterJadwal" class="divide-y divide-slate-200 font-semibold text-slate-700">
-                  <tr><td colspan="18" class="py-10 text-center text-slate-400">Memuat matriks jadwal...</td></tr>
+                  <tr><td colspan="18" class="py-10 text-center text-slate-400">Memuat matriks jadwal & lokasi outlet...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -704,6 +766,8 @@
       </main>
     </div>
   </div>
+
+  
 
   <!-- ==================== MODAL IMPORT PEGAWAI ==================== -->
   <div id="modalImport" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
@@ -1362,10 +1426,9 @@
       }
     }
 
-    // ==================== LOGIKA MASTER JADWAL MASUK & APPROVAL REVISI (ADMIN) ====================
-    let masterJadwalState = { dates: [], pegawai: [], shifts: [], periodeKey: "" };
+    // ==================== LOGIKA MASTER JADWAL + OUTLET DINAMIS & APPROVAL REVISI (ADMIN) ====================
+    let masterJadwalState = { dates: [], pegawai: [], shifts: [], outlets: [], periodeKey: "", configIsiJadwal: {} };
 
-    // Set default bulan & periode saat pertama kali dibuka
     (function initDefaultPeriodeFilter() {
       const now = new Date();
       const bEl = document.getElementById("jadwalBulan");
@@ -1376,96 +1439,156 @@
       if (pEl) pEl.value = now.getDate() <= 15 ? "1" : "2";
     })();
 
-   async function loadMasterJadwalPeriode() {
-      const bulanEl = document.getElementById("jadwalBulan");
-      const tahunEl = document.getElementById("jadwalTahun");
-      const periodeEl = document.getElementById("jadwalPeriode");
+    function renderStatusMandiriAdminUI(cfg) {
+      const badge = document.getElementById("badgeStatusMandiriAdmin");
+      const btn = document.getElementById("btnToggleMandiriAdmin");
+      if (!badge || !btn || !cfg) return;
+
+      if (cfg.isOpen) {
+        badge.className = "px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold animate-pulse";
+        badge.textContent = `🔓 Isi Mandiri DIBUKA (Bln ${cfg.bulan}-P${cfg.periode})`;
+        btn.className = "px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md transition";
+        btn.textContent = "🔒 Tutup Isi Mandiri";
+      } else {
+        badge.className = "px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-extrabold";
+        badge.textContent = "🔒 Isi Mandiri: Terkunci";
+        btn.className = "px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold shadow-md transition";
+        btn.textContent = "🔓 Buka Isi Mandiri Karyawan";
+      }
+    }
+
+    async function toggleBukaIsiJadwalAdmin() {
+      const bulan = document.getElementById("jadwalBulan").value;
+      const tahun = document.getElementById("jadwalTahun").value;
+      const periode = document.getElementById("jadwalPeriode").value;
+      const currentOpen = masterJadwalState.configIsiJadwal && masterJadwalState.configIsiJadwal.isOpen;
+      const targetOpen = !currentOpen;
+
+      Swal.fire({
+        title: targetOpen ? "Buka Pengisian Jadwal Mandiri?" : "Kunci Pengisian Jadwal Mandiri?",
+        text: targetOpen
+          ? `Karyawan akan bisa mengisi jam masuk & lokasi outlet untuk Periode ${periode} (Bulan ${bulan}/${tahun}) dari HP mereka.`
+          : "Fitur isi jadwal mandiri akan ditutup di aplikasi karyawan.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: targetOpen ? "#d97706" : "#e11d48",
+        confirmButtonText: targetOpen ? "Ya, Buka Sekarang!" : "Ya, Kunci!"
+      }).then(async (r) => {
+        if (!r.isConfirmed) return;
+        Swal.fire({ title: "Memproses...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+          const res = await callGAS({ action: "toggleBukaIsiJadwal", isOpen: targetOpen, bulan, tahun, periode });
+          if (res.status === "success") {
+            masterJadwalState.configIsiJadwal = res.configIsiJadwal;
+            renderStatusMandiriAdminUI(res.configIsiJadwal);
+            Swal.fire("Berhasil!", res.message, "success");
+          } else {
+            Swal.fire("Gagal", res.message, "error");
+          }
+        } catch (e) {
+          Swal.fire("Error", "Gagal menghubungi server.", "error");
+        }
+      });
+    }
+
+    async function loadMasterJadwalPeriode() {
+      const bulan = document.getElementById("jadwalBulan").value;
+      const tahun = document.getElementById("jadwalTahun").value;
+      const periode = document.getElementById("jadwalPeriode").value;
       const tbody = document.getElementById("tbodyMasterJadwal");
       if (!tbody) return;
 
-      const bulan = bulanEl ? bulanEl.value : String(new Date().getMonth() + 1);
-      const tahun = tahunEl ? tahunEl.value : String(new Date().getFullYear());
-      const periode = periodeEl ? periodeEl.value : "1";
-
-      tbody.innerHTML = `<tr><td colspan="18" class="py-10 text-center text-slate-500 font-bold animate-pulse">⏳ Sedang mengambil daftar karyawan & jadwal Periode ${periode} dari Spreadsheet...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="18" class="py-10 text-center text-slate-500 font-bold animate-pulse">⏳ Memuat matriks jadwal & lokasi outlet Periode ${periode}...</td></tr>`;
 
       try {
         const res = await callGAS({ action: "getMasterJadwal", bulan, tahun, periode });
         if (res && res.status === "success") {
           masterJadwalState = res;
+          renderStatusMandiriAdminUI(res.configIsiJadwal);
           updateBadgePendingRevisi(res.pendingRevisiCount || 0);
           renderMasterJadwalTable(res);
         } else {
-          const msg = (res && res.message) ? res.message : "Respon tidak dikenali";
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="18" class="py-8 text-center text-rose-600 font-bold">
-                ⚠️ Gagal memuat tabel: ${msg}<br>
-                <span class="text-xs text-slate-500 font-normal">Pastikan rute "getMasterJadwal" sudah dipasang di doPost(e) pada Code.gs dan sudah di-Deploy (New Version).</span>
-              </td>
-            </tr>`;
+          tbody.innerHTML = `<tr><td colspan="18" class="py-8 text-center text-rose-600 font-bold">⚠️ Gagal memuat: ${(res && res.message) || "Pastikan Code.gs sudah di-Deploy New Version"}</td></tr>`;
         }
       } catch (e) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="18" class="py-8 text-center text-rose-600 font-bold">
-              ⚠️ Koneksi ke Code.gs gagal: ${e.message || e}
-            </td>
-          </tr>`;
+        tbody.innerHTML = `<tr><td colspan="18" class="py-8 text-center text-rose-600 font-bold">⚠️ Koneksi gagal: ${e.message || e}</td></tr>`;
       }
     }
 
     function renderMasterJadwalTable(res) {
       const thead = document.getElementById("theadMasterJadwal");
       const tbody = document.getElementById("tbodyMasterJadwal");
+      
+      const dates = res.dates || [];
+      const pegawai = res.pegawai || [];
+      const shifts = res.shifts || [];
+      const outlets = res.outlets || [];
 
-      // Header Kolom: Nama Karyawan | Set Cepat 1 Baris | Tgl 1 .. Tgl 15
       let headHtml = `<tr>
-        <th class="py-3 px-4 sticky left-0 bg-slate-900 z-20 border-r border-slate-800">Nama Karyawan</th>
-        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700">⚡ Set 1 Periode</th>`;
-      res.dates.forEach(d => {
+        <th class="py-3 px-4 sticky left-0 bg-slate-900 z-20 border-r border-slate-800" style="min-width: 180px;">Nama Karyawan</th>
+        <th class="py-3 px-3 bg-slate-800 text-amber-300 text-center border-r border-slate-700" style="min-width: 170px;">⚡ Set Cepat (Baris)</th>`;
+      dates.forEach(d => {
         const tglNum = d.split("-")[2];
-        headHtml += `<th class="py-3 px-2.5 text-center border-r border-slate-800 min-w-[92px]">Tgl ${tglNum}</th>`;
+        headHtml += `<th class="py-3 px-2 text-center border-r border-slate-800" style="min-width: 155px;">Tgl ${tglNum}</th>`;
       });
       headHtml += `</tr>`;
       thead.innerHTML = headHtml;
 
-      if (!res.pegawai || res.pegawai.length === 0) {
+      if (pegawai.length === 0) {
         tbody.innerHTML = `<tr><td colspan="18" class="py-8 text-center text-slate-400">Belum ada data karyawan.</td></tr>`;
         return;
       }
 
-      const shiftOptionsHtml = res.shifts.map(s =>
-        `<option value="${s.kode}">${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`
-      ).join("");
+      const shiftOpts = shifts.map(s => `<option value="${s.kode}">${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("");
+      const outletOpts = outlets.map(o => `<option value="${o.idOutlet}">${o.namaOutlet}</option>`).join("");
 
-      tbody.innerHTML = res.pegawai.map(p => {
-        const cellsHtml = res.dates.map(tgl => {
+      tbody.innerHTML = pegawai.map(p => {
+        const defaultOut = p.defaultOutlet || (outlets.length > 0 ? outlets[0].idOutlet : "");
+        const cellsHtml = dates.map(tgl => {
           const key = `${p.idKaryawan}_${tgl}`;
-          const saved = res.jadwalMap[key];
-          const selectedKode = saved ? saved.kodeShift : (res.shifts[0] ? res.shifts[0].kode : "");
+          const saved = (res.jadwalMap || {})[key];
+          const selShift = saved ? saved.kodeShift : (shifts[0] ? shifts[0].kode : "");
+          const selOutlet = (saved && saved.idOutlet) ? saved.idOutlet : defaultOut;
 
           return `
-            <td class="p-1.5 border-r border-slate-100 text-center">
-              <select data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}"
-                class="jadwal-cell-select emp-row-${p.idKaryawan} w-full bg-slate-50 hover:bg-white border border-slate-200 rounded-lg px-1.5 py-1.5 text-[11px] font-extrabold text-slate-800 focus:border-red-500 focus:outline-none">
-                ${res.shifts.map(s => `<option value="${s.kode}" ${s.kode === selectedKode ? "selected" : ""}>${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
-              </select>
+            <td class="p-1.5 border-r border-slate-100 align-top bg-white hover:bg-slate-50 transition" style="min-width: 155px;">
+              <!-- Mini-Card dengan Inline Flex untuk Mencegah Bentrok CSS -->
+              <div class="jadwal-cell-box" data-emp="${p.idKaryawan}" data-nama="${p.nama}" data-date="${tgl}" style="display: flex; flex-direction: column; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; width: 100%;">
+                <!-- Baris Shift -->
+                <div style="display: flex; align-items: center; gap: 4px; width: 100%;">
+                  <span style="font-size: 10px;" title="Jam Shift">⏰</span>
+                  <select class="jadwal-shift-select emp-shift-${p.idKaryawan}" style="width: 100%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 800; color: #1e293b;">
+                    ${shifts.map(s => `<option value="${s.kode}" ${s.kode === selShift ? "selected" : ""}>${s.kode} (${s.jamMasuk === 'LIBUR' ? 'OFF' : s.jamMasuk.slice(0,5)})</option>`).join("")}
+                  </select>
+                </div>
+                <!-- Baris Outlet -->
+                <div style="display: flex; align-items: center; gap: 4px; width: 100%;">
+                  <span style="font-size: 10px;" title="Lokasi Outlet">📍</span>
+                  <select class="jadwal-outlet-select emp-outlet-${p.idKaryawan}" style="width: 100%; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 700; color: #b91c1c;">
+                    ${outlets.map(o => `<option value="${o.idOutlet}" ${o.idOutlet === selOutlet ? "selected" : ""}>${o.namaOutlet}</option>`).join("")}
+                  </select>
+                </div>
+              </div>
             </td>
           `;
         }).join("");
 
         return `
           <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-2.5 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200">
-              ${p.nama}
-              <span class="block text-[10px] font-semibold text-slate-400">${p.idKaryawan}</span>
+            <td class="py-3 px-4 font-extrabold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200" style="min-width: 180px;">
+              <div style="font-size: 12px;">${p.nama}</div>
+              <span style="font-size: 10px; font-weight: 600; color: #94a3b8;">${p.idKaryawan}</span>
             </td>
-            <td class="p-1.5 bg-amber-50/60 border-r border-slate-200 text-center">
-              <select onchange="applyQuickRowJadwal('${p.idKaryawan}', this.value)" class="bg-white border border-amber-300 rounded-lg px-2 py-1.5 text-[11px] font-extrabold text-amber-900">
-                <option value="">-- Terapkan Semua --</option>
-                ${shiftOptionsHtml}
-              </select>
+            <td class="p-2 bg-amber-50/50 border-r border-slate-200 align-middle" style="min-width: 170px;">
+              <div style="font-size: 9px; font-weight: 800; color: #92400e; text-transform: uppercase; margin-bottom: 4px;">⚡ Set 1 Baris:</div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <select onchange="applyQuickRowShift('${p.idKaryawan}', this.value)" style="width: 100%; background: #ffffff; border: 1px solid #fde68a; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 800; color: #78350f;">
+                  <option value="">-- Pilih Shift --</option>${shiftOpts}
+                </select>
+                <select onchange="applyQuickRowOutlet('${p.idKaryawan}', this.value)" style="width: 100%; background: #ffffff; border: 1px solid #fde68a; border-radius: 6px; padding: 4px 6px; font-size: 10px; font-weight: 700; color: #78350f;">
+                  <option value="">-- Pilih Outlet --</option>${outletOpts}
+                </select>
+              </div>
             </td>
             ${cellsHtml}
           </tr>
@@ -1473,54 +1596,63 @@
       }).join("");
     }
 
-    function applyQuickRowJadwal(idKaryawan, kodeShift) {
-      if (!kodeShift) return;
-      document.querySelectorAll(`.emp-row-${CSS.escape(idKaryawan)}`).forEach(sel => {
-        sel.value = kodeShift;
-      });
+    function applyQuickRowShift(idKaryawan, val) {
+      if (!val) return;
+      document.querySelectorAll(`.emp-shift-${CSS.escape(idKaryawan)}`).forEach(el => { el.value = val; });
+    }
+
+    function applyQuickRowOutlet(idKaryawan, val) {
+      if (!val) return;
+      document.querySelectorAll(`.emp-outlet-${CSS.escape(idKaryawan)}`).forEach(el => { el.value = val; });
     }
 
     async function saveMasterJadwalPeriode() {
-      const selects = document.querySelectorAll(".jadwal-cell-select");
-      if (selects.length === 0) return;
+      const boxes = document.querySelectorAll(".jadwal-cell-box");
+      if (boxes.length === 0) return;
 
       const shiftLookup = {};
       masterJadwalState.shifts.forEach(s => { shiftLookup[s.kode] = s; });
+      const outletLookup = {};
+      (masterJadwalState.outlets || []).forEach(o => { outletLookup[o.idOutlet] = o.namaOutlet; });
 
       const items = [];
-      selects.forEach(sel => {
-        const kode = sel.value;
-        const sh = shiftLookup[kode] || { kode: kode, nama: kode, jamMasuk: "08:00:00", jamPulang: "17:00:00" };
+      boxes.forEach(box => {
+        const kodeShift = box.querySelector(".jadwal-shift-select").value;
+        const idOutlet = box.querySelector(".jadwal-outlet-select").value;
+        const sh = shiftLookup[kodeShift] || { kode: kodeShift, nama: kodeShift, jamMasuk: "08:00:00", jamPulang: "17:00:00" };
         items.push({
-          idKaryawan: sel.getAttribute("data-emp"),
-          nama: sel.getAttribute("data-nama"),
-          tanggal: sel.getAttribute("data-date"),
+          idKaryawan: box.getAttribute("data-emp"),
+          nama: box.getAttribute("data-nama"),
+          tanggal: box.getAttribute("data-date"),
           kodeShift: sh.kode,
           namaShift: sh.nama,
           jamMasuk: sh.jamMasuk,
-          jamPulang: sh.jamPulang
+          jamPulang: sh.jamPulang,
+          idOutlet: idOutlet,
+          namaOutlet: outletLookup[idOutlet] || idOutlet
         });
       });
 
       Swal.fire({
-        title: "Simpan & Rilis Jadwal?",
-        text: `Sebanyak ${items.length} jadwal harian pada periode ini akan dikunci untuk absensi dan report pekerjaan karyawan.`,
+        title: "Rilis & Kunci Jadwal Periode Ini?",
+        text: "Jadwal jam masuk & lokasi outlet akan dikunci untuk absensi karyawan, dan fitur isi jadwal mandiri akan otomatis ditutup.",
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#059669",
-        confirmButtonText: "Ya, Rilis Sekarang!",
-        cancelButtonText: "Batal"
+        confirmButtonText: "Ya, Rilis & Kunci!"
       }).then(async (r) => {
         if (!r.isConfirmed) return;
-        Swal.fire({ title: "Menyimpan Jadwal...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: "Merilis & Mengunci Jadwal...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         try {
           const res = await callGAS({
             action: "saveMasterJadwal",
             periodeKey: masterJadwalState.periodeKey,
+            lockSelfSchedule: true,
             items: items
           });
           if (res.status === "success") {
-            Swal.fire("Berhasil!", res.message, "success");
+            if (res.configIsiJadwal) renderStatusMandiriAdminUI(res.configIsiJadwal);
+            Swal.fire("Berhasil Dirilis!", res.message, "success");
           } else {
             Swal.fire("Gagal", res.message, "error");
           }
@@ -1530,7 +1662,7 @@
       });
     }
 
-    // ==================== APPROVAL REVISI JAM MASUK ====================
+    // ==================== APPROVAL REVISI JAM & LOKASI OUTLET ====================
     function updateBadgePendingRevisi(count) {
       const badge = document.getElementById("badgePendingRevisi");
       if (!badge) return;
@@ -1544,29 +1676,25 @@
 
     async function loadAdminRevisiJadwal() {
       const tbody = document.getElementById("tbodyApproveRevisi");
-      tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Memuat pengajuan revisi jam masuk...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Memuat pengajuan revisi jadwal & lokasi...</td></tr>`;
 
       try {
         const res = await callGAS({ action: "getRevisiJadwal" });
         if (res.status === "success") {
           const list = res.data || [];
-          const pendingCount = list.filter(x => x.status === "Menunggu").length;
-          updateBadgePendingRevisi(pendingCount);
+          updateBadgePendingRevisi(list.filter(x => x.status === "Menunggu").length);
 
           if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Belum ada pengajuan revisi jam masuk.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Belum ada pengajuan revisi jadwal & lokasi.</td></tr>`;
             return;
           }
 
           tbody.innerHTML = list.map(r => {
-            const badgeClass = r.status === "Disetujui"
-              ? "bg-emerald-100 text-emerald-700"
-              : (r.status === "Ditolak" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-800");
-
+            const badgeClass = r.status === "Disetujui" ? "bg-emerald-100 text-emerald-700" : (r.status === "Ditolak" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-800");
             const actionBtns = r.status === "Menunggu"
               ? `<div class="flex items-center justify-center gap-1.5">
-                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Disetujui')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-2xs transition">✓ Setujui</button>
-                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Ditolak')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-2xs transition">✕ Tolak</button>
+                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Disetujui')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold">✓ Setujui</button>
+                   <button onclick="prosesApproveRevisi('${r.idRevisi}', 'Ditolak')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold">✕ Tolak</button>
                  </div>`
               : `<span class="text-[11px] text-slate-400">Oleh: ${r.diprosesOleh}</span>`;
 
@@ -1575,8 +1703,8 @@
                 <td class="py-3.5 px-4 text-slate-400 text-[11px]">${r.timestamp}</td>
                 <td class="py-3.5 px-4 font-extrabold text-slate-800">${r.nama}</td>
                 <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-extrabold">${r.tanggalTarget}</span></td>
-                <td class="py-3.5 px-4 text-slate-500">${r.shiftAwal} (${r.jamMasukAwal})</td>
-                <td class="py-3.5 px-4 font-extrabold text-emerald-700">${r.shiftBaru} (${r.jamMasukBaru} - ${r.jamPulangBaru})</td>
+                <td class="py-3.5 px-4 text-slate-500">${r.shiftAwal} (${r.jamMasukAwal})<br><span class="text-[10px] font-bold text-slate-400">📍 ${r.outletAwal || "-"}</span></td>
+                <td class="py-3.5 px-4 font-extrabold text-emerald-700">${r.shiftBaru} (${r.jamMasukBaru} - ${r.jamPulangBaru})<br><span class="text-[10px] font-extrabold text-red-600">📍 ${r.namaOutletBaru || "-"}</span></td>
                 <td class="py-3.5 px-4 max-w-xs truncate" title="${r.alasan}">${r.alasan}</td>
                 <td class="py-3.5 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${r.status}</span></td>
                 <td class="py-3.5 px-4 text-center">${actionBtns}</td>
@@ -1591,15 +1719,12 @@
 
     function prosesApproveRevisi(idRevisi, keputusan) {
       Swal.fire({
-        title: `${keputusan} Revisi Jam Masuk?`,
-        text: keputusan === "Disetujui"
-          ? "Jadwal kerja karyawan pada tanggal tersebut akan langsung diperbarui secara otomatis."
-          : "Pengajuan perubahan jam masuk ini akan ditolak.",
+        title: `${keputusan} Revisi Jadwal & Lokasi?`,
+        text: keputusan === "Disetujui" ? "Jam masuk & lokasi outlet karyawan pada tanggal tersebut akan langsung diperbarui otomatis." : "Pengajuan revisi ini akan ditolak.",
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: keputusan === "Disetujui" ? "#059669" : "#e11d48",
-        confirmButtonText: `Ya, ${keputusan}!`,
-        cancelButtonText: "Batal"
+        confirmButtonText: `Ya, ${keputusan}!`
       }).then(async (result) => {
         if (!result.isConfirmed) return;
         Swal.fire({ title: "Memproses...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
@@ -1622,6 +1747,162 @@
         }
       });
     }
+
+    // ==================== LAPORAN EKSEKUTIF JADWAL DIREKTUR (DIperbarui) ====================
+    async function loadLaporanJadwalDirektur() {
+      const bulan = document.getElementById("reportJadwalBulan").value;
+      const periode = document.getElementById("reportJadwalPeriode").value;
+      const tahun = new Date().getFullYear();
+      const tbody = document.getElementById("tbodyLaporanDirektur");
+      const thead = document.getElementById("theadLaporanDirektur");
+      const labelText = document.getElementById("labelPeriodeReportText");
+
+      const namaBulanArr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      labelText.textContent = `Periode ${periode === "1" ? "1 (Tanggal 1 – 15)" : "2 (Tanggal 16 – Akhir Bulan)"} ${namaBulanArr[bulan - 1]} ${tahun}`;
+
+      tbody.innerHTML = `<tr><td colspan="32" class="py-10 text-center font-bold text-indigo-600 animate-pulse">⏳ Menyiapkan matriks laporan...</td></tr>`;
+
+      try {
+        const res = await callGAS({ action: "getMasterJadwal", bulan, tahun, periode });
+        if (!res || res.status !== "success") {
+          tbody.innerHTML = `<tr><td colspan="32" class="py-6 text-center text-rose-600 font-bold">Gagal memuat data jadwal.</td></tr>`;
+          return;
+        }
+
+        const dates = res.dates || [];
+        const pegawai = res.pegawai || [];
+        const jadwalMap = res.jadwalMap || {};
+
+        let headRow1 = `<th rowspan="2" class="border border-slate-500 px-3 py-2 bg-amber-400 text-slate-900 font-black min-w-[150px]">Nama</th>`;
+        let headRow2 = ``;
+
+        dates.forEach(d => {
+          const tglNum = d.split("-")[2];
+          headRow1 += `<th colspan="2" class="border border-slate-500 px-1 py-1.5 bg-cyan-400 text-slate-900 font-black">${tglNum}</th>`;
+          headRow2 += `<th class="border border-slate-500 px-1 py-1 bg-amber-200 text-slate-900 text-[10px]">Store</th>` +
+                       `<th class="border border-slate-500 px-1 py-1 bg-amber-200 text-slate-900 text-[10px]">Masuk</th>`;
+        });
+
+        thead.innerHTML = `<tr>${headRow1}</tr><tr>${headRow2}</tr>`;
+
+        if (pegawai.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="32" class="py-6 text-center text-slate-400">Tidak ada data pegawai.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = pegawai.map(p => {
+          let rowCells = `<td class="border border-slate-400 px-3 py-2 font-extrabold text-left bg-white">${p.nama}</td>`;
+
+          dates.forEach(tgl => {
+            const key = `${p.idKaryawan}_${tgl}`;
+            const j = jadwalMap[key];
+
+            let kodeShift = j && j.kodeShift ? j.kodeShift : "-";
+            let outletDisplay = (j && j.idOutlet) ? j.idOutlet : (p.defaultOutlet || "-");
+
+            // Aturan Pewarnaan Otomatis (Hanya M1, M2, M3, M4, M5 yang hijau, Libur merah)
+            let bgClass = "bg-white text-slate-800";
+            const upperKode = kodeShift.toUpperCase();
+
+            // 1. Jika libur / off / X
+            if (upperKode === "LIBUR" || upperKode === "X" || upperKode === "OFF") {
+              kodeShift = "X";
+              bgClass = "bg-red-600 text-white font-black";
+            } 
+            // 2. Hanya jika persis M1, M2, M3, M4, atau M5
+            else if (["M1", "M2", "M3", "M4", "M5"].includes(upperKode)) {
+              bgClass = "bg-emerald-500 text-white font-extrabold";
+            }
+            rowCells += `
+              <td class="border border-slate-300 px-1 py-1 text-[10px] font-bold text-slate-700 bg-slate-50">${outletDisplay}</td>
+              <td class="border border-slate-300 px-1 py-1 text-[10px] ${bgClass}">${kodeShift}</td>
+            `;
+          });
+
+          return `<tr class="hover:bg-slate-50">${rowCells}</tr>`;
+        }).join("");
+
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="32" class="py-6 text-center text-rose-600 font-bold">Terjadi kesalahan koneksi.</td></tr>`;
+      }
+    }
+
+    // 3. Fungsi Unduh PNG (Capture area yang tampil di layar saja tanpa melebar berlebih)
+    function downloadLaporanJadwalPNG() {
+      const element = document.getElementById("printAreaLaporanJadwal");
+      if (!element) return;
+
+      Swal.fire({
+        title: "Memproses Gambar...",
+        text: "Sedang mengambil tangkapan layar tabel laporan...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        windowWidth: element.scrollWidth // Membatasi render sesuai lebar isi kontainer tabel agar pas di layar
+      }).then(canvas => {
+        const imageURL = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = imageURL;
+        link.download = `Jadwal_Kerja_Office_${document.getElementById("reportJadwalPeriode").value}_${document.getElementById("reportJadwalBulan").value}.png`;
+        link.click();
+        Swal.close();
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil Diunduh!",
+          text: "File PNG laporan jadwal berhasil disimpan.",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }).catch(err => {
+        Swal.fire("Gagal", "Terjadi kesalahan saat merender gambar.", "error");
+      });
+    }
+
+    function downloadLaporanJadwalPNG() {
+      const element = document.getElementById("printAreaLaporanJadwal");
+      if (!element) return;
+
+      Swal.fire({
+        title: "Memproses Gambar Penuh...",
+        text: "Sedang merender seluruh kolom tabel (termasuk yang tertutup)...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      // Mengambil lebar total keseluruhan isi tabel secara utuh
+      const fullWidth = element.scrollWidth;
+      const fullHeight = element.scrollHeight;
+
+      html2canvas(element, {
+        scale: 2, // Ketajaman gambar tinggi
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: fullWidth,     // Memaksa lebar canvas mencakup seluruh tabel ke samping
+        windowWidth: fullWidth // Membuka lebar virtual window agar tidak ada yang terpotong
+      }).then(canvas => {
+        const imageURL = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = imageURL;
+        link.download = `Jadwal_Kerja_Office_Periode_${document.getElementById("reportJadwalPeriode").value}_Bulan_${document.getElementById("reportJadwalBulan").value}.png`;
+        link.click();
+        Swal.close();
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil Diunduh!",
+          text: "File PNG laporan jadwal lengkap berhasil disimpan.",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }).catch(err => {
+        Swal.fire("Gagal", "Terjadi kesalahan saat merender gambar.", "error");
+      });
+    }
+    
   </script>
 </body>
 </html>
