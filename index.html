@@ -204,7 +204,7 @@
       </div>
     </div>
 
-  <!-- ==================== GLOBAL TOP BAR ==================== -->
+    <!-- ==================== GLOBAL TOP BAR ==================== -->
     <div id="globalHeader" class="hidden bg-gradient-to-br from-[#dc2626] via-[#b91c1c] to-[#881337] pt-5 pb-24 px-5 relative shrink-0 overflow-hidden">
       <!-- Decorative Light Orbs -->
       <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-rose-400/20 blur-2xl pointer-events-none"></div>
@@ -295,11 +295,10 @@
               </div>
               <div>
                 <p id="greetingText" class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Selamat Pagi 👋</p>
-                <h2 class="text-base font-black text-slate-900 truncate" id="userNameHeader">Nama Karyawan</h2>
-                <p class="text-xs font-bold text-slate-600 truncate mt-0.5" id="userJabatanHeader">Jabatan • Outlet</p>
+                <h2 id="userNama" class="text-base font-extrabold text-slate-800 leading-snug mt-0.5">Nama Karyawan</h2>
+                <p id="userOutlet" class="text-[11px] text-red-600 font-bold mt-0.5">Jabatan • Outlet</p>
               </div>
-            </div>            
-          </div>
+            </div>
             <!-- Shift Selector Pill -->
             <!-- Kotak Jadwal & Lokasi Hari Ini (Dirapikan & Lebih Profesional) -->
               <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 text-right shrink-0 min-w-[155px]">
@@ -1348,24 +1347,24 @@
     function updateUserIdentityUI() {
       if (!currentUser) return;
       
+      // Ambil nama user & jabatan
       const namaEl = document.getElementById("userNameHeader");
       const jabatanEl = document.getElementById("userJabatanHeader");
       const avatarEl = document.getElementById("userInitialAvatar");
+      const outletEl = document.getElementById("lockedOutletName");
 
-      // Set Nama
-      if (namaEl) namaEl.textContent = currentUser.nama || "Tanpa Nama";
+      if (namaEl) namaEl.textContent = currentUser.nama || "-";
+      if (jabatanEl) jabatanEl.textContent = `${currentUser.jabatan || "Staff"} • ${currentUser.outlet ? currentUser.outlet.namaOutlet : "OFFICE"}`;
       
-      // Set Jabatan dan Outlet (dengan pengaman jika outlet null)
-      if (jabatanEl) {
-        const jabatanText = currentUser.jabatan || "Staff";
-        const outletName = (currentUser.outlet && currentUser.outlet.namaOutlet) ? currentUser.outlet.namaOutlet : "OFFICE";
-        jabatanEl.textContent = `${jabatanText} • ${outletName}`;
-      }
-      
-      // Set Inisial Avatar
       if (avatarEl) {
         const initials = currentUser.nama ? currentUser.nama.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "US";
         avatarEl.textContent = initials;
+      }
+
+      // Pengaman aman untuk outlet (mencegah error null reading)
+      if (outletEl) {
+        const outletName = (currentUser.outlet && currentUser.outlet.namaOutlet) ? currentUser.outlet.namaOutlet : "Kantor Pusat / Office";
+        outletEl.textContent = `📍 ${outletName}`;
       }
     }
 
