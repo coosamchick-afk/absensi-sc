@@ -1945,30 +1945,67 @@
 
     function refreshLocation() {
       const badge = document.getElementById("statusBadge");
-      badge.className = "text-[10px] font-bold text-amber-500";
-      badge.textContent = "Memindai GPS...";
+      if (badge) {
+        badge.className = "inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-400 mt-0.5";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Memindai lokasi...`;
+      }
 
-      if (!navigator.geolocation) return showToast("Browser tidak mendukung GPS", "error");
+      if (!navigator.geolocation) {
+        showToast("Browser tidak mendukung Geolocation.", "error");
+        return;
+      }
 
       navigator.geolocation.getCurrentPosition(
-        p => {
-          currentPos = { lat: p.coords.latitude, lng: p.coords.longitude };
-          const d = hitungHaversine(currentPos.lat, currentPos.lng, currentUser.outlet.lat, currentUser.outlet.lng);
-          currentPos.distance = Math.round(d);
-          currentPos.inRadius = d <= (currentUser.outlet.radius || 50);
+        (pos) => {
+          currentPos.lat = pos.coords.latitude;
+          currentPos.lng = pos.coords.longitude;
 
-          document.getElementById("jarakText").textContent = `${currentPos.distance} Meter dari Outlet`;
-          document.getElementById("coordOverlay").textContent = `${currentPos.lat.toFixed(5)}, ${currentPos.lng.toFixed(5)}`;
-          badge.className = currentPos.inRadius ? "text-[10px] font-extrabold text-emerald-600" : "text-[10px] font-extrabold text-rose-600";
-          badge.textContent = currentPos.inRadius ? "✓ Dalam Radius" : "✕ Luar Radius (>50m)";
+          const coordEl = document.getElementById("coordOverlay");
+          if (coordEl) {
+            coordEl.textContent = `Lat: ${currentPos.lat.toFixed(5)}, Lng: ${currentPos.lng.toFixed(5)}`;
+          }
 
-          document.getElementById("btnMasuk").disabled = !currentPos.inRadius || dashState.sudahMasuk;
-          document.getElementById("btnPulang").disabled = !currentPos.inRadius || dashState.sudahPulang || !dashState.sudahMasuk;
+          const outlet = currentUser ? currentUser.outlet : null;
+
+          // Pengaman jika data koordinat outlet kosong / belum cocok di Sheet
+          if (!outlet || isNaN(outlet.lat) || isNaN(outlet.lng)) {
+            if (badge) {
+              badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-400 mt-0.5";
+              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Lokasi Outlet Belum Terdaftar`;
+            }
+            const jarakEl = document.getElementById("jarakText");
+            if (jarakEl) jarakEl.textContent = "ID Outlet tidak cocok";
+            return;
+          }
+
+          const dist = hitungHaversine(currentPos.lat, currentPos.lng, outlet.lat, outlet.lng);
+          currentPos.distance = Math.round(dist);
+
+          const jarakEl = document.getElementById("jarakText");
+          if (jarakEl) jarakEl.textContent = `${currentPos.distance} meter`;
+
+          const dalamRadius = dist <= (outlet.radius || 50);
+          const btnMasuk = document.getElementById("btnMasuk");
+          const btnPulang = document.getElementById("btnPulang");
+          if (btnMasuk) btnMasuk.disabled = !dalamRadius;
+          if (btnPulang) btnPulang.disabled = !dalamRadius;
+
+          if (badge) {
+            if (dalamRadius) {
+              badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 mt-0.5";
+              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-ring"></span> Dalam Radius (${outlet.namaOutlet})`;
+            } else {
+              badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-400 mt-0.5";
+              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Di Luar Radius (>${outlet.radius || 50}m)`;
+            }
+          }
         },
-        () => {
-          badge.className = "text-[10px] font-extrabold text-rose-600";
-          badge.textContent = "GPS Tidak Aktif";
-          showToast("Pastikan GPS/Lokasi HP Anda aktif", "error");
+        (err) => {
+          if (badge) {
+            badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-400 mt-0.5";
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Gagal Akses GPS`;
+          }
+          showToast("Gagal mendapatkan lokasi GPS. Pastikan izin lokasi aktif.", "error");
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
