@@ -1337,6 +1337,9 @@
 
         const savedDash = localStorage.getItem("absensi_dashboard");
         if (savedDash) renderDashboardStats(JSON.parse(savedDash));
+        if (result.outlets) {
+  localStorage.setItem("absensi_outlets", JSON.stringify(result.outlets));
+}
 
         switchView("appView");
         refreshDashboardData(false);
@@ -1965,26 +1968,46 @@
             coordEl.textContent = `Lat: ${currentPos.lat.toFixed(5)}, Lng: ${currentPos.lng.toFixed(5)}`;
           }
 
-          const outlet = currentUser ? currentUser.outlet : null;
+          // Ambil seluruh daftar outlet dari memori atau dari jadwal/user aktif
+          let listOutlets = [];
+          try {
+            listOutlets = JSON.parse(localStorage.getItem("absensi_outlets") || "[]");
+          } catch (e) {}
 
-          // Pengaman jika data koordinat outlet kosong / belum cocok di Sheet
-          if (!outlet || isNaN(outlet.lat) || isNaN(outlet.lng)) {
+          if (listOutlets.length === 0 && currentUser && currentUser.outlet) {
+            listOutlets = [currentUser.outlet];
+          }
+
+          // Cari outlet yang paling dekat dengan posisi GPS karyawan saat ini
+          let nearestOutlet = null;
+          let minDistance = Infinity;
+
+          listOutlets.forEach(o => {
+            if (o && !isNaN(o.lat) && !isNaN(o.lng)) {
+              const d = hitungHaversine(currentPos.lat, currentPos.lng, Number(o.lat), Number(o.lng));
+              if (d < minDistance) {
+                minDistance = d;
+                nearestOutlet = o;
+              }
+            }
+          });
+
+          if (!nearestOutlet) {
             if (badge) {
               badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-400 mt-0.5";
-              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Lokasi Outlet Belum Terdaftar`;
+              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Silakan Logout & Login Ulang`;
             }
-            const jarakEl = document.getElementById("jarakText");
-            if (jarakEl) jarakEl.textContent = "ID Outlet tidak cocok";
             return;
           }
 
-          const dist = hitungHaversine(currentPos.lat, currentPos.lng, outlet.lat, outlet.lng);
-          currentPos.distance = Math.round(dist);
+          // Kunci target absen ke outlet terdekat yang terdeteksi
+          currentUser.outlet = nearestOutlet;
+          currentPos.distance = Math.round(minDistance);
 
           const jarakEl = document.getElementById("jarakText");
-          if (jarakEl) jarakEl.textContent = `${currentPos.distance} meter`;
+          if (jarakEl) jarakEl.textContent = `${currentPos.distance}m (${nearestOutlet.namaOutlet})`;
 
-          const dalamRadius = dist <= (outlet.radius || 50);
+          const dalamRadius = minDistance <= (Number(nearestOutlet.radius) || 50);
           const btnMasuk = document.getElementById("btnMasuk");
           const btnPulang = document.getElementById("btnPulang");
           if (btnMasuk) btnMasuk.disabled = !dalamRadius;
@@ -1993,17 +2016,17 @@
           if (badge) {
             if (dalamRadius) {
               badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 mt-0.5";
-              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-ring"></span> Dalam Radius (${outlet.namaOutlet})`;
+              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-ring"></span> Dalam Radius (${nearestOutlet.namaOutlet})`;
             } else {
               badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-400 mt-0.5";
-              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Di Luar Radius (>${outlet.radius || 50}m)`;
+              badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Di Luar Radius ${nearestOutlet.namaOutlet} (${currentPos.distance}m)`;
             }
           }
         },
         (err) => {
           if (badge) {
             badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold text-rose-400 mt-0.5";
-            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Gagal Akses GPS`;
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> GPS Belum Aktif`;
           }
           showToast("Gagal mendapatkan lokasi GPS. Pastikan izin lokasi aktif.", "error");
         },
